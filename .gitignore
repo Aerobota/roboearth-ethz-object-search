@@ -1,0 +1,12 @@
+#ignore temporary files
+*~
+
+#ignore hidden files
+.*
+
+#ignore folders
+Dataset/*
+AnnotationTool/*
+
+#exception files
+!.gitignore

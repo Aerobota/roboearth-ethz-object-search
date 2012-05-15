@@ -1,7 +1,7 @@
 #Database Tools
 
 ##Setup
-For the annotation tool to work one must download the [LabelMeToolbox](http://labelme.csail.mit.edu/LabelMeToolbox/LabelMeToolbox.zip). The contents of the folder must be copied into "AnnotationTool/LabelMeToolbox".
+The [AnnotationTool](http://www.ipb.uni-bonn.de/html_pages_software/annotation-tool/downloads/08-11-21-annotation-tool-v-2-40.zip) is needed to run these tools. Unzip it into the folder "AnnotationTool" which needs to be on the sam directory as this README. For the AnnotationTool to work one must download the [LabelMeToolbox](http://labelme.csail.mit.edu/LabelMeToolbox/LabelMeToolbox.zip). The contents of the folder must be copied into "AnnotationTool/LabelMeToolbox".
 
 ##Usage
 ###Annotation
@@ -34,7 +34,7 @@ The getImage command not only loads the image into memory but also builds the co
 
 	il.generateCollection
 
-This function builds all .mat files from the dataset. This is the same as calling getImage until it  returns 0. The only difference is that this function uses multi-threading if activated using matlabpool.
+This function builds all .mat files from the dataset. This is the same as calling getImage until it  returns 0. The only difference is that this function uses multi-threading if activated using [matlabpool](http://www.mathworks.ch/help/toolbox/distcomp/matlabpool.html).
 
 ##Dataset Structure
 ###Combined

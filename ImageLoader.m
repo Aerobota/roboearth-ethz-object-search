@@ -10,7 +10,7 @@ classdef ImageLoader<handle
         nrImgs
         cIndex
     end
-    properties(Constant)
+    properties(Constant,Access='private')
         imgTag='img_';
         its=length(ImageLoader.imgTag)+1;
     end
@@ -69,7 +69,7 @@ function image=loadImage(path,name)
     if exist(combPath,'file')
         image=load(combPath);
         goodMat=isfield(image,'calib') && isfield(image,'depth') &&...
-            isfield(image,'img') && isfield(image,'anno');
+            isfield(image,'img') && isfield(image,'objects');
     end
         
     if ~goodMat

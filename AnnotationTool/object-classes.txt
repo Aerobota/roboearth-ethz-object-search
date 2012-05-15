@@ -1,8 +1,0 @@
-table
-chair
-screen
-mouse
-keyboard
-potted plant
-door
-window

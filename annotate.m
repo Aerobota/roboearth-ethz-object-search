@@ -1,5 +1,5 @@
 function annotate(path)
-    AnnoPath='/home/koenigst/Documents/MasterThesis/Koenig12/AnnotationTool';
+    AnnoPath=[pwd '/AnnotationTool'];
     addpath(AnnoPath);
     addpath([AnnoPath '/LabelMeToolbox']);
     

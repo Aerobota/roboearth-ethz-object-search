@@ -7,6 +7,7 @@
 #ignore folders
 Dataset/*
 AnnotationTool/*
+ObjectDetector/*
 
 #exception files
 !.gitignore

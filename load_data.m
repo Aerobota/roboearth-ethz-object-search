@@ -1,19 +1,5 @@
-function [pos, neg] = pascal_data(cls, flippedpos, year)
+function [pos, neg] = load_data(cls, DatasetPath)
 
-% [pos, neg] = pascal_data(cls)
-% Get training data from the PASCAL dataset.
-
-% setVOCyear = year;
-globals; 
-%pascal_init;
-
-if nargin < 2
-  flippedpos = false;
-end
-
-% try
-%     load([cachedir cls '_train_' year]);
-% catch
 loader=ImageLoader(DatasetPath);
 splitMask=zeros(loader.nrImgs,1);
 for i=1:length(splitMask)
@@ -29,12 +15,12 @@ nrPos=sum(splitMask);
 nrNeg=length(splitMask)-nrPos;
 
 if nrPos>0
-    pos(nrPos).il=loader;
+    pos(nrPos).flip=false;
 else
     pos=[];
 end
 if nrNeg>0
-    neg(nrNeg).il=loader;
+    neg(nrNeg).flip=false;
 else
     neg=[];
 end
@@ -47,8 +33,7 @@ for i=1:length(splitMask)
     if(splitMask(i)>0)
         for o=1:length(tmpImg.objects)
             if(strcmp(tmpImg.objects(o).name,cls)==1)
-                pos(cPosI).il=loader;
-                pos(cPosI).imIndex=i;
+                pos(cPosI).im=tmpImg.img;
                 pos(cPosI).flip=false;
                 pos(cPosI).trunc=false;
                 pos(cPosI).x1=min([tmpImg.objects(o).polygon.pt.x]);
@@ -59,15 +44,8 @@ for i=1:length(splitMask)
             end
         end
     else
-        neg(cNegI).il=loader;
-        neg(cNegI).imIndex=i;
+        neg(cNegI).im=tmpImg.img;
         neg(cNegI).flip=false;
     end
 
 end
-%   
-%     save([cachedir cls '_train_' year], 'pos', 'neg');
-% end
-
-% pos.x1,pos.x2,pos.y1,pos.y2,pos.flip,pos.trunc,pos.loader,pos.imIndex
-% neg.flip,neg.loader,neg.imIndex

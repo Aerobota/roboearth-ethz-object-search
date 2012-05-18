@@ -1,7 +1,7 @@
 #Database Tools
 
 ##Setup
-The [AnnotationTool](http://www.ipb.uni-bonn.de/html_pages_software/annotation-tool/downloads/08-11-21-annotation-tool-v-2-40.zip) is needed to run these tools. Unzip it into the folder "AnnotationTool" which needs to be on the sam directory as this README. For the AnnotationTool to work one must download the [LabelMeToolbox](http://labelme.csail.mit.edu/LabelMeToolbox/LabelMeToolbox.zip). The contents of the folder must be copied into "AnnotationTool/LabelMeToolbox".
+The [AnnotationTool](http://www.ipb.uni-bonn.de/html_pages_software/annotation-tool/downloads/08-11-21-annotation-tool-v-2-40.zip) is needed to run these tools. Unzip it into the folder "AnnotationTool" which needs to be on the same directory as this README. For the AnnotationTool to work one must download the [LabelMeToolbox](http://labelme.csail.mit.edu/LabelMeToolbox/LabelMeToolbox.zip). The contents of the folder must be copied into "AnnotationTool/LabelMeToolbox".
 
 ##Usage
 ###Annotation

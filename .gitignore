@@ -8,10 +8,7 @@
 Dataset/*
 AnnotationTool/*
 ObjectDetector/*
-ObjectDetectorV3/*
 
 #exception files
 !.gitignore
 !ObjectDetector/globals.m
-!ObjectDetectorV3/globals.m
-!ObjectDetectorV3/pascal_train.m

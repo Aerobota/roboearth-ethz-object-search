@@ -1,4 +1,4 @@
-detectorPath='ObjectDetectorV3';
+detectorPath='ObjectDetector';
 
 global originalPWD;
 originalPWD=pwd;

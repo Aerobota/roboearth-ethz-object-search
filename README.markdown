@@ -5,7 +5,9 @@
 The [AnnotationTool](http://www.ipb.uni-bonn.de/html_pages_software/annotation-tool/downloads/08-11-21-annotation-tool-v-2-40.zip) is needed to run these tools. Unzip it into the folder "AnnotationTool" which needs to be on the same directory as this README. For the AnnotationTool to work one must download the [LabelMeToolbox](http://labelme.csail.mit.edu/LabelMeToolbox/LabelMeToolbox.zip). The contents of the folder must be copied into "AnnotationTool/LabelMeToolbox".
 
 ###Object Detector
-To run the object detection the object detector by [Felzenszwalb](http://www.cs.brown.edu/~pff/latent/voc-release4.01.tgz) et al. is needed. The detector can be installed anywhere but one must add it to the matlab path (just change the entry in the "setup.m" script). In order to be able to learn the data set the Makefile must be built.
+To run the object detection the object detector by [Felzenszwalb](http://www.cs.brown.edu/~pff/latent/voc-release4.01.tgz) et al. is needed. The detector can be installed anywhere but one must add it to the matlab path (just change the entry in the "setup.m" script). In order to be able to learn the data set the Makefile and compile.m must be built.
+
+If matlab has problems with the glibcc have a look at [this](http://www.mathworks.com/matlabcentral/answers/8079-how-to-get-working-matlab-coder-in-linux) thread (it worked for R2010b and Ubuntu 11.10). Problem is the outdated c++ library that matlab uses.
 
 ##Usage
 ###Annotation

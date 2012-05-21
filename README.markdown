@@ -1,7 +1,11 @@
 #Database Tools
 
 ##Setup
+###Annotation
 The [AnnotationTool](http://www.ipb.uni-bonn.de/html_pages_software/annotation-tool/downloads/08-11-21-annotation-tool-v-2-40.zip) is needed to run these tools. Unzip it into the folder "AnnotationTool" which needs to be on the same directory as this README. For the AnnotationTool to work one must download the [LabelMeToolbox](http://labelme.csail.mit.edu/LabelMeToolbox/LabelMeToolbox.zip). The contents of the folder must be copied into "AnnotationTool/LabelMeToolbox".
+
+###Object Detector
+To run the object detection the object detector by [Felzenszwalb](http://www.cs.brown.edu/~pff/latent/voc-release4.01.tgz) et al. is needed. The detector can be installed anywhere but one must add it to the matlab path (just change the entry in the "setup.m" script). In order to be able to learn the data set the Makefile must be built.
 
 ##Usage
 ###Annotation
@@ -38,7 +42,7 @@ This function builds all .mat files from the dataset. This is the same as callin
 
 ##Dataset Structure
 ###Combined
-The ImageLoader object saves all individual files into one single .mat for each image structure. This means that after the first time loading images is much faster. All .mat files are stored in the "combined" folder, if the dataset has changed, it is good practice to delete this folder to guarantee that all files are correctly reloaded.
+The ImageLoader object saves all individual files into one single .mat for each image structure. This means that after the first time loading images is much faster. All .mat files are stored in the "combined" folder, if the dataset has changed, it is good practice to delete this folder to guarantee that all files are correctly reloaded. It needs to be noted that the actual colour image is not stored in the .mat-file but there is a relative path linking the image to the combined data.
 
 ###Single Files
 The original files have to be placed in the correct folder and have to be correctly named. The naming convention is a tag, a unique identifier and the correct extension. In the examples the unique identifier is denoted by \*\*\*.

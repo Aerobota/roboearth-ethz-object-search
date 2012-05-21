@@ -11,7 +11,7 @@ classdef ImageLoader<handle
         nrImgs
         cIndex
     end
-    properties(Constant,Access='private')
+    properties(Constant,GetAccess='private')
         imgTag='img_';
         imgPathTag=['image' filesep];
         imgExt='.jpg';
@@ -36,14 +36,17 @@ classdef ImageLoader<handle
             if filePath(end)~=filesep
                 filePath=[filePath filesep];
             end
+            if exist(filePath,'dir')==0
+                error('The specified dataset directory was not found');
+            end
             obj.path=filePath;
             imgPath=[obj.path obj.imgPathTag];
-            dirList=dir([imgPath ImageLoader.imgTag '*']);
+            dirList=dir([imgPath obj.imgTag '*']);
             tmpInd=1;
             for i=1:length(dirList)
                 [~,imgName,~]=fileparts(dirList(i).name);
-                if(obj.checkCompleteness(obj.path,imgName(ImageLoader.its:end)))
-                    obj.fileList{tmpInd}=imgName(ImageLoader.its:end);
+                if(obj.checkCompleteness(obj.path,imgName(obj.its:end)))
+                    obj.fileList{tmpInd}=imgName(obj.its:end);
                     tmpInd=tmpInd+1;
                 end
             end
@@ -60,7 +63,11 @@ classdef ImageLoader<handle
                     return
                 end
             end
-            image=obj.loadImage(obj.path,obj.fileList{index});
+            if isnumeric(index)
+                image=obj.loadImage(obj.path,obj.fileList{index});
+            else
+                image=obj.loadImage(obj.path,index);
+            end
         end
         
         function resetIterator(obj)
@@ -70,6 +77,16 @@ classdef ImageLoader<handle
         function generateCollection(obj)
             parfor index=1:length(obj.fileList)
                 obj.loadImage(obj.path,obj.fileList{index});
+            end
+        end
+        
+        function generateNameList(obj,listName)
+            for l=1:length(listName)
+                fid=fopen([obj.path listName{l}],'wt');
+                for i=1:obj.nrImgs
+                    fprintf(fid,'%s\n',obj.fileList{i}); 
+                end
+                fclose(fid);
             end
         end
     end
@@ -84,7 +101,8 @@ classdef ImageLoader<handle
             if exist(combPath,'file')
                 image=load(combPath);
                 goodMat=isfield(image,'calib') && isfield(image,'depth') &&...
-                    isfield(image,'img') && isfield(image,'objects');
+                    isfield(image,'img') && isfield(image,'objects') &&...
+                    isfield(image,'imgsize');
             end
 
             if ~goodMat
@@ -95,20 +113,24 @@ classdef ImageLoader<handle
                     image.depth=dlmread(depthPath);
                     image.img=[obj.imgPathTag obj.imgTag name obj.imgExt];
                     image.objects=searchObjects(annoPath);
+                    tmpImage=imread([path image.img]);
+                    tmpSize=size(tmpImage);
+                    image.imgsize=tmpSize([2 1 3]);
 
                     calib=image.calib;
                     depth=image.depth;
                     img=image.img;
                     objects=image.objects;
+                    imgsize=image.imgsize;
 
                     if ~exist([path obj.combPathTag],'dir')
                         [~,~,~]=mkdir([path obj.combPathTag]);
                     end
-                    save(combPath,'calib','depth','img','objects');
+                    save(combPath,'calib','depth','img','objects','imgsize');
                 end
             end
             
-            image.img=[path image.img];
+            %image.img=[path image.img];
         end
 
         function valid=checkCompleteness(obj,path,name)
@@ -137,17 +159,14 @@ classdef ImageLoader<handle
             annoP=[path obj.annoPathTag obj.annoTag name obj.annoExt];
         end
     end
-    
 end
-
 
 %% Support Functions
 function objects=searchObjects(filename)
     doc=xmlread(filename);
-    
+
     objects=searchRecursion(doc);
 end
-
 
 function objects=searchRecursion(node)
     children=node.getChildNodes;
@@ -175,9 +194,9 @@ function part=parseRecursion(node)
             return
         end
     end
-    
+
     part=[];
-    
+
     for i=0:nrC-1
         name=char(children.item(i).getNodeName);
         if name(1)~='#'

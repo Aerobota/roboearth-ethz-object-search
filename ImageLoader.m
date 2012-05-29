@@ -3,13 +3,11 @@ classdef ImageLoader<handle
     %   Detailed explanation goes here
     
     %% Properties
-    properties(Access='private')
-        fileList
-        path
-    end
     properties(SetAccess='private')
         nrImgs
         cIndex
+        fileList
+        path
     end
     properties(Constant,GetAccess='private')
         imgTag='img_';
@@ -45,7 +43,8 @@ classdef ImageLoader<handle
             tmpInd=1;
             for i=1:length(dirList)
                 [~,imgName,~]=fileparts(dirList(i).name);
-                if(obj.checkCompleteness(obj.path,imgName(obj.its:end)))
+                [annoPath,calibPath,colorPath,depthPath]=obj.generatePaths(obj.path,imgName(obj.its:end));
+                if(obj.checkCompleteness(annoPath,calibPath,colorPath,depthPath))
                     obj.fileList{tmpInd}=imgName(obj.its:end);
                     tmpInd=tmpInd+1;
                 end
@@ -106,9 +105,8 @@ classdef ImageLoader<handle
             end
 
             if ~goodMat
-                if obj.checkCompleteness(path,name)
-                    [annoPath,calibPath,colorPath,depthPath]=obj.generatePaths(path,name);
-                    
+                [annoPath,calibPath,colorPath,depthPath]=obj.generatePaths(path,name);
+                if obj.checkCompleteness(annoPath,calibPath,colorPath,depthPath)
                     image.calib=dlmread(calibPath);
                     image.depth=dlmread(depthPath);
                     image.img=[obj.imgPathTag obj.imgTag name obj.imgExt];
@@ -116,27 +114,31 @@ classdef ImageLoader<handle
                     tmpImage=imread([path image.img]);
                     tmpSize=size(tmpImage);
                     image.imgsize=tmpSize([2 1 3]);
+                    
+                    image.objects=evaluateDepth(image.objects,image.depth,...
+                        image.calib,image.imgsize);
 
-                    calib=image.calib;
-                    depth=image.depth;
-                    img=image.img;
-                    objects=image.objects;
-                    imgsize=image.imgsize;
+                    %calib=image.calib;
+                    %depth=image.depth;
+                    %img=image.img;
+                    %objects=image.objects;
+                    %imgsize=image.imgsize;
 
                     if ~exist([path obj.combPathTag],'dir')
                         [~,~,~]=mkdir([path obj.combPathTag]);
                     end
-                    save(combPath,'calib','depth','img','objects','imgsize');
+                    
+                    save(combPath,'-struct','image');%'calib','depth','img','objects','imgsize');
                 end
             end
             
             %image.img=[path image.img];
         end
 
-        function valid=checkCompleteness(obj,path,name)
-            [annoPath,calibPath,colorPath,depthPath]=obj.generatePaths(path,name);
+        function valid=checkCompleteness(obj,annoPath,calibPath,colorPath,depthPath)
+            %[annoPath,calibPath,colorPath,depthPath]=obj.generatePaths(path,name);
             valid=exist(calibPath,'file') && exist(colorPath,'file') && exist(depthPath,'file');
-
+            
             if ~exist(annoPath,'file')
                 [tmpPath,~,~]=fileparts(annoPath);
                 [~,tmpName,~]=fileparts(colorPath);
@@ -158,6 +160,8 @@ classdef ImageLoader<handle
             colorP=[path obj.imgPathTag obj.imgTag name obj.imgExt];
             annoP=[path obj.annoPathTag obj.annoTag name obj.annoExt];
         end
+        
+        
     end
 end
 
@@ -206,5 +210,21 @@ function part=parseRecursion(node)
                 part.(name)=parseRecursion(children.item(i)); 
             end
         end
+    end
+end
+
+function objects=evaluateDepth(objects,depth,calib,imgsize)
+    %disp('Implement depth evaluation damn it!')
+
+    for o=1:length(objects)
+        mask=poly2mask([objects(o).polygon.pt(:).x],...
+            [objects(o).polygon.pt(:).y],imgsize(2),imgsize(1));
+        medDepth=nanmedian(depth(mask==1));
+        bbPoints=zeros(3,2);
+        bbPoints(:,1)=[min([objects(o).polygon.pt.x]);min([objects(o).polygon.pt.y]);1];
+        bbPoints(:,2)=[max([objects(o).polygon.pt.x]);max([objects(o).polygon.pt.y]);1];
+        normBBPoints=calib\bbPoints;
+        normBBPoints=normBBPoints*medDepth;
+        objects(o).dim=[normBBPoints(1,2)-normBBPoints(1,1) normBBPoints(2,2)-normBBPoints(2,1)];
     end
 end

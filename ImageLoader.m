@@ -10,10 +10,8 @@ classdef ImageLoader<handle
         path
     end
     properties(Constant,GetAccess='protected')
-        imgTag='img_';
-        imgPathTag=['image' filesep];
-        imgExt='.jpg';
-        its=length(ImageLoader.imgTag)+1;
+        imgPath=CompoundPath('img_','image','.jpg');
+        its=length(ImageLoader.imgPath.tag)+1;
     end
     
     %% Public Methods
@@ -45,6 +43,9 @@ classdef ImageLoader<handle
         end
         
         function generateNameList(obj,listName)
+            if iscell(listName)==0
+                listName={listName};
+            end
             for l=1:length(listName)
                 fid=fopen([obj.path listName{l}],'wt');
                 for i=1:obj.nrImgs
@@ -65,8 +66,7 @@ classdef ImageLoader<handle
     end
     methods(Access='protected')
         function fileNameList=getFileNameList(obj)
-            imgPath=[obj.path obj.imgPathTag];
-            dirList=dir([imgPath obj.imgTag '*']);
+            dirList=dir(obj.imgPath.getPath('*',obj.path));
             tmpInd=1;
             for i=1:length(dirList)
                 [~,imgName,~]=fileparts(dirList(i).name);
@@ -77,6 +77,7 @@ classdef ImageLoader<handle
             end
         end
     end
+    
     methods(Static,Access='protected')
         function clean=checkPath(dirty)
             if dirty(end)~=filesep

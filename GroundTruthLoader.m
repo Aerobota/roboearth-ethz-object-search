@@ -3,16 +3,16 @@ classdef GroundTruthLoader<ImageLoader
     %   Detailed explanation goes here
     
     %% Properties
-    properties(SetAccess='private')
-        nrImgs
-        cIndex
-        fileList
-        path
-    end
+%     properties(SetAccess='private')
+%         nrImgs
+%         cIndex
+%         fileList
+%         path
+%     end
     properties(Constant,GetAccess='private')
-        imgTag='img_';
-        imgPathTag=['image' filesep];
-        imgExt='.jpg';
+%         imgTag='img_';
+%         imgPathTag=['image' filesep];
+%         imgExt='.jpg';
         combTag='combImage_';
         combPathTag=['combined' filesep];
         combExt='.mat';
@@ -25,75 +25,27 @@ classdef GroundTruthLoader<ImageLoader
         annoTag='anno_';
         annoPathTag=['annotation' filesep];
         annoExt='.xml';
-        its=length(ImageLoader.imgTag)+1;
+%         its=length(ImageLoader.imgTag)+1;
     end
     
     %% Public Methods
     methods
-        function obj=ImageLoader(filePath)
-            if filePath(end)~=filesep
-                filePath=[filePath filesep];
-            end
-            if exist(filePath,'dir')==0
-                error('The specified dataset directory was not found');
-            end
-            obj.path=filePath;
-            imgPath=[obj.path obj.imgPathTag];
-            dirList=dir([imgPath obj.imgTag '*']);
-            tmpInd=1;
-            for i=1:length(dirList)
-                [~,imgName,~]=fileparts(dirList(i).name);
-                [annoPath,calibPath,colorPath,depthPath]=obj.generatePaths(obj.path,imgName(obj.its:end));
-                if(obj.checkCompleteness(annoPath,calibPath,colorPath,depthPath))
-                    obj.fileList{tmpInd}=imgName(obj.its:end);
-                    tmpInd=tmpInd+1;
-                end
-            end
+        function obj=GroundTruthLoader(filePath)
+            obj.path=ImageLoader.checkPath(filePath);
+            obj.fileList=obj.getFileNameList();
             obj.nrImgs=length(obj.fileList);
             obj.cIndex=1;
         end
         
-        function image=getImage(obj,index)
-            if nargin==1
-                index=obj.cIndex;
-                obj.cIndex=obj.cIndex+1;
-                if index>obj.nrImgs
-                    image=0;
-                    return
-                end
-            end
-            if isnumeric(index)
-                image=obj.loadImage(obj.path,obj.fileList{index});
-            else
-                image=obj.loadImage(obj.path,index);
-            end
-        end
-        
-        function resetIterator(obj)
-            obj.cIndex=1;
-        end
-        
-        function generateCollection(obj)
-            parfor index=1:length(obj.fileList)
-                obj.loadImage(obj.path,obj.fileList{index});
-            end
-        end
-        
-        function generateNameList(obj,listName)
-            for l=1:length(listName)
-                fid=fopen([obj.path listName{l}],'wt');
-                for i=1:obj.nrImgs
-                    fprintf(fid,'%s\n',obj.fileList{i}); 
-                end
-                fclose(fid);
-            end
+        function clean(obj)
+            [~,~,~]=rmdir([obj.path obj.combPathTag],'s');
         end
     end
     
     %% Private Methods
-    methods(Access='private')
-        function image=loadImage(obj,path,name)
-            combPath=[path obj.combPathTag obj.combTag name obj.combExt];
+    methods(Access='protected')
+        function image=loadImage(obj,name)
+            combPath=[obj.path obj.combPathTag obj.combTag name obj.combExt];
 
             goodMat=false;
 
@@ -105,38 +57,30 @@ classdef GroundTruthLoader<ImageLoader
             end
 
             if ~goodMat
-                [annoPath,calibPath,colorPath,depthPath]=obj.generatePaths(path,name);
-                if obj.checkCompleteness(annoPath,calibPath,colorPath,depthPath)
+                if obj.checkCompleteness(name)
+                    [annoPath,calibPath,~,depthPath]=obj.generatePaths(name);
                     image.calib=dlmread(calibPath);
                     image.depth=dlmread(depthPath);
                     image.img=[obj.imgPathTag obj.imgTag name obj.imgExt];
                     image.objects=searchObjects(annoPath);
-                    tmpImage=imread([path image.img]);
+                    tmpImage=imread([obj.path image.img]);
                     tmpSize=size(tmpImage);
                     image.imgsize=tmpSize([2 1 3]);
                     
-                    image.objects=evaluateDepth(image.objects,image.depth,...
+                    image.objects=obj.evaluateDepth(image.objects,image.depth,...
                         image.calib,image.imgsize);
 
-                    %calib=image.calib;
-                    %depth=image.depth;
-                    %img=image.img;
-                    %objects=image.objects;
-                    %imgsize=image.imgsize;
-
-                    if ~exist([path obj.combPathTag],'dir')
-                        [~,~,~]=mkdir([path obj.combPathTag]);
+                    if ~exist([obj.path obj.combPathTag],'dir')
+                        [~,~,~]=mkdir([obj.path obj.combPathTag]);
                     end
                     
-                    save(combPath,'-struct','image');%'calib','depth','img','objects','imgsize');
+                    save(combPath,'-struct','image');
                 end
             end
-            
-            %image.img=[path image.img];
         end
 
-        function valid=checkCompleteness(obj,annoPath,calibPath,colorPath,depthPath)
-            %[annoPath,calibPath,colorPath,depthPath]=obj.generatePaths(path,name);
+        function valid=checkCompleteness(obj,name)
+            [annoPath,calibPath,colorPath,depthPath]=obj.generatePaths(name);
             valid=exist(calibPath,'file') && exist(colorPath,'file') && exist(depthPath,'file');
             
             if ~exist(annoPath,'file')
@@ -154,14 +98,12 @@ classdef GroundTruthLoader<ImageLoader
             valid=valid && exist(annoPath,'file');
         end
 
-        function [annoP,calibP,colorP,depthP]=generatePaths(obj,path,name)
-            calibP=[path obj.calibPathTag obj.calibTag name obj.calibExt];
-            depthP=[path obj.depthPathTag obj.depthTag name obj.depthExt];
-            colorP=[path obj.imgPathTag obj.imgTag name obj.imgExt];
-            annoP=[path obj.annoPathTag obj.annoTag name obj.annoExt];
+        function [annoP,calibP,colorP,depthP]=generatePaths(obj,name)
+            calibP=[obj.path obj.calibPathTag obj.calibTag name obj.calibExt];
+            depthP=[obj.path obj.depthPathTag obj.depthTag name obj.depthExt];
+            colorP=[obj.path obj.imgPathTag obj.imgTag name obj.imgExt];
+            annoP=[obj.path obj.annoPathTag obj.annoTag name obj.annoExt];
         end
-        
-        
     end
 end
 
@@ -213,19 +155,19 @@ function part=parseRecursion(node)
     end
 end
 
-function objects=evaluateDepth(objects,depth,calib,imgsize)
-    %disp('Implement depth evaluation damn it!')
-
-    for o=1:length(objects)
-        mask=poly2mask([objects(o).polygon.pt(:).x],...
-            [objects(o).polygon.pt(:).y],imgsize(2),imgsize(1));
-        medDepth=median(depth(mask==1 & isnan(depth)==0));
-        bbPoints=zeros(3,2);
-        bbPoints(:,1)=[min([objects(o).polygon.pt.x]);min([objects(o).polygon.pt.y]);1];
-        bbPoints(:,2)=[max([objects(o).polygon.pt.x]);max([objects(o).polygon.pt.y]);1];
-        normBBPoints=calib\bbPoints;
-        normBBPoints=normBBPoints*medDepth;
-        objects(o).pos=mean(normBBPoints,2);
-        objects(o).dim=[normBBPoints(1,2)-normBBPoints(1,1) normBBPoints(2,2)-normBBPoints(2,1)];
-    end
-end
+% function objects=evaluateDepth(objects,depth,calib,imgsize)
+%     %disp('Implement depth evaluation damn it!')
+% 
+%     for o=1:length(objects)
+%         mask=poly2mask([objects(o).polygon.pt(:).x],...
+%             [objects(o).polygon.pt(:).y],imgsize(2),imgsize(1));
+%         medDepth=median(depth(mask==1 & isnan(depth)==0));
+%         bbPoints=zeros(3,2);
+%         bbPoints(:,1)=[min([objects(o).polygon.pt.x]);min([objects(o).polygon.pt.y]);1];
+%         bbPoints(:,2)=[max([objects(o).polygon.pt.x]);max([objects(o).polygon.pt.y]);1];
+%         normBBPoints=calib\bbPoints;
+%         normBBPoints=normBBPoints*medDepth;
+%         objects(o).pos=mean(normBBPoints,2);
+%         objects(o).dim=[normBBPoints(1,2)-normBBPoints(1,1) normBBPoints(2,2)-normBBPoints(2,1)];
+%     end
+% end

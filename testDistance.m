@@ -1,5 +1,5 @@
 dataPath='Dataset/DummySet';
-il=ImageLoader(dataPath);
+il=GroundTruthLoader(dataPath);
 
 names={};
 for i=1:il.nrImgs

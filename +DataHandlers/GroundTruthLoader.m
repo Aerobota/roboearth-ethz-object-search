@@ -1,4 +1,4 @@
-classdef GroundTruthLoader<DataHandlers.ImageLoader
+classdef GroundTruthLoader<DataHandlers.DataLoader
     %IMAGELOADER Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -13,11 +13,7 @@ classdef GroundTruthLoader<DataHandlers.ImageLoader
     %% Public Methods
     methods
         function obj=GroundTruthLoader(filePath)
-            obj=obj@DataHandlers.ImageLoader(filePath);
-%             obj.path=obj.checkPath(filePath);
-%             obj.fileList=obj.getFileNameList();
-%             obj.nrImgs=length(obj.fileList);
-%             obj.cIndex=1;
+            obj=obj@DataHandlers.DataLoader(filePath);
         end
         
         function clean(obj)
@@ -27,7 +23,7 @@ classdef GroundTruthLoader<DataHandlers.ImageLoader
     
     %% Private Methods
     methods(Access='protected')
-        function image=loadImage(obj,name)
+        function image=loadData(obj,name)
             longCombPath=obj.combPath.getPath(name,obj.path);
 
             goodMat=false;
@@ -40,36 +36,38 @@ classdef GroundTruthLoader<DataHandlers.ImageLoader
             end
 
             if ~goodMat
-                if obj.checkCompleteness(name)
-                    image=obj.generateImage(name);
+                obj.checkCompleteness(name)
+                image=obj.generateImage(name);
 
-                    if ~exist([obj.path obj.combPath.path],'dir')
-                        [~,~,~]=mkdir([obj.path obj.combPath.path]);
-                    end
-                    
-                    save(longCombPath,'-struct','image');
+                if ~exist([obj.path obj.combPath.path],'dir')
+                    [~,~,~]=mkdir([obj.path obj.combPath.path]);
                 end
+
+                save(longCombPath,'-struct','image');
             end
         end
 
-        function valid=checkCompleteness(obj,name)
-            valid=exist(obj.calibPath.getPath(name,obj.path),'file') &&...
-                exist(obj.imgPath.getPath(name,obj.path),'file') &&...
-                exist(obj.depthPath.getPath(name,obj.path),'file');
-            
-            if ~exist(obj.annoPath.getPath(name,obj.path),'file')
-                [tmpPath,~,~]=fileparts(obj.annoPath.getPath(name,obj.path));
-                [~,tmpName,~]=fileparts(obj.imgPath.getPath(name,obj.path));
-                tmpAnno=[tmpPath filesep obj.imgPath.path tmpName obj.annoPath.ext];
-                if exist(tmpAnno,'file')
-                    movefile(tmpAnno,obj.annoPath.getPath(name,obj.path));
+        function checkCompleteness(obj,name)
+            obj.relocateAnnotationFile(name);
+            calibV=exist(obj.calibPath.getPath(name,obj.path),'file');
+            imgV=exist(obj.imgPath.getPath(name,obj.path),'file');
+            depthV=exist(obj.depthPath.getPath(name,obj.path),'file');
+            annoV=exist(obj.annoPath.getPath(name,obj.path),'file');
+            if(~(annoV && calibV && depthV && imgV))
+                missingFiles=[];
+                if(~annoV)
+                    missingFiles=[missingFiles sprintf('\t%s\n',obj.annoPath.getPath(name))];
                 end
-
-                if length(dir([tmpPath filesep obj.imgPath.path '*']))<=2
-                    [~,~,~]=rmdir([tmpPath filesep obj.imgPath.path]);
+                if(~calibV)
+                    missingFiles=[missingFiles sprintf('\t%s\n',obj.calibPath.getPath(name))];
                 end
+                if(~depthV)
+                    missingFiles=[missingFiles sprintf('\t%s\n',obj.depthPath.getPath(name))];
+                end
+                error('checkCompleteness:dataMissing',...
+                    'Following files are missing for image \"%s\":\n%s',...
+                    obj.imgPath.getPath(name),missingFiles);
             end
-            valid=valid && exist(obj.annoPath.getPath(name,obj.path),'file');
         end
         
         function image=generateImage(obj,name)
@@ -82,8 +80,23 @@ classdef GroundTruthLoader<DataHandlers.ImageLoader
             assert(all(tmpSize(1:2)==size(image.depth)),'RGB and Depth image have different sizes');
             image.imgsize=tmpSize([2 1 3]);
 
-            image.objects=obj.evaluateDepth(image.objects,image.depth,...
+            image.objects=DataHandlers.evaluateDepth(image.objects,image.depth,...
                 image.calib,image.imgsize);
+        end
+        
+        function relocateAnnotationFile(obj,name)
+            if ~exist(obj.annoPath.getPath(name,obj.path),'file')
+                [tmpPath,~,~]=fileparts(obj.annoPath.getPath(name,obj.path));
+                [~,tmpName,~]=fileparts(obj.imgPath.getPath(name,obj.path));
+                tmpAnno=[tmpPath filesep obj.imgPath.path tmpName obj.annoPath.ext];
+                if exist(tmpAnno,'file')
+                    movefile(tmpAnno,obj.annoPath.getPath(name,obj.path));
+                end
+
+                if length(dir([tmpPath filesep obj.imgPath.path '*']))<=2
+                    [~,~,~]=rmdir([tmpPath filesep obj.imgPath.path]);
+                end
+            end
         end
     end
 end

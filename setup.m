@@ -13,7 +13,7 @@ if datasetPath(end)~=filesep
     datasetPath=[datasetPath filesep];
 end
 global imageLoader;
-imageLoader=ImageLoader(datasetPath);
+imageLoader=DataHandlers.GroundTruthLoader(datasetPath);
 imageLoader.generateNameList({'train.txt','trainval.txt'});
 
 cd(detectorPath)

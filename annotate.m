@@ -14,7 +14,6 @@ function annotate(path)
     end
     
     files=dir([path 'annotation/anno_*']);
-    files.name
     if ~exist([path 'annotation/image'],'dir')
         mkdir([path 'annotation/image']);
     end

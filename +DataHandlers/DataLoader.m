@@ -1,4 +1,4 @@
-classdef ImageLoader<handle
+classdef DataLoader<handle
     %IMAGELOADER Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -11,41 +11,44 @@ classdef ImageLoader<handle
     end
     properties(Constant,GetAccess='protected')
         imgPath=DataHandlers.CompoundPath('img_','image','.jpg');
-        its=length(DataHandlers.ImageLoader.imgPath.tag)+1;
+        its=length(DataHandlers.DataLoader.imgPath.tag)+1;
     end
     
     %% Public Methods
     methods
-        function obj=ImageLoader(filePath)
+        function obj=DataLoader(filePath)
             obj.path=obj.checkPath(filePath);
             obj.fileList=obj.getFileNameList();
             obj.nrImgs=length(obj.fileList);
             obj.cIndex=1;
         end
-        function image=getImage(obj,index)
+        
+        function image=getData(obj,index)
             if nargin==1
                 index=obj.cIndex;
-                obj.cIndex=obj.cIndex+1;
-                if index>obj.nrImgs
-                    image=0;
-                    return
+                gotData=false;
+                while (~gotData && index<=obj.nrImgs)
+                    try
+                        image=obj.loadData(obj.fileList{index});
+                        gotData=true;
+                    catch error
+                        if(strcmp(error.identifier,'checkCompleteness:dataMissing')==0)
+                            rethrow(error);
+                        end
+                    end
+                    index=index+1;
+                    obj.cIndex=index;
                 end
-            end
-            if isnumeric(index)
-                image=obj.loadImage(obj.fileList{index});
+                assert(gotData,'getData:noImages','No more images were found');
+            elseif isnumeric(index)
+                image=obj.loadData(obj.fileList{index});
             else
-                image=obj.loadImage(index);
+                image=obj.loadData(index);
             end
         end
         
         function resetIterator(obj)
             obj.cIndex=1;
-        end
-        
-        function generateCollection(obj)
-            parfor index=1:length(obj.fileList)
-                obj.loadImage(obj.fileList{index});
-            end
         end
         
         function generateNameList(obj,listName)
@@ -67,19 +70,15 @@ classdef ImageLoader<handle
     
     %% Protected Methods
     methods(Abstract,Access='protected')
-        image=loadImage(obj,name);
-        valid=checkCompleteness(obj,name);
+        image=loadData(obj,name);
     end
     methods(Access='protected')
         function fileNameList=getFileNameList(obj)
             dirList=dir(obj.imgPath.getPath('*',obj.path));
-            tmpInd=1;
+            fileNameList=cell(length(dirList),1);
             for i=1:length(dirList)
                 [~,imgName,~]=fileparts(dirList(i).name);
-                if(obj.checkCompleteness(imgName(obj.its:end)))
-                    fileNameList{tmpInd}=imgName(obj.its:end);
-                    tmpInd=tmpInd+1;
-                end
+                fileNameList{i}=imgName(obj.its:end);
             end
         end
     end
@@ -93,21 +92,6 @@ classdef ImageLoader<handle
             end
             if exist(clean,'dir')==0
                 error('The specified directory was not found');
-            end
-        end
-        
-        function objects=evaluateDepth(objects,depth,calib,imgsize)
-            for o=1:length(objects)
-                mask=poly2mask([objects(o).polygon.pt(:).x],...
-                    [objects(o).polygon.pt(:).y],imgsize(2),imgsize(1));
-                medDepth=median(depth(mask==1 & isnan(depth)==0));
-                bbPoints=zeros(3,2);
-                bbPoints(:,1)=[min([objects(o).polygon.pt.x]);min([objects(o).polygon.pt.y]);1];
-                bbPoints(:,2)=[max([objects(o).polygon.pt.x]);max([objects(o).polygon.pt.y]);1];
-                normBBPoints=calib\bbPoints;
-                normBBPoints=normBBPoints*medDepth;
-                objects(o).pos=mean(normBBPoints,2);
-                objects(o).dim=[normBBPoints(1,2)-normBBPoints(1,1) normBBPoints(2,2)-normBBPoints(2,1)];
             end
         end
     end

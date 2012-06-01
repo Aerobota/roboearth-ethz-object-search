@@ -10,12 +10,18 @@ classdef ImageLoader<handle
         path
     end
     properties(Constant,GetAccess='protected')
-        imgPath=CompoundPath('img_','image','.jpg');
-        its=length(ImageLoader.imgPath.tag)+1;
+        imgPath=DataHandlers.CompoundPath('img_','image','.jpg');
+        its=length(DataHandlers.ImageLoader.imgPath.tag)+1;
     end
     
     %% Public Methods
     methods
+        function obj=ImageLoader(filePath)
+            obj.path=obj.checkPath(filePath);
+            obj.fileList=obj.getFileNameList();
+            obj.nrImgs=length(obj.fileList);
+            obj.cIndex=1;
+        end
         function image=getImage(obj,index)
             if nargin==1
                 index=obj.cIndex;

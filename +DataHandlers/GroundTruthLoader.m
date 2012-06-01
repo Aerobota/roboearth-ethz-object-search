@@ -1,22 +1,23 @@
-classdef GroundTruthLoader<ImageLoader
+classdef GroundTruthLoader<DataHandlers.ImageLoader
     %IMAGELOADER Summary of this class goes here
     %   Detailed explanation goes here
     
     %% Properties
     properties(Constant,GetAccess='protected')
-        combPath=CompoundPath('combImage_','combined','.mat');
-        depthPath=CompoundPath('depth_','depth','.txt');
-        calibPath=CompoundPath('calib_','calibration','.txt');
-        annoPath=CompoundPath('anno_','annotation','.xml');
+        combPath=DataHandlers.CompoundPath('combImage_','combined','.mat');
+        depthPath=DataHandlers.CompoundPath('depth_','depth','.txt');
+        calibPath=DataHandlers.CompoundPath('calib_','calibration','.txt');
+        annoPath=DataHandlers.CompoundPath('anno_','annotation','.xml');
     end
     
     %% Public Methods
     methods
         function obj=GroundTruthLoader(filePath)
-            obj.path=obj.checkPath(filePath);
-            obj.fileList=obj.getFileNameList();
-            obj.nrImgs=length(obj.fileList);
-            obj.cIndex=1;
+            obj=obj@DataHandlers.ImageLoader(filePath);
+%             obj.path=obj.checkPath(filePath);
+%             obj.fileList=obj.getFileNameList();
+%             obj.nrImgs=length(obj.fileList);
+%             obj.cIndex=1;
         end
         
         function clean(obj)

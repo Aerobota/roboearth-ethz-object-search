@@ -1,11 +1,10 @@
-classdef DummyDetector<ObjectDetector
+classdef DummyDetector<DataHandlers.ObjectDetector
     properties(Constant)
         maxScore=10;
         maxSize=200;
-        %minPolyArea=10^2;
         minPolySide=10;
     end
-    properties(Access='private')
+    properties(SetAccess='private')
         sizeAverage;
     end
     methods
@@ -18,13 +17,7 @@ classdef DummyDetector<ObjectDetector
                 end
             end
             obj.classes=dummyClasses;
-            obj.sizeAverage=obj.maxSize*rand(2,length(dummyClasses));
-        end
-        function detections=detectAll(obj,image)
-            detections=[];
-            for i=1:length(obj.classes)
-                detections=[detections;obj.detectClass(obj.classes{i},image)];
-            end
+            obj.sizeAverage=(obj.maxSize-obj.minPolySide)*rand(2,length(dummyClasses))+obj.minPolySide;
         end
         function detections=detectClass(obj,className,image)
             nrDetections=poissrnd(2);

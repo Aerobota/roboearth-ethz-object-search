@@ -1,4 +1,4 @@
-classdef QueryLoader<DataHandlers.DataLoader%<DataHandlers.GroundTruthLoader
+classdef QueryLoader<DataHandlers.DataLoader
     %IMAGELOADER Summary of this class goes here
     %   Detailed explanation goes here
     

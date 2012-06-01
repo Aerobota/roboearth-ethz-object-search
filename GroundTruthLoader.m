@@ -3,7 +3,7 @@ classdef GroundTruthLoader<ImageLoader
     %   Detailed explanation goes here
     
     %% Properties
-    properties(Constant,GetAccess='private')
+    properties(Constant,GetAccess='protected')
         combPath=CompoundPath('combImage_','combined','.mat');
         depthPath=CompoundPath('depth_','depth','.txt');
         calibPath=CompoundPath('calib_','calibration','.txt');
@@ -13,7 +13,7 @@ classdef GroundTruthLoader<ImageLoader
     %% Public Methods
     methods
         function obj=GroundTruthLoader(filePath)
-            obj.path=ImageLoader.checkPath(filePath);
+            obj.path=obj.checkPath(filePath);
             obj.fileList=obj.getFileNameList();
             obj.nrImgs=length(obj.fileList);
             obj.cIndex=1;
@@ -40,17 +40,7 @@ classdef GroundTruthLoader<ImageLoader
 
             if ~goodMat
                 if obj.checkCompleteness(name)
-                    image.calib=dlmread(obj.calibPath.getPath(name,obj.path));
-                    image.depth=dlmread(obj.depthPath.getPath(name,obj.path));
-                    image.img=obj.imgPath.getPath(name);
-                    image.objects=searchObjects(obj.annoPath.getPath(name,obj.path));
-                    tmpImage=imread([obj.path image.img]);
-                    tmpSize=size(tmpImage);
-                    assert(all(tmpSize(1:2)==size(image.depth)),'RGB and Depth image have different sizes');
-                    image.imgsize=tmpSize([2 1 3]);
-                    
-                    image.objects=obj.evaluateDepth(image.objects,image.depth,...
-                        image.calib,image.imgsize);
+                    image=obj.generateImage(name);
 
                     if ~exist([obj.path obj.combPath.path],'dir')
                         [~,~,~]=mkdir([obj.path obj.combPath.path]);
@@ -79,6 +69,20 @@ classdef GroundTruthLoader<ImageLoader
                 end
             end
             valid=valid && exist(obj.annoPath.getPath(name,obj.path),'file');
+        end
+        
+        function image=generateImage(obj,name)
+            image.calib=dlmread(obj.calibPath.getPath(name,obj.path));
+            image.depth=dlmread(obj.depthPath.getPath(name,obj.path));
+            image.img=obj.imgPath.getPath(name);
+            image.objects=searchObjects(obj.annoPath.getPath(name,obj.path));
+            tmpRGB=imread([obj.path image.img]);
+            tmpSize=size(tmpRGB);
+            assert(all(tmpSize(1:2)==size(image.depth)),'RGB and Depth image have different sizes');
+            image.imgsize=tmpSize([2 1 3]);
+
+            image.objects=obj.evaluateDepth(image.objects,image.depth,...
+                image.calib,image.imgsize);
         end
     end
 end

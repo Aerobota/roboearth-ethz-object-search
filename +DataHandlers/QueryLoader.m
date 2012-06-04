@@ -5,21 +5,26 @@ classdef QueryLoader<DataHandlers.DataLoader
     %% Properties
     properties(Constant,GetAccess='protected')
         queryPath=DataHandlers.CompoundPath('queryImage_','query','.mat');
-        imageDataLoader=@DataHandlers.GroundTruthLoader;
     end
     properties(SetAccess='protected')
         detector;
+        imageDataLoader;
     end
     
     %% Public Methods
     methods
-        function obj=QueryLoader(filePath,objectDetector)
+        function obj=QueryLoader(filePath,objectDetector,groundTruthLoader)
             obj=obj@DataHandlers.DataLoader(filePath);
             obj.detector=objectDetector;
+            if nargin<3
+                groundTruthLoader=DataHandlers.GroundTruthLoader(filePath);
+            end
+            obj.imageDataLoader=groundTruthLoader;
         end
         
         function clean(obj)
             [~,~,~]=rmdir([obj.path obj.queryPath.path],'s');
+            obj.imageDataLoader.clean();
         end
     end
     
@@ -39,9 +44,8 @@ classdef QueryLoader<DataHandlers.DataLoader
             end
             
             if ~goodQueryMat
-                tmpLoader=obj.imageDataLoader(obj.path);
-                image=tmpLoader.getData(name);
-                tmpRGB=imread([obj.path image.img]);
+                image=obj.imageDataLoader.getData(name);
+                tmpRGB=imread([obj.imageDataLoader.path image.img]);
                 detections=obj.detector.detectAll(tmpRGB);
                 
                 detections=DataHandlers.evaluateDepth(detections,image.depth,image.calib,image.imgsize);

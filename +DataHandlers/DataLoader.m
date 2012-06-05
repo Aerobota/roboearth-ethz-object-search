@@ -17,7 +17,8 @@ classdef DataLoader<handle
     %% Public Methods
     methods
         function obj=DataLoader(filePath)
-            obj.path=obj.checkPath(filePath);
+            %obj.path=obj.checkPath(filePath);
+            obj.path=DataHandlers.checkPath(filePath);
             obj.fileList=obj.getFileNameList();
             obj.nrImgs=length(obj.fileList);
             obj.cIndex=1;
@@ -83,16 +84,7 @@ classdef DataLoader<handle
         end
     end
     
-    methods(Static,Access='protected')
-        function clean=checkPath(dirty)
-            if dirty(end)~=filesep
-                clean=[dirty filesep];
-            else
-                clean=dirty;
-            end
-            if exist(clean,'dir')==0
-                error('The specified directory was not found');
-            end
-        end
-    end
+%     methods(Static,Access='protected')
+%         
+%     end
 end

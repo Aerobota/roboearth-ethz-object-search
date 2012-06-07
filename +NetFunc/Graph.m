@@ -16,22 +16,22 @@ classdef Graph<handle
             end
             obj.addNodeImpl(node);
         end
-        function marginals=calculateMarginals(obj,queryNodes)
-            if(~obj.compiled)
-                obj.compile();
-                obj.compiled=true;
-            end
-            marginals=obj.calculateMarginalsImpl(obj,queryNodes);
-        end
+%         function marginals=calculateMarginals(obj,queryNodes)
+%             if(~obj.compiled)
+%                 obj.compile();
+%                 obj.compiled=true;
+%             end
+%             marginals=obj.calculateMarginalsImpl(obj,queryNodes);
+%         end
         function viewGraph(obj,handle)
             if(~obj.compiled)
                 obj.compile();
                 obj.compiled=true;
             end
             if nargin<2
-                obj.viewGraphImpl(node);
+                obj.viewGraphImpl();
             else
-                obj.viewGraphImpl(node,handle);
+                obj.viewGraphImpl(handle);
             end
         end
     end
@@ -39,7 +39,7 @@ classdef Graph<handle
         addNodeImpl(obj,node);
         compile(obj);
         viewGraphImpl(obj,handle);
-        marginals=calculateMarginalsImpl(obj,queryNodes);
+        %marginals=calculateMarginalsImpl(obj,queryNodes);
     end
 end
 

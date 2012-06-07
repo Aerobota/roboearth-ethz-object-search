@@ -4,21 +4,26 @@ classdef BNTGraph<NetFunc.Graph
     
     properties(SetAccess='protected')
         dag;
-%         nodeNames;
-%         nodeParents;
         nodes;
         solver;
         net;
+        myGraphs;
     end
-    
     methods
         function obj=BNTGraph()
-            obj.nodeNames=cell(0,1);
+            obj.nodes=struct;
+            obj.myGraphs=[];
         end
+        function close(obj)
+            close(obj.myGraphs(ismember(obj.myGraphs,allchild(0))));
+            obj.myGraphs=[];
+        end
+        function delete(obj)
+            obj.close();
+        end
+    end
+    methods(Access='protected')
         function addNodeImpl(obj,node)
-            %names=node.getSubNodeNames();
-            %obj.nodeNames={obj.nodeNames(:) names(:)}';
-            %obj.nodeParents=[obj.nodeParents;node.getParents()];
             newLinks=node.getParents();
             names=fieldnames(newLinks);
             assert(~any(isfield(obj.nodes,names)),'A node identifier is used multiple times');
@@ -32,16 +37,24 @@ classdef BNTGraph<NetFunc.Graph
             end
         end
         function compile(obj)
-            obj.dag=zeros(length(obj.nodes),length(obj.nodes));
             nameList=fieldnames(obj.nodes);
+            obj.dag=zeros(length(nameList),length(nameList));
+            nodeSizes=zeros(1,length(nameList));
             for i=1:length(nameList)
                 cNode=obj.nodes.(nameList{i});
                 for p=1:length(cNode.parents)
-                    obj.dag(cNode.index,obj.nodes.(cNode.parents{i}).index)=1;
+                    obj.dag(obj.nodes.(cNode.parents{p}).index,cNode.index)=1;
                 end
+                nodeSizes(i)=length(cNode.nodeStates);
             end
-            obj.net=mk_bnet(obj.dag,CL.node_sizes);
-            
+            obj.net=mk_bnet(obj.dag,nodeSizes);
+        end
+        function viewGraphImpl(obj,~)
+            nodeNames=fieldnames(obj.nodes);
+            before=allchild(0);
+            biograph(obj.dag,nodeNames).view();
+            after=allchild(0);
+            obj.myGraphs=[obj.myGraphs;after(ismember(after,before)==0)];
         end
     end
     

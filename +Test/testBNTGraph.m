@@ -12,11 +12,13 @@ states.occurence={'none';'few';'many'};
 intConn.loc={'occurence'};
 d=NetFunc.BNTStructureNode('fourth',intConn,states);
 
-a.connect(b);
-a.connect(c);
-b.connect(c);
+simpleConn.node={'node'};
 
-conn.occurence={''};
+a.connect('second',simpleConn);
+a.connect('third',simpleConn);
+b.connect('third',simpleConn);
+
+conn.occurence={'node'};
 d.connect('second',conn);
 
 o.addNode(a);
@@ -56,7 +58,7 @@ for i=1:length(classes)
     if ~isempty(parents.(classes{i}))
         tmpNode.connect(parents.(classes{i}),extConn);
     end
-    tmpNode.connect('scene',classConn);
+    tmpNode.connect('scenenode',classConn);
     o2.addNode(tmpNode);
 end
 classifierNode=NetFunc.BNTSimpleNode('scene',{'indoor';'outdoor'});

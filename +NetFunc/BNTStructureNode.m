@@ -18,6 +18,7 @@ classdef BNTStructureNode<NetFunc.Node
             end
             obj.addParent(namePrefix,internalConnections);
         end
+        
         function connect(obj,parentPrefix,subNodeLinks)
             if ischar(parentPrefix)
                 obj.addParent(parentPrefix,subNodeLinks);
@@ -31,19 +32,24 @@ classdef BNTStructureNode<NetFunc.Node
                 error('BNTStructureNode:connect:wrongDataType','PARENTPREFIX can have data type char-array, cell of strings or Node-object');
             end
         end
+        
         function parents=getParents(obj)
             parents=obj.parents;
         end
+        
         function name=getNodeName(obj)
             name=obj.nameAll;
         end
+        
         function names=getSubNodeNames(obj)
             names=fieldnames(obj.states);
         end
+        
         function states=getSubNodeStates(obj)
             states=obj.states;
         end
     end
+    
     methods(Access='protected')
         function addParent(obj,parentPrefix,subNodeLinks)
             myNames=fieldnames(subNodeLinks);

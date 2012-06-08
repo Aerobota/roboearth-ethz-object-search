@@ -1,7 +1,7 @@
 function pop=pairwiseOccurenceProbability(samples,classes)
     states={'0','1','2+'};
     pop=zeros(length(classes),length(classes),length(states),length(states)); %pop(i,j,state_i,state_j)
-    popDiag=zeros(length(classes),length(classes),length(states),length(states)); %pop(i,j,state_i,state_j)
+    popDiag=zeros(length(classes),length(classes),length(states),length(states));
     
     nSamples=length(samples);
     
@@ -11,8 +11,12 @@ function pop=pairwiseOccurenceProbability(samples,classes)
 
     for s=1:nSamples
         objects={samples(s).annotation.object.name}';
-        occurence=cellfun(@(x) ismember(objects,x),classes,'UniformOutput',0);
-        counts=sum([occurence{:}]);
+        counts=zeros(length(classes),1);
+        for o=1:length(objects)
+            [~,id]=ismember(objects(o),classes);
+            counts(id)=counts(id)+1;
+        end
+            
         for i=1:length(classes)
             popDiag=incrementProbability(popDiag,i,i,counts(i),max(counts(i)-1,0));
             for j=i+1:length(classes)
@@ -24,10 +28,6 @@ function pop=pairwiseOccurenceProbability(samples,classes)
     pop=pop+permute(pop,[2 1 4 3])+popDiag;
     
     pop=pop/nSamples;
-    
-%     for i=1:length(classes)
-%         pop(i,i,:,:)=pop(i,i,:,:)/2;
-%     end
 end
 
 function array=incrementProbability(array,i,j,occi,occj)

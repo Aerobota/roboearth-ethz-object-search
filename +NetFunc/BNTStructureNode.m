@@ -20,7 +20,8 @@ classdef BNTStructureNode<NetFunc.Node
         end
         
         function connect(obj,parentPrefix,subNodeLinks)
-            if ischar(parentPrefix)
+            if isempty(parentPrefix)
+            elseif ischar(parentPrefix)
                 obj.addParent(parentPrefix,subNodeLinks);
             elseif iscellstr(parentPrefix)
                 for i=1:length(parentPrefix)

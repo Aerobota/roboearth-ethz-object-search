@@ -1,9 +1,9 @@
-dataPath='Dataset/DummySet';
-il=GroundTruthLoader(dataPath);
+dataPath='Dataset/OfficeTraining';
+il=DataHandlers.GroundTruthLoader(dataPath);
 
 names={};
 for i=1:il.nrImgs
-    im=il.getImage(i);
+    im=il.getData(i);
     names=[names(:)' {im.objects.name}];
 end
 
@@ -20,7 +20,7 @@ classes=unique(names);
 
 dist=cell(length(classes),length(classes));
 for i=1:il.nrImgs
-    im=il.getImage(i);
+    im=il.getData(i);
     dist=relativeDistances(im,classes,dist);
 %     for o=1:length(im.objects)
 %         for t=o+1:length(im.objects)

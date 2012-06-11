@@ -6,7 +6,7 @@ datasetPath='Dataset/Sun09_small';
 multiOccurence=true;
 
 %% load dataset
-il=DataHandlers.SunLoader();
+il=DataHandlers.SunLoader(datasetPath);
 im=il.getData(il.gtTrain);
 
 classes={il.objects.name};

@@ -1,13 +1,14 @@
 clear all
 
-countOccurences=false;
-showCooccurences=true;
+countSceneOccurences=false;
+countObjectOccurences=true;
+showCooccurences=false;
 
 %il=DataHandlers.SunLoader('../Sun09/dataset');
-il=DataHandlers.SunLoader('./Dataset/Sun09_small');
+il=DataHandlers.SunLoader('./Dataset/Sun09_clean');
 
 
-if countOccurences
+if countSceneOccurences
     im=il.getData(il.detTest);
 
     occCount=zeros(size(il.objects));
@@ -32,6 +33,21 @@ if countOccurences
     sum(sceneSelection)
 
     out=im(sceneSelection);
+end
+
+if countObjectOccurences
+    im=il.getData(il.gtTrain);
+
+    occCount=zeros(size(il.objects));
+    classesAvailable={il.objects(:).name}';
+
+    for i=1:length(im)
+        names={im(i).annotation.object(:).name};
+        occCount=occCount+sum(strcmp(classesAvailable(:,ones(1,length(names))),...
+            names(ones(length(classesAvailable),1),:)),2);
+    end
+    
+    factor=max(occCount)/length(im)
 end
 
 if showCooccurences

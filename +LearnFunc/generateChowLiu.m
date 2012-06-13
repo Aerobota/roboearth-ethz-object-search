@@ -20,6 +20,11 @@ function adjacency=generateChowLiu(pmi)
 end
 
 function tf=connected(adj,i,j)
+    if i==j
+        tf=true;
+        return
+    end
+    
     neighbours=adj(i,:);
     target=false(1,size(adj,2));
     target(j)=true;

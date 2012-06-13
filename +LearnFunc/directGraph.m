@@ -1,5 +1,7 @@
-function parent=directGraph(adjacency,nodeNames)
-    root=findRoot(adjacency);
+function parent=directGraph(adjacency,nodeNames,root)
+    if nargin<3
+        root=findRoot(adjacency);
+    end
     
     cNodes=root;
     parent.(nodeNames{cNodes})=[];

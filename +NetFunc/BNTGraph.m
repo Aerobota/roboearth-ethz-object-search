@@ -11,8 +11,14 @@ classdef BNTGraph<NetFunc.Graph
     end
     methods
         function obj=BNTGraph()
+            obj=obj@NetFunc.Graph();
             obj.nodes=struct;
             obj.myGraphs=[];
+        end
+        function setCPD(obj,index,cpd)
+            assert(obj.compiled,'BNTGraph:setCPD:uncompiled',...
+                'Adding a CPD to an uncompiled network may lead to undefined behaviour.')
+            obj.net.CPD{index}=cpd;
         end
         function close(obj)
             close(obj.myGraphs(ismember(obj.myGraphs,allchild(0))));

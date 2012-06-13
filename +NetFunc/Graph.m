@@ -34,6 +34,14 @@ classdef Graph<handle
                 obj.viewGraphImpl(handle);
             end
         end
+        function setCompileState(obj,targetState)
+            if(obj.compiled ~= targetState)
+                if(~obj.compiled)
+                    obj.compile();
+                end
+                obj.compiled=targetState;
+            end
+        end
     end
     methods(Abstract,Access='protected')
         addNodeImpl(obj,node);

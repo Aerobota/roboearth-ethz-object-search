@@ -32,15 +32,12 @@ classdef PairwiseProbability
                     [~,id]=ismember(objects(o),classes);
                     counts(id)=counts(id)+1;
                 end
-                
                 cBins=obj.getStateIndices(counts);
                 cBinsMinus1=obj.getStateIndices(max(counts-1,0));
 
                 for i=1:length(classes)
-                    %popDiag=incrementProbability(popDiag,i,i,counts(i),max(counts(i)-1,0));
                     popDiag(i,i,cBins(i),cBinsMinus1(i))=popDiag(i,i,cBins(i),cBinsMinus1(i))+1;
                     for j=i+1:length(classes)
-                        %pop=incrementProbability(pop,i,j,counts(i),counts(j));
                         pop(i,j,cBins(i),cBins(j))=pop(i,j,cBins(i),cBins(j))+1;
                     end
                 end
@@ -70,9 +67,11 @@ classdef PairwiseProbability
     methods(Access='protected')
         function indices=getStateIndices(obj,counts)
             assert(isrow(counts),'PairwiseProbability:getStateIndices:matrixSize',...
-            'Counts has to be a row vector.');
+                'Counts has to be a row vector.');
             logical=cell2mat(cellfun(@(x) x(counts),obj.comparer,'UniformOutput',false));
             [indices,~]=find(logical);
+            assert(length(indices)==length(counts),'Pairwise:Probability:getStateIndices:badComparer',...
+                'The states of the pairwise probability comparer are not complete.');
         end
     end
     methods(Access='protected',Static)

@@ -9,6 +9,7 @@ function generateSmallDataSet(inpath,outpath)
     
     for i=1:size(dataPacks,1)
         output{i}=getSceneData(scenes,il,dataPacks(i,:));
+        disp(['loaded ' dataPacks{i,1} ' ' dataPacks{i,2}])
         output{i}=removeAliases(output{i});
     end
     
@@ -16,14 +17,17 @@ function generateSmallDataSet(inpath,outpath)
     for i=1:round(size(dataPacks,1)/2)
         classes=cleanClasses(output{2*i-1},output{2*i},classes);
     end
+    disp('cleaned classes')
     
     for i=1:round(size(dataPacks,1)/2)
         [output{2*i-1},output{2*i}]=cleanImages(output{2*i-1},output{2*i},classes);
     end
+    disp('cleaned images')
     
     for i=1:size(dataPacks,1)
         output{i}=cleanObjects(output{i},classes);
     end
+    disp('cleaned objects')
     
     if ~exist(outpath,'dir')
         mkdir(outpath);
@@ -37,6 +41,7 @@ function generateSmallDataSet(inpath,outpath)
         else
             save(filePath,'-struct','tmpData');
         end
+        disp(['saved ' filePath])
         clear tmpData;
     end
     
@@ -64,12 +69,12 @@ end
 
 function classes=cleanClasses(det,gt,classes)
     occCount=zeros(size(classes));
-    inGT=false(size(classes));
+    gtCount=zeros(size(classes));
     for i=1:length(det)
         occCount=occCount+ismember(classes,{det(i).annotation.object(:).name});
-        inGT=inGT | ismember(classes,{gt(i).annotation.object(:).name});
+        gtCount=gtCount+ismember(classes,{gt(i).annotation.object(:).name});
     end
-    classes=classes(inGT & occCount>max(occCount)*0.9);
+    classes=classes(gtCount>9 & occCount>max(occCount)*0.9);
 end
 
 function [det,gt]=cleanImages(det,gt,classes)
@@ -96,6 +101,7 @@ function data=removeAliases(data)
     alias.rock='stone';
     alias.stones='stone';
     alias.pillow='cushion';
+    alias.monitor='screen';
     
     for i=1:length(data)
         for o=1:length(data(i).annotation.object)

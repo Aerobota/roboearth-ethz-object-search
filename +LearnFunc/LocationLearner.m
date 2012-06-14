@@ -7,7 +7,6 @@ classdef LocationLearner<handle
     end
     
     methods(Abstract)
-        %learnLocations(obj,images);
         CPD=getConnectionNodeCPD(obj,network,nodeNumber,fromClass,toClass);
     end
     

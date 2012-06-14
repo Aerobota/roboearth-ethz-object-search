@@ -72,7 +72,14 @@ classdef ContinousZGMMLearner<LearnFunc.LocationLearner
             end
             
             [~,kOpt]=min(score);
-            gmm=gmdistribution.fit(samples,kOpt);
+            try
+                gmm=gmdistribution.fit(samples,kOpt);
+            catch
+                outMean=[];
+                outCov=[];
+                outCoeff=[];
+                return
+            end
             outMean=gmm.mu';
             outCov=gmm.Sigma;
             outCoeff=gmm.PComponents;

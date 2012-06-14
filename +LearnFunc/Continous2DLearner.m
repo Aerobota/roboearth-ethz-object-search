@@ -1,6 +1,6 @@
 classdef Continous2DLearner<LearnFunc.LocationLearner
     properties(Constant)
-        minSamples=10;
+        minSamples=20;
     end
     properties(SetAccess='protected')
         data;
@@ -18,85 +18,75 @@ classdef Continous2DLearner<LearnFunc.LocationLearner
             end
         end
         
-        function learnLocations(obj,images)
-            dist=cell(length(obj.classes),length(obj.classes));
-            for i=1:length(dist)
-                dist{i}=zeros(2*length(images),2);
+%         function learnLocations(obj,images)
+%             dist=cell(length(obj.classes),length(obj.classes));
+%             for i=1:length(images)
+%                 nObj=length(images(i).annotation.object);
+%                 distances=obj.getEvidence(images(i));
+%                 
+%                 for o=1:nObj
+%                     for t=o+1:nObj
+%                         index=find(ismember(obj.classes,{images(i).annotation.object(o).name,images(i).annotation.object(t).name}),2);
+%                         ind1=min(index);
+%                         ind2=max(index);
+%                         dist{ind1,ind2}(end+1,:)=[distances(o,t,1) distances(o,t,2)];
+%                     end
+%                 end
+%             end
+%             
+%             for i=1:length(obj.classes)
+%                 for j=i:length(obj.classes)
+%                     if size(dist{i,j},1)>=obj.minSamples;
+%                         tmpMean=mean(dist{i,j});
+%                         tmpCov=cov(dist{i,j});
+%                         obj.data.(obj.classes{j}).(obj.classes{i}).mean=[tmpMean(1);-tmpMean(2)];
+%                         obj.data.(obj.classes{j}).(obj.classes{i}).cov=tmpCov;
+%                         obj.data.(obj.classes{i}).(obj.classes{j}).mean=tmpMean';
+%                         obj.data.(obj.classes{i}).(obj.classes{j}).cov=tmpCov;
+%                     end
+%                 end
+%             end
+%             
+% %             hist(dist{10,24},30)
+% %             hold on
+% %             plot(linspace(-1,1),normpdf(linspace(-1,1),obj.data.floor.window.mean(2),obj.data.floor.window.cov(2,2)))
+%         end
+        
+        function CPD=getConnectionNodeCPD(obj,network,nodeNumber,fromClass,toClass)
+            assert(~isempty(obj.data.(fromClass).(toClass).mean),...
+                'Continous2DLearner:getConnectionNodeCPD:missingConnectionData',...
+                'The requested classes have too few cooccurences to generate a CPD');
+            CPD=gaussian_CPD(network,nodeNumber,'mean',obj.data.(fromClass).(toClass).mean,...
+                'cov',obj.data.(fromClass).(toClass).cov);
+        end
+    end
+    methods(Static)
+        function evidence=getEvidence(image)
+            nObj=length(image.annotation.object);
+            pos=zeros(2,nObj);
+            for o=1:nObj
+                pos(:,o)=[mean(image.annotation.object(o).polygon.x/image.annotation.imagesize.ncols);...
+                    mean(image.annotation.object(o).polygon.y/image.annotation.imagesize.nrows)];
             end
-            cInd=ones(size(dist));
-            for i=1:length(images)
-                nObj=length(images(i).annotation.object);
-                pos=zeros(2,nObj);
-                for o=1:nObj
-%                     pos(:,o)=polygonCenterOfMass(...
-%                         images(i).annotation.object(o).polygon.x/images(i).annotation.imagesize.ncols,...
-%                         images(i).annotation.object(o).polygon.y/images(i).annotation.imagesize.nrows);
-                    pos(:,o)=[mean(images(i).annotation.object(o).polygon.x/images(i).annotation.imagesize.ncols);...
-                        mean(images(i).annotation.object(o).polygon.y/images(i).annotation.imagesize.nrows)];
-                end
-                
-                dx=abs(pos(ones(nObj,1),:)-pos(ones(nObj,1),:)');
-                dy=pos(2*ones(nObj,1),:)-pos(2*ones(nObj,1),:)';
-                
-                for o=1:nObj
-                    for t=o+1:nObj
-                        index=find(ismember(obj.classes,{images(i).annotation.object(o).name,images(i).annotation.object(t).name}),2);
-                        ind1=min(index);
-                        ind2=max(index);
-                        dist{ind1,ind2}(cInd(ind1,ind2),:)=[dx(o,t) dy(o,t)];
-                        cInd(ind1,ind2)=cInd(ind1,ind2)+1;
-                    end
-                end
-            end
-            
+
+            evidence(:,:,2)=pos(2*ones(nObj,1),:)-pos(2*ones(nObj,1),:)';
+            evidence(:,:,1)=abs(pos(ones(nObj,1),:)-pos(ones(nObj,1),:)');
+        end
+    end
+    methods(Access='protected')
+        function evaluateOrderedSamples(obj,samples)
             for i=1:length(obj.classes)
                 for j=i:length(obj.classes)
-                    if size(dist{i,j},1)>=obj.minSamples;
-                        tmpMean=mean(dist{i,j});
-                        tmpCov=cov(dist{i,j});
-                        obj.data.(obj.classes{j}).(obj.classes{i}).mean=[tmpMean(1) -tmpMean(2)];
+                    if size(samples{i,j},1)>=obj.minSamples;
+                        tmpMean=mean(samples{i,j});
+                        tmpCov=cov(samples{i,j});
+                        obj.data.(obj.classes{j}).(obj.classes{i}).mean=[tmpMean(1);-tmpMean(2)];
                         obj.data.(obj.classes{j}).(obj.classes{i}).cov=tmpCov;
-                        obj.data.(obj.classes{i}).(obj.classes{j}).mean=tmpMean;
+                        obj.data.(obj.classes{i}).(obj.classes{j}).mean=tmpMean';
                         obj.data.(obj.classes{i}).(obj.classes{j}).cov=tmpCov;
                     end
                 end
             end
         end
-        function CPD=getConnectionNodeCPD(obj,fromClass,toClass)
-        end
-        function evidence=adaptEvidence(obj,fromClass,toClass,evidence)
-        end
     end
 end
-
-% function center=polygonCenterOfMass(x,y)
-%     xShift=mean(x);
-%     yShift=mean(y);
-%     xScale=1;%sqrt(mean((x-mean(x)).^2));
-%     yScale=1;%sqrt(mean((y-mean(y)).^2));
-%     
-%     nP=length(x)-1;
-%     xn=(x(1:nP)-xShift)/xScale;
-%     yn=(y(1:nP)-yShift)/yScale;
-%     xs=(x(2:nP+1)-xShift)/xScale;
-%     ys=(y(2:nP+1)-yShift)/yScale;
-%     crossxy=xn.*ys-xs.*yn;
-%     area=sum(crossxy)/2;
-%     
-%     center(2,1)=sum((yn+ys).*crossxy)/6/area*yScale+yShift;
-%     center(1,1)=sum((xn+xs).*crossxy)/6/area*xScale+xShift;
-%     
-%     assert(~any(x>1.01 | x<-0.01 | y>1.01 | y<-0.01),'coordinates out of bounds %d,%d',...
-%         x(x>1.01 | x<-0.01 | y>1.01 | y<-0.01),y(x>1.01 | x<-0.01 | y>1.01 | y<-0.01))
-%     if ~(center(1)<max(x) && center(1)>min(x) && center(2)<max(y) && center(2)>min(y))
-%         disp(area)
-%         plot(x,y,'-b',center(1),center(2),'*r')
-%         drawnow
-%         disp([x y [xn yn xs ys;0 0 0 0]])
-%         disp([xShift yShift xScale yScale])
-%         global errorPoly;
-%         errorPoly=[x y];
-%         assert(center(1)<max(x) && center(1)>min(x) && center(2)<max(y) && center(2)>min(y),...
-%             'center outside bounding box %d<%d<%d,%d<%d<%d ',min(x),center(1),max(x),min(y),center(2),max(y))
-%     end
-% end

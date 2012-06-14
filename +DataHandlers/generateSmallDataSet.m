@@ -25,6 +25,11 @@ function generateSmallDataSet(inpath,outpath)
     disp('cleaned images')
     
     for i=1:size(dataPacks,1)
+        getImageFiles(output{i},inpath,outpath);
+    end
+    disp('coppied image files')
+    
+    for i=1:size(dataPacks,1)
         output{i}=cleanObjects(output{i},classes);
     end
     disp('cleaned objects')
@@ -84,6 +89,20 @@ function [det,gt]=cleanImages(det,gt,classes)
     end
     det=det(imageComplete);
     gt=gt(imageComplete);
+end
+
+function getImageFiles(data,inPath,outPath)
+    for i=1:length(data)
+        inImg=fullfile(inPath,'Images',data(i).annotation.folder,data(i).annotation.filename);
+        outDir=fullfile(outPath,'Images',data(i).annotation.folder);
+        outImg=fullfile(outDir,data(i).annotation.filename);
+        if exist(inImg,'file') && ~exist(outImg,'file')
+            if ~exist(outDir,'dir')
+                [~,~,~]=mkdir(outDir);
+            end
+            [~,~,~]=copyfile(inImg,outImg);
+        end
+    end
 end
 
 function data=cleanObjects(data,classes)

@@ -1,4 +1,4 @@
-classdef QueryLoader<DataHandlers.DataLoader
+classdef QueryLoader<DataHandlers.DistributedDataLoader
     %IMAGELOADER Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -14,7 +14,7 @@ classdef QueryLoader<DataHandlers.DataLoader
     %% Public Methods
     methods
         function obj=QueryLoader(filePath,objectDetector,groundTruthLoader)
-            obj=obj@DataHandlers.DataLoader(filePath);
+            obj=obj@DataHandlers.DistributedDataLoader(filePath);
             obj.detector=objectDetector;
             if nargin<3
                 groundTruthLoader=DataHandlers.GroundTruthLoader(filePath);
@@ -31,6 +31,8 @@ classdef QueryLoader<DataHandlers.DataLoader
     %% Private Methods
     methods(Access='protected')
         function detections=loadData(obj,name)
+            &&&&&&&     % change data structure to Sun09
+            
             longQueryPath=obj.queryPath.getPath(name,obj.path);
 
             goodQueryMat=false;

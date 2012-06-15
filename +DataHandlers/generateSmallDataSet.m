@@ -1,19 +1,21 @@
 function generateSmallDataSet(inpath,outpath)
     scenes={'kitchen';'office'};
     
-    il=DataHandlers.SunLoader(inpath);
+    ilgt=DataHandlers.SunGTLoader(inpath);
+    ildet=DataHandlers.SunDetLoader(inpath);
     
-    dataPacks={il.detTrain{:};il.gtTrain{:};il.detTest{:};il.gtTest{:}};
+    dataPacks=[[{ildet} ildet.trainSet];[{ilgt} ilgt.trainSet];...
+        [{ildet} ildet.testSet];[{ilgt} ilgt.testSet]];
     
     output=cell(size(dataPacks,1),1);
     
     for i=1:size(dataPacks,1)
-        output{i}=getSceneData(scenes,il,dataPacks(i,:));
-        disp(['loaded ' dataPacks{i,1} ' ' dataPacks{i,2}])
+        output{i}=getSceneData(scenes,dataPacks{i,1},dataPacks(i,2:end));
+        disp(['loaded ' dataPacks{i,2} ' ' dataPacks{i,3}])
         output{i}=removeAliases(output{i});
     end
     
-    classes={il.objects(:).name};
+    classes={ilgt.classes(:).name};
     for i=1:round(size(dataPacks,1)/2)
         classes=cleanClasses(output{2*i-1},output{2*i},classes);
     end
@@ -39,8 +41,8 @@ function generateSmallDataSet(inpath,outpath)
     end
     
     for i=1:size(dataPacks,1)
-        tmpData.(dataPacks{i,1})=output{i};
-        filePath=fullfile(outpath,dataPacks{i,2});
+        tmpData.(dataPacks{i,2})=output{i};
+        filePath=fullfile(outpath,dataPacks{i,3});
         if exist(filePath,'file')
             save(filePath,'-struct','tmpData','-append');
         else
@@ -50,9 +52,9 @@ function generateSmallDataSet(inpath,outpath)
         clear tmpData;
     end
     
-    names={il.objects(ismember({il.objects(:).name},classes)).name};
-    heights=[il.objects(ismember({il.objects(:).name},classes)).height];
-    save(fullfile(outpath,il.catFileName),'names','heights');
+    names={ilgt.classes(ismember({ilgt.classes(:).name},classes)).name};
+    heights=[ilgt.classes(ismember({ilgt.classes(:).name},classes)).height];
+    save(fullfile(outpath,ilgt.catFileName),'names','heights');
 end
 
 

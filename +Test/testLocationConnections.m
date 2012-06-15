@@ -6,11 +6,12 @@ datasetPath='Dataset/Sun09_clean';
 %multiOccurence=true;
 
 %% load dataset
-il=DataHandlers.SunLoader(datasetPath);
-gtTrain=il.getData(il.gtTrain);
-detTrain=il.getData(il.detTrain);
+ilgt=DataHandlers.SunGTLoader(datasetPath);
+ildet=DataHandlers.SunDetLoader(datasetPath);
+gtTrain=ilgt.getData(ilgt.trainSet);
+detTrain=ildet.getData(ildet.trainSet);
 
-classes={il.objects.name};
+classes={ilgt.classes.name};
 
 
 %% build chow liu

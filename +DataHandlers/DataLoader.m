@@ -4,87 +4,51 @@ classdef DataLoader<handle
     
     %% Properties
     properties(SetAccess='protected')
-        nrImgs
-        cIndex
-        fileList
+        classes
         path
+%         trainSet
+%         testSet
     end
-    properties(Constant,GetAccess='protected')
-        imgPath=DataHandlers.CompoundPath('img_','image','.jpg');
-        its=length(DataHandlers.DataLoader.imgPath.tag)+1;
+    properties(Abstract,Constant)
+        trainSet
+        testSet
     end
+%     properties(Constant,GetAccess='protected')
+%         imgPath=DataHandlers.CompoundPath('img_','image','.jpg');
+%         its=length(DataHandlers.DataLoader.imgPath.tag)+1;
+%     end
     
     %% Public Methods
     methods
-        function obj=DataLoader(filePath)
-            %obj.path=obj.checkPath(filePath);
+        function obj=DataLoader(filePath,classes)
             obj.path=DataHandlers.checkPath(filePath);
-            obj.fileList=obj.getFileNameList();
-            obj.nrImgs=length(obj.fileList);
-            obj.cIndex=1;
-        end
-        
-        function image=getData(obj,index)
-            if nargin==1
-                index=obj.cIndex;
-                gotData=false;
-                while (~gotData && index<=obj.nrImgs)
-                    try
-                        image=obj.loadData(obj.fileList{index});
-                        gotData=true;
-                    catch error
-                        if(strcmp(error.identifier,'checkCompleteness:dataMissing')==0)
-                            rethrow(error);
-                        end
-                    end
-                    index=index+1;
-                    obj.cIndex=index;
-                end
-                assert(gotData,'getData:noImages','No more images were found');
-            elseif isnumeric(index)
-                image=obj.loadData(obj.fileList{index});
-            else
-                image=obj.loadData(index);
-            end
-        end
-        
-        function resetIterator(obj)
-            obj.cIndex=1;
-        end
-        
-        function generateNameList(obj,listName)
-            if iscell(listName)==0
-                listName={listName};
-            end
-            for l=1:length(listName)
-                fid=fopen([obj.path listName{l}],'wt');
-                for i=1:obj.nrImgs
-                    fprintf(fid,'%s\n',obj.fileList{i}); 
-                end
-                fclose(fid);
-            end
+            obj.classes=classes;
+%             obj.fileList=obj.getFileNameList();
+%             obj.nrImgs=length(obj.fileList);
+%             obj.cIndex=1;
         end
     end
     methods(Abstract)
-        clean(obj);
+        image=getData(obj,desiredSet);
     end
     
     %% Protected Methods
-    methods(Abstract,Access='protected')
-        image=loadData(obj,name);
-    end
-    methods(Access='protected')
-        function fileNameList=getFileNameList(obj)
-            dirList=dir(obj.imgPath.getPath('*',obj.path));
-            fileNameList=cell(length(dirList),1);
-            for i=1:length(dirList)
-                [~,imgName,~]=fileparts(dirList(i).name);
-                fileNameList{i}=imgName(obj.its:end);
-            end
-        end
-    end
+%     methods(Abstract,Access='protected')
+%         image=loadData(obj,name);
+%     end
+%     methods(Access='protected')
+%         function fileNameList=getFileNameList(obj)
+%             dirList=dir(obj.imgPath.getPath('*',obj.path));
+%             fileNameList=cell(length(dirList),1);
+%             for i=1:length(dirList)
+%                 [~,imgName,~]=fileparts(dirList(i).name);
+%                 fileNameList{i}=imgName(obj.its:end);
+%             end
+%         end
+%     end
     
 %     methods(Static,Access='protected')
 %         
 %     end
 end
+

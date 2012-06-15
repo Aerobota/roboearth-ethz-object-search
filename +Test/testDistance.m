@@ -11,10 +11,10 @@ learnFunction='gmm';
 
 %% load data
 dataPath='Dataset/Sun09_clean';
-il=DataHandlers.SunLoader(dataPath);
-im=il.getData(il.gtTrain);
+ilgt=DataHandlers.SunGTLoader(dataPath);
+im=ilgt.getData(ilgt.trainSet);
 
-classes={il.objects.name};
+classes={ilgt.classes.name};
 
 %% learn location parameters
 if strcmpi(learnFunction,'gmm')

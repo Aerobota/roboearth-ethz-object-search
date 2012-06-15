@@ -4,15 +4,15 @@ countSceneOccurences=false;
 countObjectOccurences=true;
 showCooccurences=false;
 
-%il=DataHandlers.SunLoader('../Sun09/dataset');
-il=DataHandlers.SunLoader('./Dataset/Sun09_clean');
-
+%ildet=DataHandlers.SunDetLoader('../Sun09/dataset');
+ildet=DataHandlers.SunDetLoader('./Dataset/Sun09_clean');
+ilgt=DataHandlers.SunGTLoader('./Dataset/Sun09_clean');
 
 if countSceneOccurences
-    im=il.getData(il.detTest);
+    im=ildet.getData(ildet.testSet);
 
-    occCount=zeros(size(il.objects));
-    classesAvailable={il.objects(:).name}';
+    occCount=zeros(size(ildet.classes));
+    classesAvailable={ildet.classes(:).name}';
 
     %scenes={'kitchen','living','bath','dining','indoor'};
     scenes={'kitchen';'office'};
@@ -36,10 +36,10 @@ if countSceneOccurences
 end
 
 if countObjectOccurences
-    im=il.getData(il.gtTrain);
+    im=ilgt.getData(ilgt.trainSet);
 
-    occCount=zeros(size(il.objects));
-    classesAvailable={il.objects(:).name}';
+    occCount=zeros(size(ilgt.classes));
+    classesAvailable={ilgt.classes(:).name}';
 
     for i=1:length(im)
         names={im(i).annotation.object(:).name};
@@ -51,7 +51,7 @@ if countObjectOccurences
 end
 
 if showCooccurences
-    im=[il.getData(il.gtTest) il.getData(il.gtTrain)];
+    im=[ilgt.getData(ilgt.testSet) ilgt.getData(ilgt.trainSet)];
     
     coocc=zeros(1,1e6);
     sameCoocc=zeros(size(coocc));

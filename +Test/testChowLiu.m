@@ -6,10 +6,10 @@ datasetPath='Dataset/Sun09_small';
 multiOccurence=true;
 
 %% load dataset
-il=DataHandlers.SunLoader(datasetPath);
-im=il.getData(il.gtTrain);
+ilgt=DataHandlers.SunGTLoader(datasetPath);
+im=ilgt.getData(ilgt.trainSet);
 
-classes={il.objects.name};
+classes={ilgt.classes.name};
 
 %% learn mutual information
 if multiOccurence

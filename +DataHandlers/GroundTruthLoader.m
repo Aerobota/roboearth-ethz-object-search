@@ -1,4 +1,4 @@
-classdef GroundTruthLoader<DataHandlers.DataLoader
+classdef GroundTruthLoader<DataHandlers.DistributedDataLoader
     %IMAGELOADER Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -13,7 +13,7 @@ classdef GroundTruthLoader<DataHandlers.DataLoader
     %% Public Methods
     methods
         function obj=GroundTruthLoader(filePath)
-            obj=obj@DataHandlers.DataLoader(filePath);
+            obj=obj@DataHandlers.DistributedDataLoader(filePath);
         end
         
         function clean(obj)
@@ -24,6 +24,8 @@ classdef GroundTruthLoader<DataHandlers.DataLoader
     %% Private Methods
     methods(Access='protected')
         function image=loadData(obj,name)
+            &&&&&&&     % change data structure to Sun09
+            
             longCombPath=obj.combPath.getPath(name,obj.path);
 
             goodMat=false;
@@ -71,6 +73,7 @@ classdef GroundTruthLoader<DataHandlers.DataLoader
         end
         
         function image=generateImage(obj,name)
+            &&&&&&&     % change data structure to Sun09
             image.calib=dlmread(obj.calibPath.getPath(name,obj.path));
             image.depth=dlmread(obj.depthPath.getPath(name,obj.path));
             image.img=obj.imgPath.getPath(name);

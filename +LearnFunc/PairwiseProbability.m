@@ -15,13 +15,12 @@ classdef PairwiseProbability
         end
         
         function pop=occurenceProbability(obj,samples,classes)
-            %states={'0','1','2+'};
             pop=zeros(length(classes),length(classes),length(obj.states),length(obj.states)); %pop(i,j,state_i,state_j)
             popDiag=zeros(length(classes),length(classes),length(obj.states),length(obj.states));
 
             nSamples=length(samples);
 
-            if isrow(classes)
+            if size(classes,1)==1
                 classes=classes';
             end
 
@@ -66,7 +65,7 @@ classdef PairwiseProbability
     end
     methods(Access='protected')
         function indices=getStateIndices(obj,counts)
-            assert(isrow(counts),'PairwiseProbability:getStateIndices:matrixSize',...
+            assert(size(counts,1)==1,'PairwiseProbability:getStateIndices:matrixSize',...
                 'Counts has to be a row vector.');
             logical=cell2mat(cellfun(@(x) x(counts),obj.comparer,'UniformOutput',false));
             [indices,~]=find(logical);

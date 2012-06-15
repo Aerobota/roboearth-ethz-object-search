@@ -30,8 +30,7 @@ function root=findRoot(adjacency)
         costs(leafs(i),i)=1;
         cCost=1;
         newNodes=getNewNodes(adjacency,costs,cCost);
-        while any(newNodes)%any(costs(:,i)==0) 
-            %newNodes=any(adjacency(:,costs(:,i)==cCost),2)
+        while any(newNodes)
             cCost=cCost+1;
             costs(newNodes & costs(:,i)==0,i)=cCost;
             newNodes=getNewNodes(adjacency,costs,cCost);

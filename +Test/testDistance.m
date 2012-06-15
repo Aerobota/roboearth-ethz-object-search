@@ -1,4 +1,15 @@
+clear all
 
+%% parameters
+
+evidenceGenerator=LearnFunc.VerticalDistanceEvidenceGenerator();
+
+learnFunction='gmm';
+%learnFunction='gaussian';
+
+
+
+%% load data
 dataPath='Dataset/Sun09_clean';
 il=DataHandlers.SunLoader(dataPath);
 im=il.getData(il.gtTrain);
@@ -6,9 +17,11 @@ im=il.getData(il.gtTrain);
 classes={il.objects.name};
 
 %% learn location parameters
-%,[il.objects.height]
-ll=LearnFunc.ContinousGMMLearner(classes,LearnFunc.VerticalDistanceEvidenceGenerator());
-%ll=LearnFunc.ContinousGaussianLearner(classes,LearnFunc.VerticalDistanceEvidenceGenerator());
+if strcmpi(learnFunction,'gmm')
+    ll=LearnFunc.ContinousGMMLearner(classes,evidenceGenerator);
+else
+	ll=LearnFunc.ContinousGaussianLearner(classes,evidenceGenerator);
+end
 tic
 ll.learnLocations(im);
 learnTime=toc 
@@ -32,7 +45,6 @@ adjacency=false(length(classes));
 for i=1:N
     for j=1:N
         if any(ll.data.(classes{i}).(classes{j}).cov(:)<thresh)
-            %disp(classes([i j])');
             sumCandidates=sumCandidates+1;
             adjacency(i,j)=true;
         end

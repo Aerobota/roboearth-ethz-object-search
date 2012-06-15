@@ -10,7 +10,6 @@ classdef ContinousGaussianLearner<LearnFunc.LocationLearner
         function obj=ContinousGaussianLearner(classes,evidenceGenerator)
             obj=obj@LearnFunc.LocationLearner(classes,evidenceGenerator);
             for c=1:length(obj.classes)
-                %obj.data.(obj.classes{c}).height=heights(c);
                 for o=1:length(obj.classes)
                     obj.data.(obj.classes{c}).(obj.classes{o}).mean=[];
                     obj.data.(obj.classes{c}).(obj.classes{o}).cov=[];
@@ -26,19 +25,6 @@ classdef ContinousGaussianLearner<LearnFunc.LocationLearner
                 'cov',obj.data.(fromClass).(toClass).cov);
         end
     end
-%     methods(Static)
-%         function evidence=getEvidence(image)
-%             nObj=length(image.annotation.object);
-%             pos=zeros(2,nObj);
-%             for o=1:nObj
-%                 pos(:,o)=[mean(image.annotation.object(o).polygon.x/image.annotation.imagesize.ncols);...
-%                     mean(image.annotation.object(o).polygon.y/image.annotation.imagesize.nrows)];
-%             end
-% 
-%             evidence(:,:,2)=pos(2*ones(nObj,1),:)-pos(2*ones(nObj,1),:)';
-%             evidence(:,:,1)=abs(pos(ones(nObj,1),:)-pos(ones(nObj,1),:)');
-%         end
-%     end
     methods(Access='protected')
         function evaluateOrderedSamples(obj,samples)
             for i=1:length(obj.classes)
@@ -46,8 +32,6 @@ classdef ContinousGaussianLearner<LearnFunc.LocationLearner
                     if size(samples{i,j},1)>=obj.minSamples;
                         tmpMean=mean(samples{i,j});
                         tmpCov=cov(samples{i,j});
-%                         obj.data.(obj.classes{j}).(obj.classes{i}).mean=[tmpMean(1);-tmpMean(2)];
-%                         obj.data.(obj.classes{j}).(obj.classes{i}).cov=tmpCov;
                         obj.data.(obj.classes{i}).(obj.classes{j}).mean=tmpMean';
                         obj.data.(obj.classes{i}).(obj.classes{j}).cov=tmpCov;
                     end

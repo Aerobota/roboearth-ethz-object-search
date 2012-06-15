@@ -20,15 +20,21 @@ function parent=directGraph(adjacency,nodeNames,root)
 end
 
 function root=findRoot(adjacency)
+    function newNodes=getNewNodes(adjacency,costs,cCost)
+        newNodes=any(adjacency(:,costs(:,i)==cCost),2);
+    end
+
     leafs=find(sum(adjacency,2)==1);
     costs=zeros(size(adjacency,1),length(leafs));
     for i=1:length(leafs)
         costs(leafs(i),i)=1;
         cCost=1;
-        while any(costs(:,i)==0)
-            newNodes=any(adjacency(:,costs(:,i)==cCost),2);
+        newNodes=getNewNodes(adjacency,costs,cCost);
+        while any(newNodes)%any(costs(:,i)==0) 
+            %newNodes=any(adjacency(:,costs(:,i)==cCost),2)
             cCost=cCost+1;
             costs(newNodes & costs(:,i)==0,i)=cCost;
+            newNodes=getNewNodes(adjacency,costs,cCost);
         end
     end
     

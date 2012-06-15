@@ -1,4 +1,4 @@
-classdef ContinousZGMMLearner<LearnFunc.LocationLearner
+classdef ContinousGMMLearner<LearnFunc.LocationLearner
     properties(Constant)
         minSamples=20;
     end
@@ -7,10 +7,10 @@ classdef ContinousZGMMLearner<LearnFunc.LocationLearner
     end
     
     methods
-        function obj=ContinousZGMMLearner(classes,heights)
-            obj=obj@LearnFunc.LocationLearner(classes);
+        function obj=ContinousGMMLearner(classes,evidenceGenerator)
+            obj=obj@LearnFunc.LocationLearner(classes,evidenceGenerator);
             for c=1:length(obj.classes)
-                obj.data.(obj.classes{c}).height=heights(c);
+                %obj.data.(obj.classes{c}).height=heights(c);
                 for o=1:length(obj.classes)
                     obj.data.(obj.classes{c}).(obj.classes{o}).mean=[];
                     obj.data.(obj.classes{c}).(obj.classes{o}).cov=[];
@@ -27,27 +27,27 @@ classdef ContinousZGMMLearner<LearnFunc.LocationLearner
             CPD(2)=tabular_CPD(network,nodeNumber(2),'CPT',obj.data.(fromClass).(toClass).mixCoeff);
         end
     end
-    methods(Static)
-        function evidence=getEvidence(image)
-            nObj=length(image.annotation.object);
-            pos=zeros(2,nObj);
-            for o=1:nObj
-                pos(:,o)=[mean(image.annotation.object(o).polygon.x/image.annotation.imagesize.ncols);...
-                    mean(image.annotation.object(o).polygon.y/image.annotation.imagesize.nrows)];
-            end
-
-            evidence(:,:,1)=pos(2*ones(nObj,1),:)-pos(2*ones(nObj,1),:)';
-        end
-    end
+%     methods(Static)
+%         function evidence=getEvidence(image)
+%             nObj=length(image.annotation.object);
+%             pos=zeros(2,nObj);
+%             for o=1:nObj
+%                 pos(:,o)=[mean(image.annotation.object(o).polygon.x/image.annotation.imagesize.ncols);...
+%                     mean(image.annotation.object(o).polygon.y/image.annotation.imagesize.nrows)];
+%             end
+% 
+%             evidence(:,:,1)=pos(2*ones(nObj,1),:)-pos(2*ones(nObj,1),:)';
+%         end
+%     end
     methods(Access='protected')
         function evaluateOrderedSamples(obj,samples)
             for i=1:length(obj.classes)
-                for j=i:length(obj.classes)
+                for j=1:length(obj.classes)
                     if size(samples{i,j},1)>=obj.minSamples;
                         [tmpMean,tmpCov,tmpCoeff]=obj.doGMM(samples{i,j});
-                        obj.data.(obj.classes{j}).(obj.classes{i}).mean=tmpMean;
-                        obj.data.(obj.classes{j}).(obj.classes{i}).cov=tmpCov;
-                        obj.data.(obj.classes{j}).(obj.classes{i}).mixCoeff=tmpCoeff;
+%                         obj.data.(obj.classes{j}).(obj.classes{i}).mean=tmpMean;
+%                         obj.data.(obj.classes{j}).(obj.classes{i}).cov=tmpCov;
+%                         obj.data.(obj.classes{j}).(obj.classes{i}).mixCoeff=tmpCoeff;
                         obj.data.(obj.classes{i}).(obj.classes{j}).mean=tmpMean;
                         obj.data.(obj.classes{i}).(obj.classes{j}).cov=tmpCov;
                         obj.data.(obj.classes{i}).(obj.classes{j}).mixCoeff=tmpCoeff;
@@ -84,8 +84,9 @@ classdef ContinousZGMMLearner<LearnFunc.LocationLearner
             outCov=gmm.Sigma;
             outCoeff=gmm.PComponents;
         end
-        
-        function score=evaluateModelComplexity(obj,trainSet,testSet,modelComplexity)
+    end
+    methods(Static,Access='protected')    
+        function score=evaluateModelComplexity(trainSet,testSet,modelComplexity)
             warning('off','stats:gmdistribution:FailedToConverge')
             try
                 gmm=gmdistribution.fit(trainSet,modelComplexity);

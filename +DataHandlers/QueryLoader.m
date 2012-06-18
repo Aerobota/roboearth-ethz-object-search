@@ -13,8 +13,8 @@ classdef QueryLoader<DataHandlers.DistributedDataLoader
     
     %% Public Methods
     methods
-        function obj=QueryLoader(filePath,objectDetector,groundTruthLoader)
-            obj=obj@DataHandlers.DistributedDataLoader(filePath);
+        function obj=QueryLoader(filePath,objectDetector,groundTruthLoader)            
+            obj=obj@DataHandlers.DistributedDataLoader(filePath,false);
             obj.detector=objectDetector;
             if nargin<3
                 groundTruthLoader=DataHandlers.GroundTruthLoader(filePath);
@@ -30,9 +30,9 @@ classdef QueryLoader<DataHandlers.DistributedDataLoader
     
     %% Private Methods
     methods(Access='protected')
-        function detections=loadData(obj,name)
-            &&&&&&&     % change data structure to Sun09
-            
+        function image=loadData(obj,name)
+            image=obj.imageDataLoader.getDataByName(name);
+                
             longQueryPath=obj.queryPath.getPath(name,obj.path);
 
             goodQueryMat=false;
@@ -46,11 +46,11 @@ classdef QueryLoader<DataHandlers.DistributedDataLoader
             end
             
             if ~goodQueryMat
-                image=obj.imageDataLoader.getData(name);
-                tmpRGB=imread([obj.imageDataLoader.path image.img]);
+                tmpRGB=imread([obj.imageDataLoader.path image.annotation.img]);
                 detections=obj.detector.detectAll(tmpRGB);
                 
-                detections=DataHandlers.evaluateDepth(detections,image.depth,image.calib,image.imgsize);
+                detections=DataHandlers.evaluateDepth(detections,image.annotation.depth,...
+                    image.annotation.calib,image.annotation.imagesize);
                 
                 if ~exist([obj.path obj.queryPath.path],'dir')
                     [~,~,~]=mkdir([obj.path obj.queryPath.path]);
@@ -59,7 +59,7 @@ classdef QueryLoader<DataHandlers.DistributedDataLoader
                 save(longQueryPath,'detections');
             end
             
-            image.detections=detections;
+            image.annotation.object=detections;
         end
     end
 end

@@ -12,7 +12,7 @@ classdef ObjectDetector
         function detections=detectAll(obj,image)
             detections=[];
             for i=1:length(obj.classes)
-                detections=[detections;obj.detectClass(obj.classes{i},image)];
+                detections=[detections obj.detectClass(obj.classes{i},image)];
             end
         end
     end

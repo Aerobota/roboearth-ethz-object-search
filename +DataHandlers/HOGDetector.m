@@ -33,18 +33,18 @@ classdef HOGDetector<DataHandlers.ObjectDetector
             bbox = clipboxes(image, bbox);
             top = nms(bbox, 0.5);
             
-            detections(length(top),1).class=className;
+            detections(1,length(top)).name=className;
             for i=1:length(top)
-                detections(i).class=className;
+                detections(i).name=className;
                 detections(i).score=bbox(top(i),end)+obj.threshold;
-                detections(i).polygon.pt(4).x=bbox(top(i),1);
-                detections(i).polygon.pt(4).y=bbox(top(i),2);
-                detections(i).polygon.pt(3).x=bbox(top(i),1);
-                detections(i).polygon.pt(3).y=bbox(top(i),4);
-                detections(i).polygon.pt(2).x=bbox(top(i),3);
-                detections(i).polygon.pt(2).y=bbox(top(i),4);
-                detections(i).polygon.pt(1).x=bbox(top(i),3);
-                detections(i).polygon.pt(1).y=bbox(top(i),2);
+                detections(i).polygon.x(4,1)=bbox(top(i),1);
+                detections(i).polygon.y(4,1)=bbox(top(i),2);
+                detections(i).polygon.x(3,1)=bbox(top(i),1);
+                detections(i).polygon.y(3,1)=bbox(top(i),4);
+                detections(i).polygon.x(2,1)=bbox(top(i),3);
+                detections(i).polygon.y(2,1)=bbox(top(i),4);
+                detections(i).polygon.x(1,1)=bbox(top(i),3);
+                detections(i).polygon.y(1,1)=bbox(top(i),2);
             end
         end
     end

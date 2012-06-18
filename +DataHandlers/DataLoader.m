@@ -20,9 +20,9 @@ classdef DataLoader<handle
     
     %% Public Methods
     methods
-        function obj=DataLoader(filePath,classes)
+        function obj=DataLoader(filePath)
             obj.path=DataHandlers.checkPath(filePath);
-            obj.classes=classes;
+%             obj.classes=classes;
 %             obj.fileList=obj.getFileNameList();
 %             obj.nrImgs=length(obj.fileList);
 %             obj.cIndex=1;

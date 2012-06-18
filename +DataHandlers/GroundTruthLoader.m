@@ -12,8 +12,12 @@ classdef GroundTruthLoader<DataHandlers.DistributedDataLoader
     
     %% Public Methods
     methods
-        function obj=GroundTruthLoader(filePath)
-            obj=obj@DataHandlers.DistributedDataLoader(filePath);
+        function obj=GroundTruthLoader(filePath,forceUpdate)
+            if nargin<2
+                forceUpdate=false;
+            end
+            
+            obj=obj@DataHandlers.DistributedDataLoader(filePath,forceUpdate);
         end
         
         function clean(obj)
@@ -24,22 +28,25 @@ classdef GroundTruthLoader<DataHandlers.DistributedDataLoader
     %% Private Methods
     methods(Access='protected')
         function image=loadData(obj,name)
-            &&&&&&&     % change data structure to Sun09
-            
             longCombPath=obj.combPath.getPath(name,obj.path);
 
             goodMat=false;
 
             if exist(longCombPath,'file')
                 image=load(longCombPath);
-                goodMat=isfield(image,'calib') && isfield(image,'depth') &&...
-                    isfield(image,'img') && isfield(image,'objects') &&...
-                    isfield(image,'imgsize');
+                goodMat=isfield(image,'annotation');
+                if goodMat
+                    goodMat=isfield(image.annotation,'calib') &&...
+                        isfield(image.annotation,'depth') &&...
+                        isfield(image.annotation,'img') &&...
+                        isfield(image.annotation,'object') &&...
+                        isfield(image.annotation,'imagesize');
+                end
             end
 
             if ~goodMat
                 obj.checkCompleteness(name)
-                image=obj.generateImage(name);
+                image.annotation=obj.generateImage(name);
 
                 if ~exist([obj.path obj.combPath.path],'dir')
                     [~,~,~]=mkdir([obj.path obj.combPath.path]);
@@ -72,19 +79,19 @@ classdef GroundTruthLoader<DataHandlers.DistributedDataLoader
             end
         end
         
-        function image=generateImage(obj,name)
-            &&&&&&&     % change data structure to Sun09
-            image.calib=dlmread(obj.calibPath.getPath(name,obj.path));
-            image.depth=dlmread(obj.depthPath.getPath(name,obj.path));
-            image.img=obj.imgPath.getPath(name);
-            image.objects=searchObjects(obj.annoPath.getPath(name,obj.path));
-            tmpRGB=imread([obj.path image.img]);
+        function imageData=generateImage(obj,name)
+            imageData.calib=dlmread(obj.calibPath.getPath(name,obj.path));
+            imageData.depth=dlmread(obj.depthPath.getPath(name,obj.path));
+            imageData.img=obj.imgPath.getPath(name);
+            imageData.object=searchObjects(obj.annoPath.getPath(name,obj.path));
+            tmpRGB=imread([obj.path imageData.img]);
             tmpSize=size(tmpRGB);
-            assert(all(tmpSize(1:2)==size(image.depth)),'RGB and Depth image have different sizes');
-            image.imgsize=tmpSize([2 1 3]);
+            assert(all(tmpSize(1:2)==size(imageData.depth)),'RGB and Depth image have different sizes');
+            imageData.imagesize.nrows=tmpSize(1);
+            imageData.imagesize.ncols=tmpSize(2);
 
-            image.objects=DataHandlers.evaluateDepth(image.objects,image.depth,...
-                image.calib,image.imgsize);
+            imageData.object=DataHandlers.evaluateDepth(imageData.object,imageData.depth,...
+                imageData.calib,imageData.imagesize);
         end
         
         function relocateAnnotationFile(obj,name)
@@ -109,6 +116,13 @@ function objects=searchObjects(filename)
     doc=xmlread(filename);
 
     objects=searchRecursion(doc);
+    
+    for o=1:length(objects)
+        for n=length(objects(o).polygon.pt):-1:1
+            objects(o).polygon.x(n,1)=objects(o).polygon.pt(n).x;
+            objects(o).polygon.y(n,1)=objects(o).polygon.pt(n).y;
+        end
+    end
 end
 
 function objects=searchRecursion(node)
@@ -117,9 +131,9 @@ function objects=searchRecursion(node)
     objects=[];
     for i=0:nrC-1
         if strcmp(char(children.item(i).getNodeName),'object')==1
-            objects=[objects;parseRecursion(children.item(i))];
+            objects=[objects parseRecursion(children.item(i))];
         else
-            objects=[objects;searchRecursion(children.item(i))];
+            objects=[objects searchRecursion(children.item(i))];
         end
     end
 end
@@ -144,7 +158,7 @@ function part=parseRecursion(node)
         name=char(children.item(i).getNodeName);
         if name(1)~='#'
             if isfield(part,name)
-                part.(name)=[part.(name);parseRecursion(children.item(i))];
+                part.(name)=[part.(name) parseRecursion(children.item(i))];
             else
                 part.(name)=parseRecursion(children.item(i)); 
             end

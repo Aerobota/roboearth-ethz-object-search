@@ -10,7 +10,8 @@ classdef SunLoader<DataHandlers.DataLoader
     
     methods
         function obj=SunLoader(filePath)
-            obj=obj@DataHandlers.DataLoader(filePath,DataHandlers.SunLoader.getClasses(filePath));
+            obj=obj@DataHandlers.DataLoader(filePath);
+            obj.classes=obj.getClasses();
         end
         function out=getData(obj,desiredSet)
             tmpPath=fullfile(obj.path,desiredSet{2});
@@ -19,9 +20,9 @@ classdef SunLoader<DataHandlers.DataLoader
             out=in.(desiredSet{1});
         end
     end
-    methods(Static,Access='protected')
-        function classes=getClasses(path)
-            tmpPath=fullfile(path,DataHandlers.SunLoader.catFileName);
+    methods(Access='protected')
+        function classes=getClasses(obj)
+            tmpPath=fullfile(obj.path,DataHandlers.SunLoader.catFileName);
             assert(exist(tmpPath,'file')==2,'The file %s is missing.',tmpPath);
             in=load(tmpPath);
             classes(length(in.names),1).name=in.names{end};

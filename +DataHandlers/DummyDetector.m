@@ -24,9 +24,9 @@ classdef DummyDetector<DataHandlers.ObjectDetector
             if nrDetections>0
                 cIndex=find(ismember(obj.classes,className),1);
                 assert(~isempty(cIndex),'Requested class is unknown to detector');
-                detections(nrDetections,1).class=className;
+                detections(1,nrDetections).name=className;
                 for i=1:nrDetections
-                    detections(i).class=className;
+                    detections(i).name=className;
                     detections(i).score=obj.maxScore*(1-rand()^0.25);
                     detections(i).polygon=obj.samplePolygon(cIndex,size(image));
                 end
@@ -50,10 +50,10 @@ classdef DummyDetector<DataHandlers.ObjectDetector
                     goodSample=true;
                 end
             end
-            polygon.pt(4).x=0;
-            for i=1:4
-                polygon.pt(i).x=points(1,i);
-                polygon.pt(i).y=points(2,i);
+            
+            for i=4:-1:1
+                polygon.x(i,1)=points(1,i);
+                polygon.y(i,1)=points(2,i);
             end
         end
     end

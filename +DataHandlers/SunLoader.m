@@ -4,6 +4,7 @@ classdef SunLoader<DataHandlers.DataLoader
     
     properties(Constant)
         catFileName='sun09_objectCategories.mat';
+        imageFolder='Images'
 %         trainSet={'Dtraining';'sun09_groundTruth.mat'}
 %         testSet={'Dtest';'sun09_groundTruth.mat'}
     end

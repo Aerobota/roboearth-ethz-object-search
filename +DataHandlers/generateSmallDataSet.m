@@ -12,7 +12,7 @@ function generateSmallDataSet(inpath,outpath)
     for i=1:size(dataPacks,1)
         output{i}=getSceneData(scenes,dataPacks{i,1},dataPacks(i,2:end));
         disp(['loaded ' dataPacks{i,2} ' ' dataPacks{i,3}])
-        output{i}=removeAliases(output{i});
+        output{i}=DataHandlers.removeAliases(output{i});
     end
     
     classes={ilgt.classes(:).name};
@@ -113,23 +113,23 @@ function data=cleanObjects(data,classes)
     end
 end
 
-function data=removeAliases(data)
-    alias.books='book';
-    alias.bottles='bottle';
-    alias.boxes='box';
-    alias.cars='car';
-    alias.rocks='stone';
-    alias.rock='stone';
-    alias.stones='stone';
-    alias.pillow='cushion';
-    alias.monitor='screen';
-    
-    for i=1:length(data)
-        for o=1:length(data(i).annotation.object)
-            try
-                data(i).annotation.object(o).name=alias.(data(i).annotation.object(o).name);
-            catch
-            end
-        end
-    end
-end
+% function data=removeAliases(data)
+%     alias.books='book';
+%     alias.bottles='bottle';
+%     alias.boxes='box';
+%     alias.cars='car';
+%     alias.rocks='stone';
+%     alias.rock='stone';
+%     alias.stones='stone';
+%     alias.pillow='cushion';
+%     alias.monitor='screen';
+%     
+%     for i=1:length(data)
+%         for o=1:length(data(i).annotation.object)
+%             try
+%                 data(i).annotation.object(o).name=alias.(data(i).annotation.object(o).name);
+%             catch
+%             end
+%         end
+%     end
+% end

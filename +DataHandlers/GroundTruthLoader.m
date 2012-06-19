@@ -40,6 +40,8 @@ classdef GroundTruthLoader<DataHandlers.DistributedDataLoader
                         isfield(image.annotation,'depth') &&...
                         isfield(image.annotation,'img') &&...
                         isfield(image.annotation,'object') &&...
+                        isfield(image.annotation,'filename') &&...
+                        isfield(image.annotation,'folder') &&...
                         isfield(image.annotation,'imagesize');
                 end
             end
@@ -83,6 +85,8 @@ classdef GroundTruthLoader<DataHandlers.DistributedDataLoader
             imageData.calib=dlmread(obj.calibPath.getPath(name,obj.path));
             imageData.depth=dlmread(obj.depthPath.getPath(name,obj.path));
             imageData.img=obj.imgPath.getPath(name);
+            imageData.filename=obj.imgPath.getFileName(name);
+            imageData.folder='';
             imageData.object=searchObjects(obj.annoPath.getPath(name,obj.path));
             tmpRGB=imread([obj.path imageData.img]);
             tmpSize=size(tmpRGB);

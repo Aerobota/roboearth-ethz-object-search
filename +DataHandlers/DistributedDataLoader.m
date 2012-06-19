@@ -16,9 +16,10 @@ classdef DistributedDataLoader<DataHandlers.DataLoader
         its=length(DataHandlers.DistributedDataLoader.imgPath.tag)+1;
     end
     properties(Constant)
-        trainSet='trainval'
+        trainSet='train'
         testSet='test'
         classFile='classes.mat' %maybe don't read from file but get passed in ctr
+        imageFolder='image'
     end
     
     %% Public Methods

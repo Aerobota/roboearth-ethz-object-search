@@ -12,6 +12,7 @@ classdef DataLoader<handle
     properties(Abstract,Constant)
         trainSet
         testSet
+        imageFolder
     end
 %     properties(Constant,GetAccess='protected')
 %         imgPath=DataHandlers.CompoundPath('img_','image','.jpg');

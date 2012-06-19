@@ -5,18 +5,26 @@ originalPWD=pwd;
 
 addpath(originalPWD);
 
-global datasetPath;
-datasetPath=[pwd filesep 'Dataset/DummySet'];
+VOCinit
 
 
-if datasetPath(end)~=filesep
-    datasetPath=[datasetPath filesep];
-end
+removeTemporaries=true;
+% global datasetPath;
+% datasetPath=fullfile(pwd,'Dataset/DummySet');
+
+
+% if datasetPath(end)~=filesep
+%     datasetPath=[datasetPath filesep];
+% end
+lowLevelLoaders={DataHandlers.SunGTLoader(fullfile(pwd,'../Sun09/dataset'));...
+    DataHandlers.GroundTruthLoader(fullfile(pwd,'Dataset/DummySet'))};
 global imageLoader;
-imageLoader=DataHandlers.GroundTruthLoader(datasetPath);
-imageLoader.generateNameList({'train.txt','trainval.txt'});
+imageLoader=CombinedDataLoader(lowLevelLoaders,sprintf(VOCopts.imgsetpath,'trainval'));
+[~,~,~]=copyfile(sprintf(VOCopts.imgsetpath,'trainval'),sprintf(VOCopts.imgsetpath,'train'));
+%imageLoader.generateNameList({'train.txt','trainval.txt'});
 
 cd(detectorPath)
 
 %list of the classes to be learned
-classes={'screen';'keyboard';'mouse';'window';'door';'table';'chair'};
+% classes={'screen';'keyboard';'mouse';'window';'door';'table';'chair'};
+classes={'table'};

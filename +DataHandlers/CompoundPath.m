@@ -27,7 +27,10 @@ classdef CompoundPath
                 additionalPath=[additionalPath filesep];
             end
                 
-            p=[additionalPath obj.path obj.tag name obj.ext];
+            p=[additionalPath obj.path obj.getFileName(name)];
+        end
+        function n=getFileName(obj,name)
+            n=[obj.tag name obj.ext];
         end
     end
 end

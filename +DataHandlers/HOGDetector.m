@@ -3,7 +3,7 @@ classdef HOGDetector<DataHandlers.ObjectDetector
 %     properties(SetAccess='protected')
 %         classes;
 %     end
-    properties
+    properties(SetAccess='protected')
         threshold;
     end
     properties(Constant)
@@ -26,6 +26,7 @@ classdef HOGDetector<DataHandlers.ObjectDetector
         function detections=detectClass(obj,className,image)
             % Load correct model
             loaded=load([obj.modelPath className]);
+            warning('buffer the model loading process for speed up')
             
             % run detector
             [dets, boxes] = imgdetect(image, loaded.model, obj.threshold);

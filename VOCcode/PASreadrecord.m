@@ -1,7 +1,8 @@
 function record=PASreadrecord(path)
     global imageLoader;
-    record=imageLoader.getImage(path);
-    record.imgname=record.annotation.completeImgPath;
+    record=imageLoader.getDataByName(path);
+    record.imgname=fullfile(imageLoader.imageFolder,record.annotation.folder,...
+        record.annotation.filename);
     
     for o=1:length(record.annotation.object)
         record.objects(o).class=record.annotation.object(o).name;

@@ -25,6 +25,7 @@ classdef CombinedDataLoader
         end
         function image=getImage(obj,name)
             image=obj.data(ismember(obj.names,name));
+            assert(~isempty(image),'Image %s doesn''t exist in this dataset',name);
             if(size(image,2)~=1)
                 image=image(1);
             end

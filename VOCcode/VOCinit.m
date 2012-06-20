@@ -1,12 +1,10 @@
 % run the setup
 %setup;
-% global datasetPath;
+global datasetPath;
 
 % change this path to point to your copy of the PASCAL VOC data
-VOCopts.datadir='';%datasetPath;
-
-
-VOCopts.imgsetpath=fullfile(originalPWD,'VOCcode','%s.txt');
+VOCopts.datadir=[fullfile(originalPWD,datasetPath) filesep];%datasetPath;
+VOCopts.imgsetpath=fullfile(VOCopts.datadir,'%s.txt');
 VOCopts.annopath='%s';
 
 % change this path to a writable directory for your results

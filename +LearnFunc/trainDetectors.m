@@ -1,5 +1,12 @@
 addpath('VOCcode')
 setup
+
+if removeTemporaries
+    globals
+    [~,~,~]=rmdir(cachedir,'s');
+    [~,~,~]=rmdir(tmpdir,'s');
+end
+
 errorList=cell(length(classes),1);
 % learn a detector for every class
 for c=1:length(classes)
@@ -11,12 +18,6 @@ for c=1:length(classes)
 end
 
 cd(originalPWD)
-
-if removeTemporaries
-    globals
-    [~,~,~]=rmdir(cachedir,'s');
-    [~,~,~]=rmdir(tmpdir,'s');
-end
 
 
 

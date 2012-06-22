@@ -3,7 +3,6 @@ clear all;
 
 %% parameters
 datasetPath='Dataset/NYU';
-%multiOccurence=true;
 
 %% load dataset
 ilgt=DataHandlers.NYUGTLoader(datasetPath);

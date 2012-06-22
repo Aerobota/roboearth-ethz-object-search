@@ -6,10 +6,6 @@ classdef DistributedDataLoader<DataHandlers.DataLoader
     properties(SetAccess='protected')
         files
         badIndex
-%         nrImgs
-%         cIndex
-%         fileList
-%         path
     end
     properties(Constant,GetAccess='protected')
         imgPath=DataHandlers.CompoundPath('img_','image','.jpg');
@@ -18,7 +14,7 @@ classdef DistributedDataLoader<DataHandlers.DataLoader
     properties(Constant)
         trainSet='train'
         testSet='test'
-        classFile='classes.mat' %maybe don't read from file but get passed in ctr
+        classFile='classes.mat'
         imageFolder='image'
     end
     
@@ -37,14 +33,6 @@ classdef DistributedDataLoader<DataHandlers.DataLoader
             
             obj.badIndex.(obj.trainSet)=false(length(obj.files.(obj.trainSet)),1);
             obj.badIndex.(obj.testSet)=false(length(obj.files.(obj.testSet)),1);
-            
-            
-%             &&&&&& % call super-class constructor and read class list file
-%             &&&&&& % also parse filelist file for faster access (or do on first use)
-%             obj.path=DataHandlers.checkPath(filePath);
-%             obj.fileList=obj.getFileNameList();
-%             obj.nrImgs=length(obj.fileList);
-%             obj.cIndex=1;
         end
         
         function images=getData(obj,dataSet)
@@ -61,28 +49,6 @@ classdef DistributedDataLoader<DataHandlers.DataLoader
                 end
             end
             images=images(1,indicesGood);
-%             &&&&&& % load complete dataSet via single file loader
-%             if nargin==1
-%                 index=obj.cIndex;
-%                 gotData=false;
-%                 while (~gotData && index<=obj.nrImgs)
-%                     try
-%                         image=obj.loadData(obj.fileList{index});
-%                         gotData=true;
-%                     catch error
-%                         if(strcmp(error.identifier,'checkCompleteness:dataMissing')==0)
-%                             rethrow(error);
-%                         end
-%                     end
-%                     index=index+1;
-%                     obj.cIndex=index;
-%                 end
-%                 assert(gotData,'getData:noImages','No more images were found');
-%             elseif isnumeric(index)
-%                 image=obj.loadData(obj.fileList{index});
-%             else
-%                 image=obj.loadData(index);
-%             end
         end
         
         function image=getSingleData(obj,dataSet,index)
@@ -95,19 +61,12 @@ classdef DistributedDataLoader<DataHandlers.DataLoader
                 
                 rethrow(error);
             end
-%             &&&&&& % load fileList file (and parse if necessary) and 
-%             &&&&&& % call loadImage for the corresponding file
         end
         
         function image=getDataByName(obj,name)
             image=obj.loadData(name);
-%             &&&&&& % load fileList file (and parse if necessary) and 
-%             &&&&&& % call loadImage for the corresponding file
         end
         
-%         function resetIterator(obj)
-%             obj.cIndex=1;
-%         end
         function delete(obj)
             obj.cleanFileNameListFile(obj.trainSet);
             obj.cleanFileNameListFile(obj.testSet);
@@ -131,14 +90,6 @@ classdef DistributedDataLoader<DataHandlers.DataLoader
             else
                 obj.generateFileNameLists();
             end
-%             &&&&&& % three lists with names for 'all','training' and 'test'
-%             &&&&&& % make it possible to force update
-%             dirList=dir(obj.imgPath.getPath('*',obj.path));
-%             fileNameList=cell(length(dirList),1);
-%             for i=1:length(dirList)
-%                 [~,imgName,~]=fileparts(dirList(i).name);
-%                 fileNameList{i}=imgName(obj.its:end);
-%             end
         end
         function generateFileNameLists(obj)
             dirList=dir(obj.imgPath.getPath('*',obj.path));
@@ -160,30 +111,8 @@ classdef DistributedDataLoader<DataHandlers.DataLoader
             
             obj.writeFileNameListFile(fullfile(obj.path,[obj.trainSet '.txt']),obj.files.(obj.trainSet));
             obj.writeFileNameListFile(fullfile(obj.path,[obj.testSet '.txt']),obj.files.(obj.testSet));
-%             &&&&&& % this should be adapted for automatic splitting of data
-%             if iscell(listName)==0
-%                 listName={listName};
-%             end
-%             for l=1:length(listName)
-%                 fid=fopen([obj.path listName{l}],'wt');
-%                 for i=1:obj.nrImgs
-%                     fprintf(fid,'%s\n',obj.fileList{i}); 
-%                 end
-%                 fclose(fid);
-%             end
         end
-%         function classes=getClasses(obj,forceUpdate)
-%             tmpPath=fullfile(obj.path,obj.classFile);
-%             if exist(tmpPath,'file') && ~forceUpdate
-%                 classes=load(tmpPath);
-%             else
-%                 trainClasses=obj.getClassesFromData(obj.trainSet);
-%                 testClasses=obj.getClassesFromData(obj.testSet);
-%                 inBoth=ismember(trainClasses,testClasses);
-%                 classes=
-%             end
-%             %&&&&&& % generate or read a matfile with the classes and return them
-%         end
+        
         function cleanFileNameListFile(obj,dataSet)
             tmpPath=fullfile(obj.path,[dataSet '.txt']);
             oldNames=obj.parseFileNameListFile(tmpPath);
@@ -205,6 +134,7 @@ classdef DistributedDataLoader<DataHandlers.DataLoader
             end
             fclose(fid);
         end
+        
         function writeFileNameListFile(path,fileNames)
             fid=fopen(path,'wt');
             for i=1:length(fileNames)

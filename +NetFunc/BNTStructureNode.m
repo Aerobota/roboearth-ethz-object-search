@@ -13,7 +13,6 @@ classdef BNTStructureNode<NetFunc.Node
             obj.nameAll=genvarname(namePrefix);
             subNodeNames=fieldnames(states);
             for i=1:length(subNodeNames)
-%                 tmpName=genvarname([obj.nameAll subNodeNames{i}]);
                 obj.parents.([obj.nameAll subNodeNames{i}])=cell(0,1);
                 obj.states.([obj.nameAll subNodeNames{i}])=states.(subNodeNames{i});
             end
@@ -65,12 +64,5 @@ classdef BNTStructureNode<NetFunc.Node
             end
         end
     end
-%     methods(Static,Access='protected')
-%         function prefix=checkPrefix(prefix)
-%             if prefix(end)~='_'
-%                 prefix=[prefix '_'];
-%             end
-%         end
-%     end
 end
 

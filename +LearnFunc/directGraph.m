@@ -11,7 +11,6 @@ function parent=directGraph(adjacency,nodeNames,root)
         for n=1:length(cNodes)
             children=find(adjacency(cNodes(n),:));
             for c=1:length(children)
-                %parent.(nodeNames{children(c)})=nodeNames{cNodes(n)};
                 parent.(genvarname(nodeNames{children(c)}))=nodeNames{cNodes(n)};
             end
             nextNodes(children)=true;

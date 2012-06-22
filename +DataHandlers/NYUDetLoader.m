@@ -1,8 +1,8 @@
 classdef NYUDetLoader<DataHandlers.NYULoader
     %SUNLOADER Summary of this class goes here
     %   Detailed explanation goes here
+    
     properties(Constant)
-%         catFileName='sun09_objectCategories.mat';
         trainSet={'Ddetectortraining' 'detectionsTrain.mat'}
         testSet={'Ddetectortest' 'detectionsTest.mat'}
     end
@@ -29,9 +29,6 @@ classdef NYUDetLoader<DataHandlers.NYULoader
     end
     methods(Static,Access='protected')
         function data=runDetector(data,classes,imgPath,detector)
-%             for i=1:length(data)
-%                 data(i).annotation.object=struct;
-%             end
             for c=1:length(classes)
                 for i=1:length(data)
                     data(i).annotation.object=[data(i).annotation.object,...

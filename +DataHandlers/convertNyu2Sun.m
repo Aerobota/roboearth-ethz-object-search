@@ -6,8 +6,6 @@ function convertNyu2Sun(inPath,outPath)
 
     disp('extracting images')
     [imageNames,depthNames]=extractImages(inFile,outPath);
-%     imageNames=cell(1,1449);
-%     warning('image loading deactivated')
     
     disp('loading other data')
     data=load(inFile,'labels','names');
@@ -17,7 +15,6 @@ function convertNyu2Sun(inPath,outPath)
     disp('extracting good classes')
     classes=extractGoodClasses(data.labels,data.names,outPath);
     
-    %extractObjects(split,imageNames,depthNames,data.labels,data.depths,data.names,classes,outPath)
     extractObjects(split,imageNames,depthNames,data.labels,data.names,classes,outPath)
 
 end
@@ -78,7 +75,6 @@ end
 
 function im=extractImageSet(imageNames,depthNames,labels,allNames,goodClasses)
     goodIndices=find(ismember(allNames,goodClasses));
-%     warning('computing only one image')
     nImg=length(imageNames);
     im(1,nImg).annotation=struct;
     parfor i=1:nImg
@@ -90,7 +86,6 @@ function im=extractImageSet(imageNames,depthNames,labels,allNames,goodClasses)
         im(1,i).annotation.imagesize.ncols=640;
         im(1,i).annotation.object=detectObjects(labels(:,:,i),allNames,goodIndices);
     end
-    %im=DataHandlers.removeAliases(im);
 end
 
 function object=detectObjects(labels,allNames,goodIndices)
@@ -139,20 +134,5 @@ function object=detectObjects(labels,allNames,goodIndices)
         tmp=[min(row) max(row);min(col) max(col)];
         object(o).polygon.x=[tmp(1,1) tmp(1,1) tmp(1,2) tmp(1,2)];
         object(o).polygon.y=[tmp(2,1) tmp(2,2) tmp(2,2) tmp(2,1)];
-        %object(o).depth=depths(tmp(1,1):tmp(1,2),tmp(2,1):tmp(2,2));
-        %object(o).depth(~mask(tmp(1,1):tmp(1,2),tmp(2,1):tmp(2,2)))=NaN;
     end
-%     disp(size(instances))
-% %     disp(min(instances))
-% %     disp(max(instances))
-% %     error('reduce amount of instances')
-%     disp(unique(instanceConnection));
-%     disp(unique(instances));
-%     figure
-%     imshow(instances/max(max(instances)),'ColorMap',colormap('Jet'))
-%     figure
-%     imshow(labels/max(max(labels)),'ColorMap',colormap('Jet'))
-%     disp(max(max(labels)))
-%     disp(instanceConnection)
-%     object=[];
 end

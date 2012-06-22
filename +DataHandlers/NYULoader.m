@@ -11,8 +11,6 @@ classdef NYULoader<DataHandlers.DataLoader
         catFileName='objectCategories.mat';
         imageFolder='image'
         depthFolder='depth'
-%         trainSet={'Dtraining';'sun09_groundTruth.mat'}
-%         testSet={'Dtest';'sun09_groundTruth.mat'}
     end
     
     methods

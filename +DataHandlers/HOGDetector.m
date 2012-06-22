@@ -1,8 +1,5 @@
 classdef HOGDetector<DataHandlers.ObjectDetector
     %% Properties
-%     properties(SetAccess='protected')
-%         classes;
-%     end
     properties(SetAccess='protected')
         threshold;
         models;
@@ -13,7 +10,7 @@ classdef HOGDetector<DataHandlers.ObjectDetector
         modelTag='_final.mat'
     end
     
-    %% Interface
+    %% Public methods
     methods
         function obj=HOGDetector(thresh)
             obj.threshold=thresh;
@@ -27,14 +24,10 @@ classdef HOGDetector<DataHandlers.ObjectDetector
         end
         function detections=detectClass(obj,className,image)
             % Load correct model
-            %loaded=load([obj.modelPath className obj.modelTag]);
             model=obj.loadModel(className);
             
             % run detector
-            [dets, boxes] = imgdetect(image, model, obj.threshold);
-            %boxes
-            %bbox = bboxpred_get(loaded.model.bboxpred, dets, reduceboxes(loaded.model, boxes));
-            bbox=boxes;
+            [dets, bbox] = imgdetect(image, model, obj.threshold);
             bbox = clipboxes(image, bbox);
             top = nms(bbox, 0.5);
             
@@ -53,6 +46,7 @@ classdef HOGDetector<DataHandlers.ObjectDetector
             end
         end
     end
+    %% Private methods
     methods(Static,Access='private')
         function available=detectorAvailable()
             available=exist('imgdetect','file')==2 && exist('bboxpred_get','file')==2 &&...

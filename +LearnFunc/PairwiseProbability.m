@@ -23,17 +23,6 @@ classdef PairwiseProbability
             if size(classes,1)==1
                 classes=classes';
             end
-            
-            % @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-            % for test only
-            for c=1:length(classes)
-                if strcmp(classes{c},'monitor')
-                    classes{c}='screen';
-                elseif strcmp(classes{c},'pillow')
-                    classes{c}='cushion';
-                end
-            end
-            % @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
             for s=1:nSamples
                 objects={samples(s).annotation.object.name}';

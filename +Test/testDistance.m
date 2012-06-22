@@ -5,9 +5,7 @@ clear all
 evidenceGenerator=LearnFunc.VerticalDistanceEvidenceGenerator();
 
 learnFunction='gmm';
-learnFunction='gaussian';
-
-
+%learnFunction='gaussian';
 
 %% load data
 dataPath='Dataset/NYU';
@@ -28,7 +26,6 @@ learnTime=toc
 
 %% learn location connectivity
 listCov=[];
-%names=fieldnames(ll.data);
 N=length(classes);
 for i=1:N
     for j=1:N

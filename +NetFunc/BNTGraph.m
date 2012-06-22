@@ -15,15 +15,18 @@ classdef BNTGraph<NetFunc.Graph
             obj.nodes=struct;
             obj.myGraphs=[];
         end
+        
         function setCPD(obj,index,cpd)
             assert(obj.compiled,'BNTGraph:setCPD:uncompiled',...
                 'Adding a CPD to an uncompiled network may lead to undefined behaviour.')
             obj.net.CPD{index}=cpd;
         end
+        
         function close(obj)
             close(obj.myGraphs(ismember(obj.myGraphs,allchild(0))));
             obj.myGraphs=[];
         end
+        
         function delete(obj)
             obj.close();
         end
@@ -42,6 +45,7 @@ classdef BNTGraph<NetFunc.Graph
                 obj.nodes.(names{i}).index=currentIndex;
             end
         end
+        
         function compile(obj)
             nameList=fieldnames(obj.nodes);
             obj.dag=zeros(length(nameList),length(nameList));
@@ -55,6 +59,7 @@ classdef BNTGraph<NetFunc.Graph
             end
             obj.net=mk_bnet(obj.dag,nodeSizes);
         end
+        
         function viewGraphImpl(obj,~)
             nodeNames=fieldnames(obj.nodes);
             before=allchild(0);
@@ -63,6 +68,5 @@ classdef BNTGraph<NetFunc.Graph
             obj.myGraphs=[obj.myGraphs;after(ismember(after,before)==0)];
         end
     end
-    
 end
 

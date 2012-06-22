@@ -4,7 +4,6 @@ countSceneOccurences=false;
 countObjectOccurences=true;
 showCooccurences=false;
 
-%ildet=DataHandlers.SunDetLoader('../Sun09/dataset');
 ildet=DataHandlers.SunDetLoader('./Dataset/Sun09_clean');
 ilgt=DataHandlers.SunGTLoader('./Dataset/Sun09_clean');
 
@@ -14,7 +13,6 @@ if countSceneOccurences
     occCount=zeros(size(ildet.classes));
     classesAvailable={ildet.classes(:).name}';
 
-    %scenes={'kitchen','living','bath','dining','indoor'};
     scenes={'kitchen';'office'};
     sceneCounts=zeros(size(scenes));
     sceneSelection= false(size(im));

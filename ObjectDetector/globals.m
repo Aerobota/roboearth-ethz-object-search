@@ -35,6 +35,5 @@ end
 cleantmpdir = true;
 
 % directory with PASCAL VOC development kit and dataset
-%VOCdevkit = ['/var/tmp/rbg/VOC' VOCyear '/VOCdevkit/'];
 global originalPWD;
 VOCdevkit=originalPWD;

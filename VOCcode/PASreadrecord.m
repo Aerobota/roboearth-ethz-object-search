@@ -9,10 +9,15 @@ function record=PASreadrecord(path)
         %record.objects(o).flip=false;
         record.objects(o).truncated=false;
         record.objects(o).difficult=false;
-        record.objects(o).bbox(1)=min([record.annotation.object(o).polygon.x]);
-        record.objects(o).bbox(2)=min([record.annotation.object(o).polygon.y]);
-        record.objects(o).bbox(3)=max([record.annotation.object(o).polygon.x]);
-        record.objects(o).bbox(4)=max([record.annotation.object(o).polygon.y]);
+        record.objects(o).bbox(1)=min([record.annotation.object(o).polygon.y]);
+        record.objects(o).bbox(2)=min([record.annotation.object(o).polygon.x]);
+        record.objects(o).bbox(3)=max([record.annotation.object(o).polygon.y]);
+        record.objects(o).bbox(4)=max([record.annotation.object(o).polygon.x]);
         record.imgsize=[record.annotation.imagesize.ncols record.annotation.imagesize.nrows];
+    end
+    
+    %remove the objects from the dataset
+    if isfield(record,'object')
+        record=rmfield(record,'object');
     end
 end

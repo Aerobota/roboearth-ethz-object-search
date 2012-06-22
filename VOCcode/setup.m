@@ -36,4 +36,4 @@ cd
 %list of the classes to be learned
 % classes={'screen';'keyboard';'mouse';'window';'door';'table';'chair'};
 classes={imageLoader.classes.name}';
-classes={'table'};
+%classes={'table'};

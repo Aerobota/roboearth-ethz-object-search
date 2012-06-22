@@ -16,8 +16,8 @@ function convertNyu2Sun(inPath,outPath)
     disp('extracting good classes')
     classes=extractGoodClasses(data.labels,data.names,outPath);
     
-    extractObjects(split,imageNames,depthNames,data.labels,data.depths,data.names,classes,outPath)
-
+    %extractObjects(split,imageNames,depthNames,data.labels,data.depths,data.names,classes,outPath)
+    extractObjects(split,imageNames,depthNames,data.labels,data.names,classes,outPath)
 
 end
 
@@ -64,18 +64,18 @@ function names=extractGoodClasses(labels,names,outPath)
     save(fullfile(outPath,'objectCategories.mat'),'names');
 end
 
-function extractObjects(split,imageNames,depthNames,labels,depths,allNames,goodClasses,outPath)
+function extractObjects(split,imageNames,depthNames,labels,allNames,goodClasses,outPath)
     disp('extracting training set')
-    Dtraining=extractImageSet(imageNames(1,split),depthNames(1,split),labels(:,:,split),depths(:,:,split),allNames,goodClasses);
+    Dtraining=extractImageSet(imageNames(1,split),depthNames(1,split),labels(:,:,split),allNames,goodClasses);
     save(fullfile(outPath,'groundTruthTrain.mat'),'Dtraining');
     clear('Dtraining');
     disp('extracting test set')
-    Dtest=extractImageSet(imageNames(1,~split),depthNames(1,~split),labels(:,:,~split),depths(:,:,~split),allNames,goodClasses);
+    Dtest=extractImageSet(imageNames(1,~split),depthNames(1,~split),labels(:,:,~split),allNames,goodClasses);
     save(fullfile(outPath,'groundTruthTest.mat'),'Dtest');
     clear('Dtest');
 end
 
-function im=extractImageSet(imageNames,depthNames,labels,depths,allNames,goodClasses)
+function im=extractImageSet(imageNames,depthNames,labels,allNames,goodClasses)
     goodIndices=find(ismember(allNames,goodClasses));
 %     warning('computing only one image')
     nImg=length(imageNames);
@@ -87,12 +87,12 @@ function im=extractImageSet(imageNames,depthNames,labels,depths,allNames,goodCla
         im(1,i).annotation.folder='';
         im(1,i).annotation.imagesize.nrows=480;
         im(1,i).annotation.imagesize.ncols=640;
-        im(1,i).annotation.object=detectObjects(labels(:,:,i),depths(:,:,i),allNames,goodIndices);
+        im(1,i).annotation.object=detectObjects(labels(:,:,i),allNames,goodIndices);
     end
     im=DataHandlers.removeAliases(im);
 end
 
-function object=detectObjects(labels,depths,allNames,goodIndices)
+function object=detectObjects(labels,allNames,goodIndices)
     goodLabels=ismember(labels,goodIndices);
     labels(~goodLabels)=0;
     instances=zeros(size(labels));
@@ -138,8 +138,8 @@ function object=detectObjects(labels,depths,allNames,goodIndices)
         tmp=[min(row) max(row);min(col) max(col)];
         object(o).polygon.x=[tmp(1,1) tmp(1,1) tmp(1,2) tmp(1,2)];
         object(o).polygon.y=[tmp(2,1) tmp(2,2) tmp(2,2) tmp(2,1)];
-        object(o).depth=depths(tmp(1,1):tmp(1,2),tmp(2,1):tmp(2,2));
-        object(o).depth(~mask(tmp(1,1):tmp(1,2),tmp(2,1):tmp(2,2)))=NaN;
+        %object(o).depth=depths(tmp(1,1):tmp(1,2),tmp(2,1):tmp(2,2));
+        %object(o).depth(~mask(tmp(1,1):tmp(1,2),tmp(2,1):tmp(2,2)))=NaN;
     end
 %     disp(size(instances))
 % %     disp(min(instances))

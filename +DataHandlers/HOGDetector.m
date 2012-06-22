@@ -7,8 +7,9 @@ classdef HOGDetector<DataHandlers.ObjectDetector
         threshold;
     end
     properties(Constant)
-        modelPath=[pwd '/models/'];
+        modelPath=[pwd '/Models/'];
         detectorCodePath=[pwd '/ObjectDetector/'];
+        modelTag='_final.mat'
     end
     
     %% Interface
@@ -25,12 +26,13 @@ classdef HOGDetector<DataHandlers.ObjectDetector
         end
         function detections=detectClass(obj,className,image)
             % Load correct model
-            loaded=load([obj.modelPath className]);
-            warning('buffer the model loading process for speed up')
+            loaded=load([obj.modelPath className obj.modelTag]);
             
             % run detector
             [dets, boxes] = imgdetect(image, loaded.model, obj.threshold);
-            bbox = bboxpred_get(loaded.model.bboxpred, dets, reduceboxes(loaded.model, boxes));
+            %boxes
+            %bbox = bboxpred_get(loaded.model.bboxpred, dets, reduceboxes(loaded.model, boxes));
+            bbox=boxes;
             bbox = clipboxes(image, bbox);
             top = nms(bbox, 0.5);
             

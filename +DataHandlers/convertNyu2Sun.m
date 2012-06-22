@@ -3,9 +3,12 @@ function convertNyu2Sun(inPath,outPath)
 %   Detailed explanation goes here
 
     inFile=fullfile(inPath,'nyu_depth_v2_labeled.mat');
+    
+    imageFolder=fullfile(outPath,'image');
+    depthFolder=fullfile(outPath,'depth');
 
     disp('extracting images')
-    [imageNames,depthNames]=extractImages(inFile,outPath);
+    [imageNames,depthNames]=extractImages(inFile,imageFolder,depthFolder);
     
     disp('loading other data')
     data=load(inFile,'labels','names');
@@ -15,21 +18,16 @@ function convertNyu2Sun(inPath,outPath)
     disp('extracting good classes')
     classes=extractGoodClasses(data.labels,data.names,outPath);
     
-    extractObjects(split,imageNames,depthNames,data.labels,data.names,classes,outPath)
+    extractObjects(split,imageNames,depthNames,data.labels,data.names,classes,outPath,depthFolder)
 
 end
 
-function [imageNames,depthNames]=extractImages(inFile,outPath)
-    disp('loading image data')
+function [imageNames,depthNames]=extractImages(inFile,imageFolder,depthFolder) %outPath)
     imageName='img_%05d.jpg';
-    imageFolder=fullfile(outPath,'image');
     depthName='depth_%05d.mat';
-    depthFolder=fullfile(outPath,'depth');
+    disp('loading image data')
     if ~exist(imageFolder,'dir')
         [~,~,~]=mkdir(imageFolder);
-    end
-    if ~exist(depthFolder,'dir')
-        [~,~,~]=mkdir(depthFolder);
     end
     data=load(inFile,'images');
     
@@ -40,6 +38,12 @@ function [imageNames,depthNames]=extractImages(inFile,outPath)
         imwrite(data.images(:,:,:,i),fullfile(imageFolder,imageNames{i}));
     end
     
+    clear('data')
+    
+    disp('loading depth data')
+    if ~exist(depthFolder,'dir')
+        [~,~,~]=mkdir(depthFolder);
+    end
     data=load(inFile,'depths');
     
     disp('saving depth')
@@ -62,29 +66,35 @@ function names=extractGoodClasses(labels,names,outPath)
     save(fullfile(outPath,'objectCategories.mat'),'names');
 end
 
-function extractObjects(split,imageNames,depthNames,labels,allNames,goodClasses,outPath)
+function extractObjects(split,imageNames,depthNames,labels,allNames,goodClasses,outPath,depthFolder)
     disp('extracting training set')
-    Dtraining=extractImageSet(imageNames(1,split),depthNames(1,split),labels(:,:,split),allNames,goodClasses);
+    Dtraining=extractImageSet(imageNames(1,split),depthNames(1,split),labels(:,:,split),allNames,goodClasses,depthFolder);
     save(fullfile(outPath,'groundTruthTrain.mat'),'Dtraining');
     clear('Dtraining');
     disp('extracting test set')
-    Dtest=extractImageSet(imageNames(1,~split),depthNames(1,~split),labels(:,:,~split),allNames,goodClasses);
+    Dtest=extractImageSet(imageNames(1,~split),depthNames(1,~split),labels(:,:,~split),allNames,goodClasses,depthFolder);
     save(fullfile(outPath,'groundTruthTest.mat'),'Dtest');
     clear('Dtest');
 end
 
-function im=extractImageSet(imageNames,depthNames,labels,allNames,goodClasses)
+function im=extractImageSet(imageNames,depthNames,labels,allNames,goodClasses,depthFolder)
     goodIndices=find(ismember(allNames,goodClasses));
     nImg=length(imageNames);
+    subN=round(nImg/10);
     im(1,nImg).annotation=struct;
     parfor i=1:nImg
-        disp(['analysing image ' num2str(i) '/' num2str(nImg)])
+        if mod(i,subN)==0
+            disp(['analysing image ' num2str(i) '/' num2str(nImg)])
+        end
         im(1,i).annotation.filename=imageNames{i};
         im(1,i).annotation.depthname=depthNames{i};
         im(1,i).annotation.folder='';
         im(1,i).annotation.imagesize.nrows=480;
         im(1,i).annotation.imagesize.ncols=640;
         im(1,i).annotation.object=detectObjects(labels(:,:,i),allNames,goodIndices);
+        loaded=load(fullfile(depthFolder,depthNames{i}),'depth');
+        im(1,i).annotation.calib=[525 0 319.5;0 525 239.5;0 0 1];
+        im(1,i).annotation.object=DataHandlers.evaluateDepth(im(1,i).annotation.object,loaded.depth,im(1,i).annotation.calib);
     end
 end
 

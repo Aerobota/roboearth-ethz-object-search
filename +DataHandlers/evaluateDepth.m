@@ -1,7 +1,7 @@
-function objects=evaluateDepth(objects,depth,calib,imgsize)
+function objects=evaluateDepth(objects,depth,calib) % ,imgsize is not necessary
     for o=1:length(objects)
         mask=poly2mask(objects(o).polygon.x,...
-            objects(o).polygon.y,imgsize.nrows,imgsize.ncols);
+            objects(o).polygon.y,size(depth,1),size(depth,2));
         medDepth=median(depth(mask==1 & isnan(depth)==0));
         bbPoints=zeros(3,2);
         bbPoints(:,1)=[min(objects(o).polygon.x);min(objects(o).polygon.y);1];

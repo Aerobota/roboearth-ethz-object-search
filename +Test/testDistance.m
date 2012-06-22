@@ -2,7 +2,8 @@ clear all
 
 %% parameters
 
-evidenceGenerator=LearnFunc.VerticalDistanceEvidenceGenerator();
+%evidenceGenerator=LearnFunc.VerticalDistanceEvidenceGenerator();
+evidenceGenerator=LearnFunc.CylindricEvidenceGenerator();
 
 learnFunction='gmm';
 %learnFunction='gaussian';

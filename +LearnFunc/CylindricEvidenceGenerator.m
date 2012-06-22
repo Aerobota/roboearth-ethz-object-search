@@ -1,27 +1,29 @@
 classdef CylindricEvidenceGenerator<LearnFunc.EvidenceGenerator
-    properties(SetAccess='protected')
-        classes;
-        heights;
-    end
-    methods
-        function obj=CylindricEvidenceGenerator(classes,heights)
-            warning('CylindricEvidenceGenerator:notImplemented',...
-                'The class CylindricEvidenceGenerator has not been implemented yet');
-            obj.classes=classes;
-            obj.heights=heights;
-        end
-    end
+%     properties(SetAccess='protected')
+%         classes;
+%     end
+%     methods
+%         function obj=CylindricEvidenceGenerator()
+%             warning('CylindricEvidenceGenerator:notImplemented',...
+%                 'The class CylindricEvidenceGenerator has not been implemented yet');
+% %             obj.classes=classes;
+%         end
+%     end
     methods(Static)
         function evidence=getEvidence(image)
             nObj=length(image.annotation.object);
-            pos=zeros(2,nObj);
-            for o=1:nObj
-                pos(:,o)=[mean(image.annotation.object(o).polygon.x/image.annotation.imagesize.ncols);...
-                    mean(image.annotation.object(o).polygon.y/image.annotation.imagesize.nrows)];
+            %pos=zeros(2,nObj);
+            for o=length(image.annotation.object):-1:1
+                pos(:,o)=[image.annotation.object(o).pos(1);image.annotation.object(o).pos(2);...
+                    image.annotation.object(o).pos(3)];
             end
 
-            evidence(:,:,2)=pos(2*ones(nObj,1),:)-pos(2*ones(nObj,1),:)';
-            evidence(:,:,1)=abs(pos(ones(nObj,1),:)-pos(ones(nObj,1),:)');
+            for d=3:-1:1
+                dist(:,:,d)=pos(d*ones(nObj,1),:)-pos(d*ones(nObj,1),:)';
+            end
+            
+            evidence(:,:,2)=dist(:,:,3);
+            evidence(:,:,1)=sqrt(dist(:,:,1).^2+dist(:,:,2).^2);
         end
     end
 end

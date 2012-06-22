@@ -5,6 +5,7 @@ classdef HOGDetector<DataHandlers.ObjectDetector
 %     end
     properties(SetAccess='protected')
         threshold;
+        models;
     end
     properties(Constant)
         modelPath=[pwd '/Models/'];
@@ -20,16 +21,17 @@ classdef HOGDetector<DataHandlers.ObjectDetector
             % Ensure that the Felzsenzwalb detector is available
             if(~obj.detectorAvailable())
                 addpath(obj.detectorCodePath);
-                assert(obj.detectorAvailable,'HOGDetector:detectClass:HOGNotAvailable',...
+                assert(obj.detectorAvailable(),'HOGDetector:detectClass:HOGNotAvailable',...
                     'The system can''t find the HOG detector toolbox');
             end
         end
         function detections=detectClass(obj,className,image)
             % Load correct model
-            loaded=load([obj.modelPath className obj.modelTag]);
+            %loaded=load([obj.modelPath className obj.modelTag]);
+            model=obj.loadModel(className);
             
             % run detector
-            [dets, boxes] = imgdetect(image, loaded.model, obj.threshold);
+            [dets, boxes] = imgdetect(image, model, obj.threshold);
             %boxes
             %bbox = bboxpred_get(loaded.model.bboxpred, dets, reduceboxes(loaded.model, boxes));
             bbox=boxes;
@@ -39,7 +41,7 @@ classdef HOGDetector<DataHandlers.ObjectDetector
             detections(1,length(top)).name=className;
             for i=1:length(top)
                 detections(i).name=className;
-                detections(i).score=bbox(top(i),end)+obj.threshold;
+                detections(i).score=bbox(top(i),end)-obj.threshold;
                 detections(i).polygon.x(4,1)=bbox(top(i),1);
                 detections(i).polygon.y(4,1)=bbox(top(i),2);
                 detections(i).polygon.x(3,1)=bbox(top(i),1);
@@ -56,6 +58,17 @@ classdef HOGDetector<DataHandlers.ObjectDetector
             available=exist('imgdetect','file')==2 && exist('bboxpred_get','file')==2 &&...
                     exist('reduceboxes','file')==2 && exist('clipboxes','file')==2 &&...
                     exist('nms','file')==2;
+        end
+    end
+    methods(Access='protected')
+        function model=loadModel(obj,class)
+            try
+                model=obj.models.(class);
+            catch
+                loaded=load([obj.modelPath class obj.modelTag]);
+                model=loaded.model;
+                obj.models.(class)=model;
+            end
         end
     end
 end

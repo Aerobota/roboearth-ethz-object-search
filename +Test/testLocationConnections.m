@@ -2,12 +2,12 @@ clear all;
 
 
 %% parameters
-datasetPath='Dataset/Sun09_clean';
+datasetPath='Dataset/NYU';
 %multiOccurence=true;
 
 %% load dataset
-ilgt=DataHandlers.SunGTLoader(datasetPath);
-ildet=DataHandlers.SunDetLoader(datasetPath);
+ilgt=DataHandlers.NYUGTLoader(datasetPath);
+ildet=DataHandlers.NYUDetLoader(datasetPath);
 gtTrain=ilgt.getData(ilgt.trainSet);
 detTrain=ildet.getData(ildet.trainSet);
 

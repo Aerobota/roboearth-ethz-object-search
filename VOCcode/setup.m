@@ -1,16 +1,26 @@
-detectorPath='ObjectDetector';
 global datasetPath
-datasetPath='Dataset/NYU';
-
 global originalPWD;
+global imageLoader;
+
+detectorPath='ObjectDetector';
+datasetPath='Dataset/NYU';
+modelPath='Models';
+removeTemporaries=true;
+
+
 originalPWD=pwd;
+
+
+modelDestFolder=fullfile(originalPWD,modelPath,'New');
+modelFolder=fullfile(originalPWD,modelPath);
+datasetFolder=fullfile(originalPWD,datasetPath);
 
 addpath(originalPWD);
 
 VOCinit
 
 
-removeTemporaries=true;
+
 % global datasetPath;
 % datasetPath=fullfile(pwd,'Dataset/DummySet');
 
@@ -21,8 +31,8 @@ removeTemporaries=true;
 % lowLevelLoaders={DataHandlers.SunGTLoader(fullfile(pwd,'../Sun09/dataset'));...
 %     DataHandlers.GroundTruthLoader(fullfile(pwd,'Dataset/DummySet'))};
 %lowLevelLoaders={DataHandlers.SunGTLoader(fullfile(pwd,'Dataset/NYU_clean'))};
-global imageLoader;
-imageLoader=DataHandlers.NYUGTLoader(fullfile(pwd,'Dataset/NYU'));
+
+imageLoader=DataHandlers.NYUGTLoader(datasetFolder);
 imageLoader.bufferDataset(imageLoader.trainSet,sprintf(VOCopts.imgsetpath,'trainval'));
 
 %imageLoader=CombinedDataLoader(lowLevelLoaders,sprintf(VOCopts.imgsetpath,'trainval'));
@@ -31,7 +41,6 @@ imageLoader.bufferDataset(imageLoader.trainSet,sprintf(VOCopts.imgsetpath,'train
 
 addpath(fullfile(originalPWD,detectorPath));
 cd(detectorPath)
-cd
 
 %list of the classes to be learned
 % classes={'screen';'keyboard';'mouse';'window';'door';'table';'chair'};

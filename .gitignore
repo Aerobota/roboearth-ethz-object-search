@@ -1,5 +1,6 @@
 #ignore temporary files
 *~
+tmp*
 
 #ignore hidden files
 .*

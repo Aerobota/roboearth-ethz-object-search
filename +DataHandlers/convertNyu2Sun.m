@@ -10,7 +10,8 @@ function convertNyu2Sun(inPath,outPath)
 %     warning('image loading deactivated')
     
     disp('loading other data')
-    data=load(inFile,'labels','depths','names');
+    data=load(inFile,'labels','names');
+    data=DataHandlers.removeAliases(data);
     disp('splitting dataset')
     split=rand(size(data.labels,3),1)<0.5;
     disp('extracting good classes')
@@ -89,7 +90,7 @@ function im=extractImageSet(imageNames,depthNames,labels,allNames,goodClasses)
         im(1,i).annotation.imagesize.ncols=640;
         im(1,i).annotation.object=detectObjects(labels(:,:,i),allNames,goodIndices);
     end
-    im=DataHandlers.removeAliases(im);
+    %im=DataHandlers.removeAliases(im);
 end
 
 function object=detectObjects(labels,allNames,goodIndices)

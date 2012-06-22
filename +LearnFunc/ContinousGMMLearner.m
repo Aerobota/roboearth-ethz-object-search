@@ -8,7 +8,7 @@ classdef ContinousGMMLearner<LearnFunc.LocationLearner
     
     methods
         function obj=ContinousGMMLearner(classes,evidenceGenerator)
-            obj=obj@LearnFunc.LocationLearner(classes,evidenceGenerator);
+            obj=obj@LearnFunc.LocationLearner(genvarname(classes),evidenceGenerator);
             for c=1:length(obj.classes)
                 for o=1:length(obj.classes)
                     obj.data.(obj.classes{c}).(obj.classes{o}).mean=[];

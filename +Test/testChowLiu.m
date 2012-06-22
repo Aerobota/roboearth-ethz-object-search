@@ -2,11 +2,11 @@ clear all;
 
 
 %% parameters
-datasetPath='Dataset/Sun09_small';
+datasetPath='Dataset/NYU';
 multiOccurence=true;
 
 %% load dataset
-ilgt=DataHandlers.SunGTLoader(datasetPath);
+ilgt=DataHandlers.NYUGTLoader(datasetPath);
 im=ilgt.getData(ilgt.trainSet);
 
 classes={ilgt.classes.name};
@@ -35,7 +35,7 @@ g=NetFunc.BNTGraph();
 conn.node='node';
 for c=1:length(classes)
     node=NetFunc.BNTSimpleNode(classes{c},occurenceStates);
-    node.connect(parents.(classes{c}),conn);
+    node.connect(parents.(genvarname(classes{c})),conn);
     g.addNode(node);
 end
 
@@ -50,6 +50,6 @@ intConn.loc={'occ'};
 intConn.corr={'occ';'loc'};
 for c=1:length(classes)
     node=NetFunc.BNTStructureNode(classes{c},intConn,states);
-    node.connect(parents.(classes{c}),extConn);
+    node.connect(parents.(genvarname(classes{c})),extConn);
     gplus.addNode(node);
 end

@@ -10,22 +10,23 @@ classdef BNTStructureNode<NetFunc.Node
     
     methods
         function obj=BNTStructureNode(namePrefix,internalConnections,states)
-            obj.nameAll=namePrefix;
+            obj.nameAll=genvarname(namePrefix);
             subNodeNames=fieldnames(states);
             for i=1:length(subNodeNames)
+%                 tmpName=genvarname([obj.nameAll subNodeNames{i}]);
                 obj.parents.([obj.nameAll subNodeNames{i}])=cell(0,1);
                 obj.states.([obj.nameAll subNodeNames{i}])=states.(subNodeNames{i});
             end
-            obj.addParent(namePrefix,internalConnections);
+            obj.addParent(obj.nameAll,internalConnections);
         end
         
         function connect(obj,parentPrefix,subNodeLinks)
             if isempty(parentPrefix)
             elseif ischar(parentPrefix)
-                obj.addParent(parentPrefix,subNodeLinks);
+                obj.addParent(genvarname(parentPrefix),subNodeLinks);
             elseif iscellstr(parentPrefix)
                 for i=1:length(parentPrefix)
-                    obj.addParent(parentPrefix{i},subNodeLinks);
+                    obj.addParent(genvarname(parentPrefix{i}),subNodeLinks);
                 end
             elseif isa(parentPrefix,'NetFunc.Node')
                 obj.addParent(parentPrefix.getNodeName(),subNodeLinks);
@@ -58,7 +59,8 @@ classdef BNTStructureNode<NetFunc.Node
                 assert(all(isfield(obj.states,strcat(obj.nameAll,myNames))),'SUBNODELINKS contains identifiers that don''t exist in the child node');
                 for i=1:length(myNames)
                     obj.parents.([obj.nameAll myNames{i}])=...
-                        vertcat(obj.parents.([obj.nameAll myNames{i}]),strcat(parentPrefix,subNodeLinks.(myNames{i})));
+                        vertcat(obj.parents.([obj.nameAll myNames{i}]),...
+                        strcat(parentPrefix,subNodeLinks.(myNames{i})));
                 end
             end
         end

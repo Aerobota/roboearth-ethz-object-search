@@ -1,4 +1,4 @@
-classdef ObjectDetector
+classdef ObjectDetector<handle
     %% Properties
 %     properties(SetAccess='protected')
 %         classes;

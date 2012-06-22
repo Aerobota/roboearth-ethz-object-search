@@ -5,13 +5,13 @@ clear all
 evidenceGenerator=LearnFunc.VerticalDistanceEvidenceGenerator();
 
 learnFunction='gmm';
-%learnFunction='gaussian';
+learnFunction='gaussian';
 
 
 
 %% load data
-dataPath='Dataset/Sun09_clean';
-ilgt=DataHandlers.SunGTLoader(dataPath);
+dataPath='Dataset/NYU';
+ilgt=DataHandlers.NYUGTLoader(dataPath);
 im=ilgt.getData(ilgt.trainSet);
 
 classes={ilgt.classes.name};

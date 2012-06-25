@@ -39,7 +39,6 @@ hist(listCov)
 thresh=quantile(listCov,0.2);
 sumCandidates=0;
 adjacency=false(length(classes));
-%candidate for connection chooser
 for i=1:N
     for j=1:N
         if any(ll.data.(classes{i}).(classes{j}).cov(:)<thresh)

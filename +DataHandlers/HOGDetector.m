@@ -7,7 +7,7 @@ classdef HOGDetector<DataHandlers.ObjectDetector
     properties(Constant)
         modelPath=[pwd '/Models/'];
         detectorCodePath=[pwd '/ObjectDetector/'];
-        modelTag='_final.mat'
+        modelTag='.mat'
     end
     
     %% Public methods
@@ -34,7 +34,7 @@ classdef HOGDetector<DataHandlers.ObjectDetector
             detections(1,length(top)).name=className;
             for i=1:length(top)
                 detections(i).name=className;
-                detections(i).score=bbox(top(i),end)-obj.threshold;
+                detections(i).score=bbox(top(i),end);
                 detections(i).polygon.x(4,1)=bbox(top(i),1);
                 detections(i).polygon.y(4,1)=bbox(top(i),2);
                 detections(i).polygon.x(3,1)=bbox(top(i),1);

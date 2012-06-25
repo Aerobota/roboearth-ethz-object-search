@@ -1,6 +1,7 @@
 classdef ContinousGMMLearner<LearnFunc.LocationLearner
     properties(Constant)
         minSamples=20;
+        maxComponents=3;
     end
     properties(SetAccess='protected')
         data;
@@ -28,18 +29,20 @@ classdef ContinousGMMLearner<LearnFunc.LocationLearner
     end
     methods(Access='protected')
         function evaluateOrderedSamples(obj,samples)
+            obj.data.samples=samples;
             for i=1:length(obj.classes)
                 for j=1:length(obj.classes)
                     if size(samples{i,j},1)>=obj.minSamples;
-                        [tmpMean,tmpCov,tmpCoeff]=obj.doGMM(samples{i,j});
+                        [tmpMean,tmpCov,tmpCoeff,tmpGMM]=obj.doGMM(samples{i,j});
                         obj.data.(obj.classes{i}).(obj.classes{j}).mean=tmpMean;
                         obj.data.(obj.classes{i}).(obj.classes{j}).cov=tmpCov;
                         obj.data.(obj.classes{i}).(obj.classes{j}).mixCoeff=tmpCoeff;
+                        obj.data.(obj.classes{i}).(obj.classes{j}).gmm=tmpGMM;
                     end
                 end
             end
         end
-        function [outMean,outCov,outCoeff]=doGMM(obj,samples)
+        function [outMean,outCov,outCoeff,gmm]=doGMM(obj,samples)
             randomIndices=randperm(size(samples,1));
             split=ceil(length(randomIndices)/3);
             test={samples(randomIndices(1:split),:),...
@@ -48,8 +51,8 @@ classdef ContinousGMMLearner<LearnFunc.LocationLearner
             train={[samples(randomIndices(split+1:2*split),:);samples(randomIndices(2*split+1:end),:)],...
                 [samples(randomIndices(1:split),:);samples(randomIndices(2*split+1:end),:)],...
                 [samples(randomIndices(1:split),:);samples(randomIndices(split+1:2*split),:)]};
-            score=zeros(3,1);
-            for k=1:length(score)
+            score=zeros(obj.maxComponents,1);
+            for k=1:obj.maxComponents
                 for s=1:length(train)
                     score(k)=score(k)+obj.evaluateModelComplexity(train{s},test{s},k);
                 end

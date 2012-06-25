@@ -1,21 +1,21 @@
-thresh=-1;
+thresh=-1.02;
 datasetPath='Dataset/NYU';
-imageName='img_00005.jpg';
+imageName='img_00006.jpg';
 
 tic
 try
-    img=il.getDataByName(imageName);
+    img=ilgt.getDataByName(imageName);
 catch
-    il=DataHandlers.NYUGTLoader(datasetPath);
-    il.bufferDataset(il.trainSet);
-    img=il.getDataByName(imageName);
+    ilgt=DataHandlers.NYUGTLoader(datasetPath);
+    ilgt.bufferDataset(ilgt.trainSet);
+    img=ilgt.getDataByName(imageName);
 end
-image=imread(fullfile(il.path,il.imageFolder,img.annotation.filename));
+image=imread(fullfile(ilgt.path,ilgt.imageFolder,img.annotation.filename));
 
 det=DataHandlers.HOGDetector(thresh);
 initTime=toc
 tic
-out=det.detectClass('table',image);
+out=det.detectClass('bottle',image);
 detectTime=toc
 
 imshow(image)

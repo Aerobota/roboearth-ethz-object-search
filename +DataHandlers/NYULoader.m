@@ -32,19 +32,20 @@ classdef NYULoader<DataHandlers.DataLoader
                 image=image(1);
             end
         end
-        function bufferDataset(obj,desiredSet,nameListFile)
+        function bufferDataset(obj,desiredSet)
             obj.data=obj.getData(desiredSet);
-            for i=length(obj.data):-1:1
-                obj.names{1,i}=obj.data(i).annotation.filename;
+            obj.extractFileNames;
+        end
+        function addData(obj,inData)
+            obj.data=[obj.data inData];
+            obj.extractFileNames;
+        end
+        function writeNameListFile(obj,nameListFile)
+            fid=fopen(nameListFile,'wt');
+            for n=1:length(obj.names)
+                fprintf(fid,'%s\n',obj.names{n});
             end
-            
-            if nargin>=3
-                fid=fopen(nameListFile,'wt');
-                for n=1:length(obj.names)
-                    fprintf(fid,'%s\n',obj.names{n});
-                end
-                fclose(fid);
-            end
+            fclose(fid);            
         end
     end
     methods(Access='protected')
@@ -57,6 +58,10 @@ classdef NYULoader<DataHandlers.DataLoader
                 classes(i).name=in.names{i};
             end
         end
+        function extractFileNames(obj)
+            for i=length(obj.data):-1:1
+                obj.names{1,i}=obj.data(i).annotation.filename;
+            end            
+        end
     end
-    
 end

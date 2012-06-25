@@ -6,6 +6,7 @@ global imageLoader;
 %% Parameters
 detectorPath='ObjectDetector';
 datasetPath='Dataset/NYU';
+negativePath='Dataset/sun_negative';
 modelPath='Models';
 removeTemporaries=true;
 
@@ -15,6 +16,7 @@ originalPWD=pwd;
 modelDestFolder=fullfile(originalPWD,modelPath,'New');
 modelFolder=fullfile(originalPWD,modelPath);
 datasetFolder=fullfile(originalPWD,datasetPath);
+negativeSamplesFolder=fullfile(originalPWD,negativePath);
 
 addpath(originalPWD);
 addpath(fullfile(originalPWD,detectorPath));
@@ -24,10 +26,13 @@ VOCinit
 
 %% Data loading
 imageLoader=DataHandlers.NYUGTLoader(datasetFolder);
-imageLoader.bufferDataset(imageLoader.trainSet,sprintf(VOCopts.imgsetpath,'trainval'));
-classes={imageLoader.classes.name}';
+imageLoader.bufferDataset(imageLoader.trainSet);
+imageLoader.writeNameListFile(sprintf(VOCopts.imgsetpath,'trainval'));
+negImageLoader=DataHandlers.SunGTLoader(negativeSamplesFolder);
+imageLoader.addData(negImageLoader.getData(negImageLoader.trainSet));
+imageLoader.writeNameListFile(sprintf(VOCopts.imgsetpath,'train'));
 
-[~,~,~]=copyfile(sprintf(VOCopts.imgsetpath,'trainval'),sprintf(VOCopts.imgsetpath,'train'));
+classes={imageLoader.classes.name}';
 
 %% Ready for detector
 cd(detectorPath)

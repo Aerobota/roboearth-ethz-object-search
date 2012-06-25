@@ -29,7 +29,7 @@ function generateSmallDataSet(inpath,outpath)
     for i=1:size(dataPacks,1)
         getImageFiles(output{i},inpath,outpath);
     end
-    disp('coppied image files')
+    disp('copied image files')
     
     for i=1:size(dataPacks,1)
         output{i}=cleanObjects(output{i},classes);

@@ -136,6 +136,7 @@ function object=detectObjects(labels,allNames,goodIndices)
     compInstances=compInstances(instanceConnection);
     instances(instances>0)=compInstances(instances(instances>0));
     
+    goodInstances=true(1,length(uniInstances));
     for o=length(uniInstances):-1:1
         mask=instances==o;
         myLabel=labels(mask==true);
@@ -144,5 +145,9 @@ function object=detectObjects(labels,allNames,goodIndices)
         tmp=[min(row) max(row);min(col) max(col)];
         object(o).polygon.x=[tmp(1,1) tmp(1,1) tmp(1,2) tmp(1,2)];
         object(o).polygon.y=[tmp(2,1) tmp(2,2) tmp(2,2) tmp(2,1)];
+        if min(abs(tmp(:,1)-tmp(:,2)))<5
+            goodInstances(o)=false;
+        end
     end
+    object=object(goodInstances);
 end

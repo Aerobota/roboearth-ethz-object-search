@@ -1,4 +1,4 @@
-classdef PairwiseProbability
+classdef PairwiseOccurrenceMutInf<LearnFunc.MutualInformationEngine
     %PAIRWISEPROBABILITY Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -8,13 +8,33 @@ classdef PairwiseProbability
     end
     
     methods
-        function obj=PairwiseProbability(states)
+        function obj=PairwiseOccurrenceMutInf(states)
             obj.states=states;
             obj.comparer=obj.generateComparer(obj.states);
         
         end
         
-        function pop=occurenceProbability(obj,samples,classes)
+        function pmi=mutualInformation(obj,samples,classes)
+            pop=obj.occurrenceProbability(samples,classes);
+            margP=zeros(size(pop,1),size(pop,3));
+            for i=1:size(margP,1)
+                margP(i,:)=sum(squeeze(pop(i,i,:,:)),2);
+            end
+
+            pmi=zeros(size(pop,1),size(pop,2));
+
+            for i=1:size(pmi,1)
+                for j=i+1:size(pmi,1)
+                    pmi(i,j)=sum(sum(squeeze(pop(i,j,:,:)).*log((squeeze(pop(i,j,:,:))+eps)./(margP(i,:)'*margP(j,:)+eps))));
+                end
+            end
+        end
+    end
+%     methods(Static)
+%         
+%     end
+    methods(Access='protected')
+        function pop=occurrenceProbability(obj,samples,classes)
             pop=zeros(length(classes),length(classes),length(obj.states),length(obj.states)); %pop(i,j,state_i,state_j)
             popDiag=zeros(length(classes),length(classes),length(obj.states),length(obj.states));
 
@@ -46,24 +66,7 @@ classdef PairwiseProbability
 
             pop=pop/nSamples;
         end
-    end
-    methods(Static)
-        function pmi=mutualInformation(pop)
-            margP=zeros(size(pop,1),size(pop,3));
-            for i=1:size(margP,1)
-                margP(i,:)=sum(squeeze(pop(i,i,:,:)),2);
-            end
-
-            pmi=zeros(size(pop,1),size(pop,2));
-
-            for i=1:size(pmi,1)
-                for j=i+1:size(pmi,1)
-                    pmi(i,j)=sum(sum(squeeze(pop(i,j,:,:)).*log((squeeze(pop(i,j,:,:))+eps)./(margP(i,:)'*margP(j,:)+eps))));
-                end
-            end
-        end
-    end
-    methods(Access='protected')
+        
         function indices=getStateIndices(obj,counts)
             assert(size(counts,1)==1,'PairwiseProbability:getStateIndices:matrixSize',...
                 'Counts has to be a row vector.');

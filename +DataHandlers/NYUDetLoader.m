@@ -10,6 +10,10 @@ classdef NYUDetLoader<DataHandlers.NYULoader
     methods
         function obj=NYUDetLoader(filePath)
             obj=obj@DataHandlers.NYULoader(filePath);
+            if ~exist(fullfile(obj.path,obj.trainSet{2})) ||...
+                    ~exist(fullfile(obj.path,obj.testSet{2}))
+                warning('Detections are not extracted yet');
+            end
         end
         function extractDetections(obj,groundTruthLoader,detector)
             Ddetectortraining=obj.runDetector(groundTruthLoader.getData(groundTruthLoader.trainSet),...

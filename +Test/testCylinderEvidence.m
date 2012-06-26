@@ -7,4 +7,4 @@ for i=5:-1:1
     image.annotation.object(i).pos=tmpPos(:,i);
 end
 
-e=eviGen.getEvidence(image)
+e=eviGen.getRelativeEvidence(image)

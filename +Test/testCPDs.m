@@ -1,3 +1,5 @@
+clear states intConn
+
 states.corr={'correct';'false positive'};
 states.loc={'continous'};
 states.score={'continous'};

@@ -1,7 +1,10 @@
 classdef CylindricEvidenceGenerator<LearnFunc.EvidenceGenerator
     methods(Static)
-        function evidence=getEvidence(image)
+        function pos=getAbsoluteEvidence(image)
             pos=[image.annotation.object.pos];
+        end
+        function evidence=getRelativeEvidence(image)
+            pos=LearnFunc.CylindricEvidenceGenerator.getAbsoluteEvidence(image);
 
             for d=3:-1:1
                 dist(:,:,d)=bsxfun(@minus,pos(d,:)',pos(d,:));

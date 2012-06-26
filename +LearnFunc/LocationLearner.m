@@ -31,7 +31,7 @@ classdef LocationLearner<handle
             samples=cell(length(classes),length(classes));
             for i=1:length(images)
                 nObj=length(images(i).annotation.object);
-                evidence=obj.evidenceGenerator.getEvidence(images(i));
+                evidence=obj.evidenceGenerator.getRelativeEvidence(images(i));
                 
                 for o=1:nObj
                     for t=o+1:nObj

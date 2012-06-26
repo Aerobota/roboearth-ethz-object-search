@@ -1,3 +1,5 @@
+assert(isa(ll,'LearnFunc.LocationLearner') && iscellstr(classes),'Need to run testDistance first')
+
 objects={'floor','window'};
 
 ind1=ismember(classes,objects{1});

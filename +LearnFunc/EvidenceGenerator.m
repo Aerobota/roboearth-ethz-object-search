@@ -1,5 +1,6 @@
 classdef EvidenceGenerator
     methods(Abstract)
-        evidence=getEvidence(image);
+        evidence=getRelativeEvidence(image);
+        evidence=getAbsoluteEvidence(image);
     end
 end

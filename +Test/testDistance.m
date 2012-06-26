@@ -2,8 +2,8 @@ clear all
 
 %% parameters
 
-%evidenceGenerator=LearnFunc.VerticalDistanceEvidenceGenerator();
-evidenceGenerator=LearnFunc.CylindricEvidenceGenerator();
+%evidenceMethod=@LearnFunc.VerticalDistanceEvidenceGenerator.getRelativeEvidence;
+evidenceMethod=@LearnFunc.CylindricEvidenceGenerator.getRelativeEvidence;
 
 learnFunction='gmm';
 %learnFunction='gaussian';
@@ -17,9 +17,9 @@ classes={ilgt.classes.name};
 
 %% learn location parameters
 if strcmpi(learnFunction,'gmm')
-    ll=LearnFunc.ContinousGMMLearner(classes,evidenceGenerator);
+    ll=LearnFunc.ContinousGMMLearner(classes,evidenceMethod);
 else
-	ll=LearnFunc.ContinousGaussianLearner(classes,evidenceGenerator);
+	ll=LearnFunc.ContinousGaussianLearner(classes,evidenceMethod);
 end
 tic
 ll.learnLocations(im);

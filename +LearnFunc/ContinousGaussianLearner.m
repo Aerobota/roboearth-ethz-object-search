@@ -1,14 +1,7 @@
-classdef ContinousGaussianLearner<LearnFunc.LocationLearner
-    properties(Constant)
-        minSamples=20;
-    end
-    properties(SetAccess='protected')
-        data;
-    end
-    
+classdef ContinousGaussianLearner<LearnFunc.ParameterLearner    
     methods
         function obj=ContinousGaussianLearner(classes,evidenceGenerator)
-            obj=obj@LearnFunc.LocationLearner(classes,evidenceGenerator);
+            obj=obj@LearnFunc.ParameterLearner(classes,evidenceGenerator);
             for c=1:length(obj.classes)
                 for o=1:length(obj.classes)
                     obj.data.(obj.classes{c}).(obj.classes{o}).mean=[];

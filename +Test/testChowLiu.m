@@ -18,9 +18,9 @@ else
     occurrenceStates={'0','1+'};
 end
 
-CLLearner=LearnFunc.ChowLiuOccurrenceLearner(occurrenceStates);
+CLLearner=LearnFunc.ChowLiuOccurrenceLearner(occurrenceStates,classes);
 
-parents=CLLearner.learnStructure(im,classes);
+parents=CLLearner.learnStructure(im);
 
 % pp=LearnFunc.PairwiseProbability(occurenceStates);
 % 

@@ -1,13 +1,17 @@
-classdef OccurrenceLearner<handle
-    %OCCURENCELEARNER Summary of this class goes here
+classdef StructureLearner<LearnFunc.Learner
+    %STRUCTURELEARNER Summary of this class goes here
     %   Detailed explanation goes here
     
-    properties
+    methods
+        function obj=StructureLearner(classes,evidenceMethod)
+            obj=obj@LearnFunc.Learner(classes,evidenceMethod);
+        end
     end
     
     methods(Abstract)
         dependencies=learnStructure(obj,data)
     end
+    
     methods(Access='protected',Static)
         function tf=connected(adj,i,j)
             if i==j
@@ -32,7 +36,7 @@ classdef OccurrenceLearner<handle
         end
         function parent=directGraph(adjacency,nodeNames,root)
             if nargin<3
-                root=LearnFunc.OccurrenceLearner.findRoot(adjacency);
+                root=LearnFunc.StructureLearner.findRoot(adjacency);
             end
 
             cNodes=root;

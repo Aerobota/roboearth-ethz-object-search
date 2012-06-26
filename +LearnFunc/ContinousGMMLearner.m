@@ -1,15 +1,11 @@
-classdef ContinousGMMLearner<LearnFunc.LocationLearner
+classdef ContinousGMMLearner<LearnFunc.ParameterLearner
     properties(Constant)
-        minSamples=20;
         maxComponents=3;
-    end
-    properties(SetAccess='protected')
-        data;
     end
     
     methods
         function obj=ContinousGMMLearner(classes,evidenceGenerator)
-            obj=obj@LearnFunc.LocationLearner(genvarname(classes),evidenceGenerator);
+            obj=obj@LearnFunc.ParameterLearner(genvarname(classes),evidenceGenerator);
             for c=1:length(obj.classes)
                 for o=1:length(obj.classes)
                     obj.data.(obj.classes{c}).(obj.classes{o}).mean=[];

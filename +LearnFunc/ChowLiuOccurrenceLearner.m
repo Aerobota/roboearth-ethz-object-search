@@ -1,4 +1,4 @@
-classdef ChowLiuOccurrenceLearner<LearnFunc.OccurrenceLearner
+classdef ChowLiuOccurrenceLearner<LearnFunc.StructureLearner
     %CHOWLIUOCCURENCELEARNER Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -7,14 +7,15 @@ classdef ChowLiuOccurrenceLearner<LearnFunc.OccurrenceLearner
     end
     
     methods
-        function obj=ChowLiuOccurrenceLearner(states)
+        function obj=ChowLiuOccurrenceLearner(states,classes)
+            obj=obj@LearnFunc.StructureLearner(classes,0);
             obj.mutInfEngine=LearnFunc.PairwiseOccurrenceMutInf(states);
         end
-        function dependencies=learnStructure(obj,data,classes)
-            classes=genvarname(classes);
-            pmi=obj.mutInfEngine.mutualInformation(data,classes);
+        function dependencies=learnStructure(obj,data)
+%             classes=genvarname(classes);
+            pmi=obj.mutInfEngine.mutualInformation(data,obj.classes);
             adjacency=obj.generateChowLiu(pmi);
-            dependencies=obj.directGraph(adjacency,classes);
+            dependencies=obj.directGraph(adjacency,obj.classes);
         end
     end
     methods(Access='protected',Static)

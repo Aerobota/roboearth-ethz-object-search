@@ -26,7 +26,7 @@ classdef LocationLearner<handle
         end
     end
     
-    methods(Access='private')
+    methods(Access='protected')
         function samples=orderEvidenceSamples(obj,classes,images)
             samples=cell(length(classes),length(classes));
             for i=1:length(images)

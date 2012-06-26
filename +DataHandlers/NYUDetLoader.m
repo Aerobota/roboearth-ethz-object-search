@@ -10,8 +10,8 @@ classdef NYUDetLoader<DataHandlers.NYULoader
     methods
         function obj=NYUDetLoader(filePath)
             obj=obj@DataHandlers.NYULoader(filePath);
-            if ~exist(fullfile(obj.path,obj.trainSet{2})) ||...
-                    ~exist(fullfile(obj.path,obj.testSet{2}))
+            if ~exist(fullfile(obj.path,obj.trainSet{2}),'file') ||...
+                    ~exist(fullfile(obj.path,obj.testSet{2}),'file')
                 warning('Detections are not extracted yet');
             end
         end

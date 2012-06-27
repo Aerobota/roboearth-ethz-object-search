@@ -2,10 +2,11 @@ classdef ParameterLearner<LearnFunc.Learner
     %PARAMETERLEARNER Summary of this class goes here
     %   Detailed explanation goes here
     properties(Constant)
-        minSamples=20;
+        minSamples=20
     end
     properties(SetAccess='protected')
-        data;
+        data
+        evidenceGenerator
     end
     
     methods(Abstract)
@@ -17,11 +18,12 @@ classdef ParameterLearner<LearnFunc.Learner
     end
     
     methods
-        function obj=ParameterLearner(classes,evidenceMethod)
-            obj=obj@LearnFunc.Learner(classes,evidenceMethod);
+        function obj=ParameterLearner(classes,evidenceGenerator)
+            obj=obj@LearnFunc.Learner(classes);
+            obj.evidenceGenerator=evidenceGenerator;
         end
-        function learnLocations(obj,images)
-            samples=obj.orderEvidenceSamples(obj.classes,images);
+        function learnParameters(obj,images)
+            samples=obj.evidenceGenerator.orderRelativeEvidenceSamples(images,obj.classes);
             obj.evaluateOrderedSamples(samples);
         end
     end

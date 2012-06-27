@@ -34,6 +34,7 @@ classdef ContinousGMMLearner<LearnFunc.ParameterLearner
                         obj.data.(obj.classes{i}).(obj.classes{j}).cov=tmpCov;
                         obj.data.(obj.classes{i}).(obj.classes{j}).mixCoeff=tmpCoeff;
                         obj.data.(obj.classes{i}).(obj.classes{j}).gmm=tmpGMM;
+                        obj.data.(obj.classes{i}).(obj.classes{j}).nrSamples=size(samples{i,j},1);
                     end
                 end
             end

@@ -3,8 +3,8 @@ classdef StructureLearner<LearnFunc.Learner
     %   Detailed explanation goes here
     
     methods
-        function obj=StructureLearner(classes,evidenceMethod)
-            obj=obj@LearnFunc.Learner(classes,evidenceMethod);
+        function obj=StructureLearner(classes)
+            obj=obj@LearnFunc.Learner(classes);
         end
     end
     

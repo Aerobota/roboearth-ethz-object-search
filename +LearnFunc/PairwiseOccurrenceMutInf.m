@@ -11,7 +11,6 @@ classdef PairwiseOccurrenceMutInf<LearnFunc.MutualInformationEngine
         function obj=PairwiseOccurrenceMutInf(states)
             obj.states=states;
             obj.comparer=obj.generateComparer(obj.states);
-        
         end
         
         function pmi=mutualInformation(obj,samples,classes)
@@ -29,11 +28,7 @@ classdef PairwiseOccurrenceMutInf<LearnFunc.MutualInformationEngine
                 end
             end
         end
-    end
-%     methods(Static)
-%         
-%     end
-    methods(Access='protected')
+        
         function pop=occurrenceProbability(obj,samples,classes)
             pop=zeros(length(classes),length(classes),length(obj.states),length(obj.states)); %pop(i,j,state_i,state_j)
             popDiag=zeros(length(classes),length(classes),length(obj.states),length(obj.states));
@@ -66,7 +61,11 @@ classdef PairwiseOccurrenceMutInf<LearnFunc.MutualInformationEngine
 
             pop=pop/nSamples;
         end
-        
+    end
+%     methods(Static)
+%         
+%     end
+    methods(Access='protected')
         function indices=getStateIndices(obj,counts)
             assert(size(counts,1)==1,'PairwiseProbability:getStateIndices:matrixSize',...
                 'Counts has to be a row vector.');

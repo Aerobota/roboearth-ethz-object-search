@@ -27,6 +27,7 @@ classdef ContinousGaussianLearner<LearnFunc.ParameterLearner
                         tmpCov=cov(samples{i,j});
                         obj.data.(obj.classes{i}).(obj.classes{j}).mean=tmpMean';
                         obj.data.(obj.classes{i}).(obj.classes{j}).cov=tmpCov;
+                        obj.data.(obj.classes{i}).(obj.classes{j}).nrSamples=size(samples{i,j},1);
                     end
                 end
             end

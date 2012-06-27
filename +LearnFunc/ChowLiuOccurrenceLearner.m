@@ -8,7 +8,7 @@ classdef ChowLiuOccurrenceLearner<LearnFunc.StructureLearner
     
     methods
         function obj=ChowLiuOccurrenceLearner(states,classes)
-            obj=obj@LearnFunc.StructureLearner(classes,0);
+            obj=obj@LearnFunc.StructureLearner(classes);
             obj.mutInfEngine=LearnFunc.PairwiseOccurrenceMutInf(states);
         end
         function dependencies=learnStructure(obj,data)

@@ -2,6 +2,7 @@ classdef NYULoader<DataHandlers.DataLoader
     %SUNLOADER Summary of this class goes here
     %   Detailed explanation goes here
     
+    %% Properties
     properties(SetAccess='protected')
         data
         names
@@ -13,10 +14,15 @@ classdef NYULoader<DataHandlers.DataLoader
         depthFolder='depth'
     end
     
+    %% Interface Methods
     methods
-        function obj=NYULoader(filePath)
+        function obj=NYULoader(filePath,classes)
             obj=obj@DataHandlers.DataLoader(filePath);
-            obj.classes=obj.getClasses();
+            if nargin<2
+                obj.classes=obj.getClasses();
+            else
+                obj.classes=classes;
+            end
         end
         function out=getData(obj,desiredSet)
             tmpPath=fullfile(obj.path,desiredSet{2});
@@ -48,6 +54,8 @@ classdef NYULoader<DataHandlers.DataLoader
             fclose(fid);            
         end
     end
+    
+    %% Protected Methods for Loading
     methods(Access='protected')
         function classes=getClasses(obj)
             tmpPath=fullfile(obj.path,obj.catFileName);
@@ -58,10 +66,39 @@ classdef NYULoader<DataHandlers.DataLoader
                 classes(i).name=in.names{i};
             end
         end
+        
         function extractFileNames(obj)
             for i=length(obj.data):-1:1
                 obj.names{1,i}=obj.data(i).annotation.filename;
             end            
+        end
+    end
+    
+    %% Protected Methods for File Conversion
+    methods(Access='protected')
+        function tmp_data=removeAliasesImpl(~,tmp_data,alias)
+            tmp_data.names=genvarname(tmp_data.names);
+            relabel=(1:length(tmp_data.names))';
+            myAlias=(1:length(tmp_data.names))';
+            goodLabel=true(size(tmp_data.names));
+            for i=1:length(tmp_data.names)
+                if isfield(alias,tmp_data.names{i})
+                    mem=ismember(tmp_data.names,alias.(tmp_data.names{i}));
+                    if any(mem)
+                        goodLabel(i)=false;
+                        myAlias(i)=find(mem);
+                    else
+                        tmp_data.names{i}=alias.(tmp_data.names{i});
+                    end
+                end
+                relabel(i)=sum(goodLabel(1:i));
+            end
+            tmp_data.names=tmp_data.names(goodLabel);
+            for i=1:size(tmp_data.labels,3)
+                tmpLabel=tmp_data.labels(:,:,i);
+                tmpLabel(tmpLabel~=0)=relabel(myAlias(tmpLabel(tmpLabel~=0)));
+                tmp_data.labels(:,:,i)=tmpLabel;
+            end
         end
     end
 end

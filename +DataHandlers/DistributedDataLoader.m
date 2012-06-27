@@ -104,8 +104,6 @@ classdef DistributedDataLoader<DataHandlers.DataLoader
                 split=rand(length(fileNameList),1)<0.5;
             end
             
-            split
-            
             obj.files.(obj.trainSet)=fileNameList(split);
             obj.files.(obj.testSet)=fileNameList(~split);
             
@@ -120,6 +118,10 @@ classdef DistributedDataLoader<DataHandlers.DataLoader
             if any(badNames)
                 obj.writeFileNameListFile(tmpPath,oldNames(~badNames,1));
             end
+        end
+        
+        function data=removeAliasesImpl(~,data,~)
+            warning('removeAliasesImpl:notImplemented','Not implemented')
         end
     end
     

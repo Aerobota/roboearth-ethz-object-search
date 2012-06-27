@@ -16,7 +16,8 @@ classdef DataLoader<handle
     %% Public Methods
     methods
         function obj=DataLoader(filePath)
-            obj.path=DataHandlers.checkPath(filePath);
+            assert(exist(filePath,'dir')>0,'DataLoader:DirectoryNotFound','The specified directory was not found');
+            obj.path=filePath;
         end
     end
     methods(Abstract)

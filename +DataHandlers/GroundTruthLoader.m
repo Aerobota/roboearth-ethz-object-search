@@ -21,7 +21,7 @@ classdef GroundTruthLoader<DataHandlers.DistributedDataLoader
         end
         
         function clean(obj)
-            [~,~,~]=rmdir([obj.path obj.combPath.path],'s');
+            [~,~,~]=rmdir(fullfile(obj.path,obj.combPath.path),'s');
         end
     end
     
@@ -50,8 +50,8 @@ classdef GroundTruthLoader<DataHandlers.DistributedDataLoader
                 obj.checkCompleteness(name)
                 image.annotation=obj.generateImage(name);
 
-                if ~exist([obj.path obj.combPath.path],'dir')
-                    [~,~,~]=mkdir([obj.path obj.combPath.path]);
+                if ~exist(fullfile(obj.path,obj.combPath.path),'dir')
+                    [~,~,~]=mkdir(fullfile(obj.path,obj.combPath.path));
                 end
 
                 save(longCombPath,'-struct','image');
@@ -88,7 +88,7 @@ classdef GroundTruthLoader<DataHandlers.DistributedDataLoader
             imageData.filename=obj.imgPath.getFileName(name);
             imageData.folder='';
             imageData.object=searchObjects(obj.annoPath.getPath(name,obj.path));
-            tmpRGB=imread([obj.path imageData.img]);
+            tmpRGB=imread(fullfile(obj.path,imageData.img));
             tmpSize=size(tmpRGB);
             assert(all(tmpSize(1:2)==size(imageData.depth)),'RGB and Depth image have different sizes');
             imageData.imagesize.nrows=tmpSize(1);
@@ -107,8 +107,8 @@ classdef GroundTruthLoader<DataHandlers.DistributedDataLoader
                     movefile(tmpAnno,obj.annoPath.getPath(name,obj.path));
                 end
 
-                if length(dir([tmpPath filesep obj.imgPath.path '*']))<=2
-                    [~,~,~]=rmdir([tmpPath filesep obj.imgPath.path]);
+                if length(dir(fullfile(tmpPath,obj.imgPath.path,'*')))<=2
+                    [~,~,~]=rmdir(fullfile(tmpPath,obj.imgPath.path));
                 end
             end
         end

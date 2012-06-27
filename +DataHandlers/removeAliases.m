@@ -22,22 +22,24 @@ function data=removeAliases(data)
     elseif isfield(data,'labels') && isfield(data,'names')
         data.names=genvarname(data.names);
         relabel=(1:length(data.names))';
+        myAlias=(1:length(data.names))';
         goodLabel=true(size(data.names));
         for i=1:length(data.names)
             if isfield(alias,data.names{i})
                 mem=ismember(data.names,alias.(data.names{i}));
                 if any(mem)
                     goodLabel(i)=false;
-                    relabel(i)=relabel(mem);
+                    myAlias(i)=find(mem);
                 else
                     data.names{i}=alias.(data.names{i});
                 end
             end
+            relabel(i)=sum(goodLabel(1:i));
         end
         data.names=data.names(goodLabel);
         for i=1:size(data.labels,3)
             tmpLabel=data.labels(:,:,i);
-            tmpLabel(tmpLabel~=0)=relabel(tmpLabel(tmpLabel~=0));
+            tmpLabel(tmpLabel~=0)=relabel(myAlias(tmpLabel(tmpLabel~=0)));
             data.labels(:,:,i)=tmpLabel;
         end
     else

@@ -23,7 +23,7 @@ classdef QueryLoader<DataHandlers.DistributedDataLoader
         end
         
         function clean(obj)
-            [~,~,~]=rmdir([obj.path obj.queryPath.path],'s');
+            [~,~,~]=rmdir(fullfile(obj.path,obj.queryPath.path),'s');
             obj.imageDataLoader.clean();
         end
     end
@@ -52,8 +52,8 @@ classdef QueryLoader<DataHandlers.DistributedDataLoader
                 detections=DataHandlers.evaluateDepth(detections,image.annotation.depth,...
                     image.annotation.calib,image.annotation.imagesize);
                 
-                if ~exist([obj.path obj.queryPath.path],'dir')
-                    [~,~,~]=mkdir([obj.path obj.queryPath.path]);
+                if ~exist(fullfile(obj.path,obj.queryPath.path),'dir')
+                    [~,~,~]=mkdir(fullfile(obj.path,obj.queryPath.path));
                 end
 
                 save(longQueryPath,'detections');

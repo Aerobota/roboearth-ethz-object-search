@@ -5,8 +5,8 @@ classdef HOGDetector<DataHandlers.ObjectDetector
         models;
     end
     properties(Constant)
-        modelPath=[pwd '/Models/'];
-        detectorCodePath=[pwd '/ObjectDetector/'];
+        modelPath=fullfile(pwd,'Models');
+        detectorCodePath=fullfile(pwd,'ObjectDetector');
         modelTag='.mat'
     end
     
@@ -59,7 +59,7 @@ classdef HOGDetector<DataHandlers.ObjectDetector
             try
                 model=obj.models.(class);
             catch
-                loaded=load([obj.modelPath class obj.modelTag]);
+                loaded=load(fullfile(obj.modelPath[class obj.modelTag]));
                 model=loaded.model;
                 obj.models.(class)=model;
             end

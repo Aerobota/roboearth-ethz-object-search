@@ -70,17 +70,17 @@ classdef ContinousGMMLearner<LearnFunc.ParameterLearner
         end
     end
     methods(Static,Access='protected')    
-        function score=evaluateModelComplexity(trainSet,testSet,modelComplexity)
+        function score=evaluateModelComplexity(trainSet,testSet,k)
             warning('off','stats:gmdistribution:FailedToConverge')
             try
-                gmm=gmdistribution.fit(trainSet,modelComplexity);
+                gmm=gmdistribution.fit(trainSet,k);
                 [~,NLogN]=gmm.posterior(testSet);
             catch
                 score=inf;
                 return
             end
-            d=size(testSet,2);
-            score=2*NLogN+(modelComplexity*(d+d^2)-1)*log(size(testSet,1));
+            [n,d]=size(testSet);
+            score=2*NLogN+(k*d^2/2+1.5*k*d+k-1)*log(n);
         end
     end
 end

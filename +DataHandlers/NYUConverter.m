@@ -22,7 +22,7 @@ classdef NYUConverter<DataHandlers.NYULoader
         
         function convertFromNyuDataset(obj)
             obj.convertNyu2Sun(obj.path,obj.targetPath);
-            obj.generateNegativeDataSet(obj.path,obj.targetPath,obj.negativeDataLoader);
+            obj.generateNegativeDataSet(obj.negativeDataLoader,obj.targetPath);
         end
     end
     
@@ -94,8 +94,8 @@ classdef NYUConverter<DataHandlers.NYULoader
                 counts=counts+ismember(numbers,labels(:,:,i));
             end
             tmp_names=tmp_names(counts>100)';
-
-            save(fullfile(outPath,DataHandlers.NYUConverter.catFileName),'tmp_names');
+            tmpSave.names=tmp_names;
+            save(fullfile(outPath,DataHandlers.NYUConverter.catFileName),'-struct','tmpSave');
         end
 
         function extractObjects(split,imageNames,depthNames,labels,allNames,goodClasses,outPath,tmp_depthFolder)
@@ -127,7 +127,7 @@ classdef NYUConverter<DataHandlers.NYULoader
                 im(1,i).annotation.imagesize.ncols=640;
                 im(1,i).annotation.object=DataHandlers.NYUConverter.detectObjects(labels(:,:,i),allNames,goodIndices);
                 loaded=load(fullfile(tmp_depthFolder,depthNames{i}),'depth');
-                im(1,i).annotation.calib=[525 0 319.5;0 525 239.5;0 0 1];
+                im(1,i).annotation.calib=[525 0 239.5;0 525 319.5;0 0 1];
                 im(1,i).annotation.object=DataHandlers.evaluateDepth(im(1,i).annotation.object,loaded.depth,im(1,i).annotation.calib);
             end
         end
@@ -186,11 +186,7 @@ classdef NYUConverter<DataHandlers.NYULoader
             object=object(goodInstances);
         end
         
-        function generateNegativeDataSet(inpath,outpath,ilgt)
-%             scenes={'outdoor','road','street','mountain'};
-%             maxNum=600;
-
-            %ilgt=DataHandlers.SunGTLoader(inpath);
+        function generateNegativeDataSet(ilgt,outpath)
 
             dataPacks=[{ilgt} ilgt.trainSet];
 
@@ -204,7 +200,7 @@ classdef NYUConverter<DataHandlers.NYULoader
             end
 
             for i=1:size(dataPacks,1)
-                DataHandlers.NYUConverter.getImageFiles(output{i},inpath,outpath);
+                DataHandlers.NYUConverter.getImageFiles(output{i},ilgt,outpath);
             end
             disp('copied image files')
 
@@ -224,8 +220,8 @@ classdef NYUConverter<DataHandlers.NYULoader
                 clear tmpData;
             end
 
-            [~,~,~]=copyfile(fullfile(inpath,'sun09_objectCategories.mat'),...
-                fullfile(outpath,'sun09_objectCategories.mat'));
+            [~,~,~]=copyfile(fullfile(ilgt.path,ilgt.catFileName),...
+                fullfile(outpath,ilgt.catFileName));
         end
 
 
@@ -250,12 +246,12 @@ classdef NYUConverter<DataHandlers.NYULoader
             out=im(sceneSelection);
         end
 
-        function getImageFiles(tmp_data,inPath,outPath)
+        function getImageFiles(tmp_data,ilgt,outPath)
             for i=1:length(tmp_data)
-                inImg=fullfile(inPath,'Images',tmp_data(i).annotation.folder,tmp_data(i).annotation.filename);
-                outDir=fullfile(outPath,'image',tmp_data(i).annotation.folder);
+                inImg=fullfile(ilgt.path,ilgt.imageFolder,tmp_data(i).annotation.folder,tmp_data(i).annotation.filename);
+                outDir=fullfile(outPath,ilgt.imageFolder,tmp_data(i).annotation.folder);
                 outImg=fullfile(outDir,tmp_data(i).annotation.filename);
-                if exist(inImg,'file') && ~exist(outImg,'file')
+                if ~exist(outImg,'file')
                     if ~exist(outDir,'dir')
                         [~,~,~]=mkdir(outDir);
                     end

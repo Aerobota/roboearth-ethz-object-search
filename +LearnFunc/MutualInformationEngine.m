@@ -2,11 +2,12 @@ classdef MutualInformationEngine
     %MUTUALINFORMATIONENGINE Summary of this class goes here
     %   Detailed explanation goes here
     
-%     properties(SetAccess='protected')
-%     end
+    properties(Constant)
+        minSamples=20;
+    end
     
     methods(Abstract)
-        mutInf=mutualInformation(obj,samples,classes)
+        mutInf=mutualInformation(obj,data,classes)
     end
     
 end

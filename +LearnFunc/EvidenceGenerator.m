@@ -7,15 +7,15 @@ classdef EvidenceGenerator
     
     methods
         function samples=orderRelativeEvidenceSamples(obj,images,classes)
+            name2ind=LearnFunc.EvidenceGenerator.generateIndexLookup(classes);
             samples=cell(length(classes),length(classes));
             for i=1:length(images)
-%                 nObj=length(images(i).annotation.object);
                 evidence=obj.getRelativeEvidence(images(i));
                 
                 for o=1:length(images(i).annotation.object)
                     for t=o+1:length(images(i).annotation.object)
-                        indo=ismember(classes,images(i).annotation.object(o).name);
-                        indt=ismember(classes,images(i).annotation.object(t).name);
+                        indo=name2ind.(images(i).annotation.object(o).name);
+                        indt=name2ind.(images(i).annotation.object(t).name);
                         samples{indo,indt}(end+1,:)=evidence(o,t,:);
                         samples{indt,indo}(end+1,:)=evidence(t,o,:);
                     end
@@ -23,15 +23,28 @@ classdef EvidenceGenerator
             end
         end
         function samples=orderAbsoluteEvidenceSamples(obj,images,classes)
-            samples=cell(1,length(classes));
+            name2ind=LearnFunc.EvidenceGenerator.generateIndexLookup(classes);
+            samples=cell(length(classes),length(classes));
             for i=1:length(images)
-%                 nObj=length(images(i).annotation.object);
                 evidence=obj.getAbsoluteEvidence(images(i));
                 
                 for o=1:length(images(i).annotation.object)
-                    ind=ismember(classes,images(i).annotation.object(o).name);
-                    samples{ind}(:,end+1)=evidence(:,o);
+                    for t=o+1:length(images(i).annotation.object)
+                        indo=name2ind.(images(i).annotation.object(o).name);
+                        indt=name2ind.(images(i).annotation.object(t).name);
+                        samples{indo,indt}(end+1,1,:)=evidence(o,o,:);
+                        samples{indo,indt}(end,2,:)=evidence(o,t,:);
+                        samples{indt,indo}(end+1,1,:)=evidence(t,t,:);
+                        samples{indt,indo}(end,2,:)=evidence(t,o,:);
+                    end
                 end
+            end
+        end
+    end
+    methods(Static,Access='protected')
+        function name2ind=generateIndexLookup(names)
+            for i=1:length(names)
+                name2ind.(genvarname(names{i}))=i;
             end
         end
     end

@@ -6,7 +6,7 @@ global imageLoader;
 %% Parameters
 detectorPath='ObjectDetector';
 datasetPath='Dataset/NYU';
-negativePath='Dataset/sun_negative';
+negativePath='Dataset/NYU';
 modelPath='Models';
 removeTemporaries=true;
 

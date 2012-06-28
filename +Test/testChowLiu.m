@@ -22,17 +22,6 @@ CLLearner=LearnFunc.ChowLiuOccurrenceLearner(occurrenceStates,classes);
 
 parents=CLLearner.learnStructure(im);
 
-% pp=LearnFunc.PairwiseProbability(occurenceStates);
-% 
-% pop=pp.occurenceProbability(im,classes);
-% 
-% pmi=pp.mutualInformation(pop);
-% 
-% %% learn chow-liu tree
-% adjacency=LearnFunc.generateChowLiu(pmi);
-% 
-% parents=LearnFunc.directGraph(adjacency,classes);
-
 
 %% build simple graph with only one node per class
 g=NetFunc.BNTGraph();

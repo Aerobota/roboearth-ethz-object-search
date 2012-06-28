@@ -1,13 +1,20 @@
 classdef VerticalDistanceEvidenceGenerator<LearnFunc.EvidenceGenerator
     methods(Static)
-        function pos=getAbsoluteEvidence(image)
-            p=[image.annotation.object.polygon];
-            pos=mean(vertcat(p.y)'/image.annotation.imagesize.nrows);
+        function evidence=getAbsoluteEvidence(image)
+            pos=LearnFunc.VerticalDistanceEvidenceGenerator.getPositionEvidence(image);
+            evidence(:,:,1)=pos(ones(length(pos),1),:);
         end
         function evidence=getRelativeEvidence(image)
-            pos=LearnFunc.VerticalDistanceEvidenceGenerator.getAbsoluteEvidence(image);
+            pos=LearnFunc.VerticalDistanceEvidenceGenerator.getPositionEvidence(image);
             evidence(:,:,1)=pos(ones(length(image.annotation.object),1),:)...
                 -pos(ones(length(image.annotation.object),1),:)';
+        end
+    end
+    methods(Static,Access='protected')
+        function pos=getPositionEvidence(image)
+            for o=length(image.annotation.object):-1:1
+                pos(1,o)=mean(image.annotation.object(o).polygon.y)/image.annotation.imagesize.nrows;
+            end
         end
     end
 end

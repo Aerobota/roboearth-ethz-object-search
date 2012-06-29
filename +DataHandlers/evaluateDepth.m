@@ -1,4 +1,5 @@
 function objects=evaluateDepth(objects,depth,calib) % ,imgsize is not necessary
+    warning('evaluateDepth:deprecated','Deprecated')
     for o=1:length(objects)
         mask=poly2mask(objects(o).polygon.y,...
             objects(o).polygon.x,size(depth,1),size(depth,2));

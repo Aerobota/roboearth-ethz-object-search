@@ -21,7 +21,7 @@ classdef NYUConverter<DataHandlers.NYULoader
         end
         
         function convertFromNyuDataset(obj)
-            %obj.convertNyu2Sun(obj.path,obj.targetPath);
+            obj.convertNyu2Sun(obj.path,obj.targetPath);
             obj.generateNegativeDataSet(obj.negativeDataLoader,obj.targetPath);
         end
     end

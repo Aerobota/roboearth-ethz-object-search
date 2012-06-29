@@ -34,8 +34,8 @@ classdef HOGDetector<DataHandlers.ObjectDetector
             top = nms(bbox, 0.5);
             
             if ~isempty(top)
-                detections(1,length(top)).name=className;
-                for i=1:length(top)
+                %detections(1,length(top)).name=className;
+                for i=length(top):-1:1
                     detections(i).name=className;
                     detections(i).score=bbox(top(i),end);
                     detections(i).polygon.x(4,1)=bbox(top(i),1);
@@ -47,6 +47,8 @@ classdef HOGDetector<DataHandlers.ObjectDetector
                     detections(i).polygon.x(1,1)=bbox(top(i),3);
                     detections(i).polygon.y(1,1)=bbox(top(i),2);
                 end
+            else
+                detections=[];
             end
         end
     end

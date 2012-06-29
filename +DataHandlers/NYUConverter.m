@@ -21,7 +21,7 @@ classdef NYUConverter<DataHandlers.NYULoader
         end
         
         function convertFromNyuDataset(obj)
-            obj.convertNyu2Sun(obj.path,obj.targetPath);
+            %obj.convertNyu2Sun(obj.path,obj.targetPath);
             obj.generateNegativeDataSet(obj.negativeDataLoader,obj.targetPath);
         end
     end
@@ -249,7 +249,7 @@ classdef NYUConverter<DataHandlers.NYULoader
         function getImageFiles(tmp_data,ilgt,outPath)
             for i=1:length(tmp_data)
                 inImg=fullfile(ilgt.path,ilgt.imageFolder,tmp_data(i).annotation.folder,tmp_data(i).annotation.filename);
-                outDir=fullfile(outPath,ilgt.imageFolder,tmp_data(i).annotation.folder);
+                outDir=fullfile(outPath,DataHandlers.NYULoader.imageFolder,tmp_data(i).annotation.folder);
                 outImg=fullfile(outDir,tmp_data(i).annotation.filename);
                 if ~exist(outImg,'file')
                     if ~exist(outDir,'dir')

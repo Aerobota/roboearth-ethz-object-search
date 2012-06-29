@@ -9,8 +9,10 @@ classdef NYUConverter<DataHandlers.NYULoader
     properties(Constant)
         scenesNegativeDataset={'outdoor','road','street','mountain'};
         maxNum=600;
-        trainSet={'groundTruthTrain.mat','Dtraining'}
-        testSet={'groundTruthTest.mat','Dtest'}
+%         trainSet={'groundTruthTrain.mat','Dtraining'}
+%         testSet={'groundTruthTest.mat','Dtest'}
+        trainSet='groundTruthTrain.mat'
+        testSet='groundTruthTest.mat'
     end
     
     methods
@@ -100,39 +102,47 @@ classdef NYUConverter<DataHandlers.NYULoader
 
         function extractObjects(split,imageNames,depthNames,labels,allNames,goodClasses,outPath,tmp_depthFolder)
             disp('extracting training set')
-            Dtraining=DataHandlers.NYUConverter.extractImageSet(imageNames(1,split),...
+            data=DataHandlers.NYUConverter.extractImageSet(imageNames(1,split),...
                 depthNames(1,split),labels(:,:,split),allNames,goodClasses,tmp_depthFolder);
-            save(fullfile(outPath,DataHandlers.NYUConverter.trainSet{1}),DataHandlers.NYUConverter.trainSet{2});
-            clear(DataHandlers.NYUConverter.trainSet{2});
+%             save(fullfile(outPath,DataHandlers.NYUConverter.trainSet{1}),DataHandlers.NYUConverter.trainSet{2});
+%             clear(DataHandlers.NYUConverter.trainSet{2});
+            data.save(fullfile(outPath,DataHandlers.NYUConverter.trainSet));
+            
             disp('extracting test set')
-            Dtest=DataHandlers.NYUConverter.extractImageSet(imageNames(1,~split),...
+            data=DataHandlers.NYUConverter.extractImageSet(imageNames(1,~split),...
                 depthNames(1,~split),labels(:,:,~split),allNames,goodClasses,tmp_depthFolder);
-            save(fullfile(outPath,DataHandlers.NYUConverter.testSet{1}),DataHandlers.NYUConverter.testSet{2});
-            clear(DataHandlers.NYUConverter.testSet{2});
+            data.save(fullfile(outPath,DataHandlers.NYUConverter.testSet));
+%             save(fullfile(outPath,DataHandlers.NYUConverter.testSet{1}),DataHandlers.NYUConverter.testSet{2});
+%             clear(DataHandlers.NYUConverter.testSet{2});
         end
 
         function im=extractImageSet(imageNames,depthNames,labels,allNames,goodClasses,tmp_depthFolder)
             goodIndices=find(ismember(allNames,goodClasses));
             nImg=length(imageNames);
             subN=round(nImg/10);
-            im(1,nImg).annotation=struct;
+            im=DataHandlers.NYUDataStructure(nImg);
+            %im(1,nImg).annotation=struct;
             parfor i=1:nImg
                 if mod(i,subN)==0
                     disp(['analysing image ' num2str(i) '/' num2str(nImg)])
                 end
-                im(1,i).annotation.filename=imageNames{i};
-                im(1,i).annotation.depthname=depthNames{i};
-                im(1,i).annotation.folder='';
-                im(1,i).annotation.imagesize.nrows=480;
-                im(1,i).annotation.imagesize.ncols=640;
-                im(1,i).annotation.object=DataHandlers.NYUConverter.detectObjects(labels(:,:,i),allNames,goodIndices);
                 loaded=load(fullfile(tmp_depthFolder,depthNames{i}),'depth');
-                im(1,i).annotation.calib=[525 0 239.5;0 525 319.5;0 0 1];
-                im(1,i).annotation.object=DataHandlers.evaluateDepth(im(1,i).annotation.object,loaded.depth,im(1,i).annotation.calib);
+                tmpCalib=[525 0 239.5;0 525 319.5;0 0 1];
+                tmpObjects=DataHandlers.NYUConverter.detectObjects(labels(:,:,i),...
+                    allNames,goodIndices,loaded.depth,tmpCalib);
+                im.addImage(i,imageNames{i},depthNames{i},'',[480 640],tmpObjects,tmpCalib);
+%                 im(1,i).annotation.filename=imageNames{i};
+%                 im(1,i).annotation.depthname=depthNames{i};
+%                 im(1,i).annotation.folder='';
+%                 im(1,i).annotation.imagesize.nrows=480;
+%                 im(1,i).annotation.imagesize.ncols=640;
+%                 im(1,i).annotation.object=DataHandlers.NYUConverter.detectObjects(labels(:,:,i),allNames,goodIndices);
+%                 im(1,i).annotation.calib=[525 0 239.5;0 525 319.5;0 0 1];
+%                 im(1,i).annotation.object=DataHandlers.evaluateDepth(im(1,i).annotation.object,loaded.depth,im(1,i).annotation.calib);
             end
         end
 
-        function object=detectObjects(labels,allNames,goodIndices)
+        function object=detectObjects(labels,allNames,goodIndices,depth,calib)
             goodLabels=ismember(labels,goodIndices);
             labels(~goodLabels)=0;
             instances=zeros(size(labels));
@@ -174,11 +184,14 @@ classdef NYUConverter<DataHandlers.NYULoader
             for o=length(uniInstances):-1:1
                 mask=instances==o;
                 myLabel=labels(mask==true);
-                object(o).name=allNames{myLabel(1)};
+%                 object(o).name=allNames{myLabel(1)};
                 [row,col]=find(mask);
                 tmp=[min(row) max(row);min(col) max(col)];
-                object(o).polygon.x=[tmp(1,1) tmp(1,1) tmp(1,2) tmp(1,2)];
-                object(o).polygon.y=[tmp(2,1) tmp(2,2) tmp(2,2) tmp(2,1)];
+%                 object(o).polygon.x=[tmp(1,1) tmp(1,1) tmp(1,2) tmp(1,2)];
+%                 object(o).polygon.y=[tmp(2,1) tmp(2,2) tmp(2,2) tmp(2,1)];
+                px=[tmp(1,1) tmp(1,1) tmp(1,2) tmp(1,2)];
+                py=[tmp(2,1) tmp(2,2) tmp(2,2) tmp(2,1)];
+                object(o)=DataHandlers.Object3DStructure(allNames{myLabel(1)},px,py,depth,calib);
                 if min(abs(tmp(:,1)-tmp(:,2)))<5
                     goodInstances(o)=false;
                 end
@@ -207,6 +220,8 @@ classdef NYUConverter<DataHandlers.NYULoader
             if ~exist(outpath,'dir')
                 mkdir(outpath);
             end
+            
+            @@@@@@@@@@@@@@@@@@@@@@@@ %change saving strategy
 
             for i=1:size(dataPacks,1)
                 tmpData.(dataPacks{i,2})=output{i};
@@ -234,7 +249,7 @@ classdef NYUConverter<DataHandlers.NYULoader
             indices=randperm(length(im));
             for i=indices
                 for s=1:length(scenes)
-                    if ~isempty(strfind(im(i).annotation.filename,scenes{s}))
+                    if ~isempty(strfind(im.getFilename(i),scenes{s}))
                         sceneSelection(i)=true;
                         count=count+1;
                     end
@@ -243,14 +258,14 @@ classdef NYUConverter<DataHandlers.NYULoader
                     end
                 end
             end
-            out=im(sceneSelection);
+            out=im.getSubset(sceneSelection);
         end
 
         function getImageFiles(tmp_data,ilgt,outPath)
             for i=1:length(tmp_data)
-                inImg=fullfile(ilgt.path,ilgt.imageFolder,tmp_data(i).annotation.folder,tmp_data(i).annotation.filename);
-                outDir=fullfile(outPath,DataHandlers.NYULoader.imageFolder,tmp_data(i).annotation.folder);
-                outImg=fullfile(outDir,tmp_data(i).annotation.filename);
+                inImg=fullfile(ilgt.path,ilgt.imageFolder,tmp_data.getFolder(i),tmp_data.getFilename(i));
+                outDir=fullfile(outPath,DataHandlers.NYULoader.imageFolder,tmp_data.getFolder(i));
+                outImg=fullfile(outDir,tmp_data.getFilename(i));
                 if ~exist(outImg,'file')
                     if ~exist(outDir,'dir')
                         [~,~,~]=mkdir(outDir);

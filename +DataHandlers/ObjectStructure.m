@@ -7,6 +7,15 @@ classdef ObjectStructure<handle
     end
     methods
         function obj=ObjectStructure(name,polygonX,polygonY)
+            assert(ischar(name),'ObjectStructure:wrongInput',...
+                'The name argument must be a character array.')
+            assert(isvector(polygonX) && isnumeric(polygonX),'ObjectStructure:wrongInput',...
+                'The polygonX argument must be a numeric vector.')
+            assert(isvector(polygonY) && isnumeric(polygonY),'ObjectStructure:wrongInput',...
+                'The polygonY argument must be a numeric vector.')
+            assert(all(size(polygonX)==size(polygonY)),'ObjectStructure:wrongInput',...
+                'The polygonX and polygonY arguments must be of same size.')
+            
             obj.name=name;
             
             if size(polygonX,1)==1

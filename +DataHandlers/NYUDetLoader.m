@@ -33,8 +33,13 @@ classdef NYUDetLoader<DataHandlers.NYULoader
     end
     methods(Static,Access='protected')
         function data=runDetector(data,classes,imgPath,detector)
-            for c=1:length(classes)
-                for i=1:length(data)
+            nData=length(data);
+            parfor i=1:nData
+                %if mod(i,round(nData/10))==0
+                    disp(['detecting image ' num2str(i) '/' num2str(nData)])
+                %end
+                data(i).annotation.object=[];
+                for c=1:length(classes)
                     data(i).annotation.object=[data(i).annotation.object,...
                         detector.detectClass(classes{c},...
                         imread(fullfile(imgPath,data(i).annotation.folder,data(i).annotation.filename)))];

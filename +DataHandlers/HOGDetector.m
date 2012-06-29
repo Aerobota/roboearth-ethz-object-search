@@ -3,17 +3,19 @@ classdef HOGDetector<DataHandlers.ObjectDetector
     properties(SetAccess='protected')
         threshold;
         models;
+        modelPath
     end
     properties(Constant)
-        modelPath=fullfile(pwd,'Models');
+        %modelPath=fullfile(pwd,'Models');
         detectorCodePath=fullfile(pwd,'ObjectDetector');
         modelTag='.mat'
     end
     
     %% Public methods
     methods
-        function obj=HOGDetector(thresh)
+        function obj=HOGDetector(thresh,modelPath)
             obj.threshold=thresh;
+            obj.modelPath=modelPath;
             
             % Ensure that the Felzsenzwalb detector is available
             if(~obj.detectorAvailable())
@@ -31,18 +33,20 @@ classdef HOGDetector<DataHandlers.ObjectDetector
             bbox = clipboxes(image, bbox);
             top = nms(bbox, 0.5);
             
-            detections(1,length(top)).name=className;
-            for i=1:length(top)
-                detections(i).name=className;
-                detections(i).score=bbox(top(i),end);
-                detections(i).polygon.x(4,1)=bbox(top(i),1);
-                detections(i).polygon.y(4,1)=bbox(top(i),2);
-                detections(i).polygon.x(3,1)=bbox(top(i),1);
-                detections(i).polygon.y(3,1)=bbox(top(i),4);
-                detections(i).polygon.x(2,1)=bbox(top(i),3);
-                detections(i).polygon.y(2,1)=bbox(top(i),4);
-                detections(i).polygon.x(1,1)=bbox(top(i),3);
-                detections(i).polygon.y(1,1)=bbox(top(i),2);
+            if ~isempty(top)
+                detections(1,length(top)).name=className;
+                for i=1:length(top)
+                    detections(i).name=className;
+                    detections(i).score=bbox(top(i),end);
+                    detections(i).polygon.x(4,1)=bbox(top(i),1);
+                    detections(i).polygon.y(4,1)=bbox(top(i),2);
+                    detections(i).polygon.x(3,1)=bbox(top(i),1);
+                    detections(i).polygon.y(3,1)=bbox(top(i),4);
+                    detections(i).polygon.x(2,1)=bbox(top(i),3);
+                    detections(i).polygon.y(2,1)=bbox(top(i),4);
+                    detections(i).polygon.x(1,1)=bbox(top(i),3);
+                    detections(i).polygon.y(1,1)=bbox(top(i),2);
+                end
             end
         end
     end
@@ -59,7 +63,7 @@ classdef HOGDetector<DataHandlers.ObjectDetector
             try
                 model=obj.models.(class);
             catch
-                loaded=load(fullfile(obj.modelPath[class obj.modelTag]));
+                loaded=load(fullfile(obj.modelPath,[class obj.modelTag]));
                 model=loaded.model;
                 obj.models.(class)=model;
             end

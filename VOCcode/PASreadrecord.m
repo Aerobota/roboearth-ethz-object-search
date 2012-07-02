@@ -1,23 +1,17 @@
 function record=PASreadrecord(path)
     global imageLoader;
-    record=imageLoader.getDataByName(path);
-    record.imgname=fullfile(imageLoader.imageFolder,record.annotation.folder,...
-        record.annotation.filename);
+    tmpData=imageLoader.getDataByName(path);
+    record.imgname=fullfile(imageLoader.imageFolder,tmpData.getFolder(1),...
+        tmpData.getFilename(1));
     
     for o=1:length(record.annotation.object)
-        record.objects(o).class=record.annotation.object(o).name;
-        %record.objects(o).flip=false;
+        record.objects(o).class=tmpData.getObject(1,o).name;
         record.objects(o).truncated=false;
         record.objects(o).difficult=false;
-        record.objects(o).bbox(1)=min([record.annotation.object(o).polygon.y]);
-        record.objects(o).bbox(2)=min([record.annotation.object(o).polygon.x]);
-        record.objects(o).bbox(3)=max([record.annotation.object(o).polygon.y]);
-        record.objects(o).bbox(4)=max([record.annotation.object(o).polygon.x]);
-        record.imgsize=[record.annotation.imagesize.ncols record.annotation.imagesize.nrows];
-    end
-    
-    %remove the objects from the dataset
-    if isfield(record,'object')
-        record=rmfield(record,'object');
+        record.objects(o).bbox(1)=min([tmpData.getObject(1,o).polygon.y]);
+        record.objects(o).bbox(2)=min([tmpData.getObject(1,o).polygon.x]);
+        record.objects(o).bbox(3)=max([tmpData.getObject(1,o).polygon.y]);
+        record.objects(o).bbox(4)=max([tmpData.getObject(1,o).polygon.x]);
+        record.imgsize=[tmpData.getImagesize(1).ncols tmpData.getImagesize(1).nrows];
     end
 end

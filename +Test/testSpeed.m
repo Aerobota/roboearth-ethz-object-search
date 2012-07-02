@@ -1,7 +1,23 @@
 clear all
 
 N=1000;
-NTests=100;
+NTests=1;
+
+%% struct preallocation
+
+tic
+for i=1:NTests
+    tmpCell=cell(N,1);
+    outS1=struct('a',tmpCell,'b',tmpCell,'c',tmpCell,'d',tmpCell,'e',tmpCell);
+end
+structTime=toc
+
+tic
+for i=1:NTests
+    outS2(N,1)=struct('a',cell(1,1),'b',cell(1,1),'c',cell(1,1),'d',cell(1,1),'e',cell(1,1));
+end
+repTime=toc
+
 
 %% bsxfun vs logical repmat
 

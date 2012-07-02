@@ -34,10 +34,10 @@ classdef NYULoader<DataHandlers.DataLoader
         end
         function image=getDataByName(obj,name)
             assert(~isempty(obj.names),'To access data by name the dataset needs to be buffered')
-            image=obj.data(ismember(obj.names,name));
+            image=obj.data.getSubset(ismember(obj.names,name));
             assert(~isempty(image),'Image %s doesn''t exist in this dataset',name);
             if(size(image,2)~=1)
-                image=image(1);
+                image=image.getSubset(1);
             end
         end
         function bufferDataset(obj,desiredSet)

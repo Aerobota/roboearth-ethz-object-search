@@ -29,7 +29,7 @@ classdef HOGDetector<DataHandlers.ObjectDetector
             model=obj.loadModel(className);
             
             % run detector
-            [dets, bbox] = imgdetect(image, model, obj.threshold);
+            [~, bbox] = imgdetect(image, model, obj.threshold);
             bbox = clipboxes(image, bbox);
             top = nms(bbox, 0.5);
             

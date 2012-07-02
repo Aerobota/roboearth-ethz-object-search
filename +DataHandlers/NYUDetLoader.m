@@ -15,20 +15,37 @@ classdef NYUDetLoader<DataHandlers.NYULoader
                 warning('Detections are not extracted yet');
             end
         end
-        function extractDetections(obj,groundTruthLoader,detector)
-            Ddetectortraining=obj.runDetector(groundTruthLoader.getData(groundTruthLoader.trainSet),...
-                {groundTruthLoader.classes.name},...
-                fullfile(groundTruthLoader.path,groundTruthLoader.imageFolder),...
-                detector);
-            save(fullfile(obj.path,obj.trainSet{2}),obj.trainSet{1})
-            clear(obj.trainSet{1})
+        function extractDetections(obj,groundTruthLoader,detector,dataset)
+            doTrain=false;
+            doTest=false;
+            if nargin<4
+                doTrain=true;
+                doTest=true;
+            else
+                if all(strcmp(dataset,obj.trainSet))
+                    doTrain=true;
+                elseif all(strcmp(dataset,obj.testSet))
+                    doTest=true;
+                end
+            end
+               
+            if doTrain
+                Ddetectortraining=obj.runDetector(groundTruthLoader.getData(groundTruthLoader.trainSet),...
+                    {groundTruthLoader.classes.name},...
+                    fullfile(groundTruthLoader.path,groundTruthLoader.imageFolder),...
+                    detector);
+                save(fullfile(obj.path,obj.trainSet{2}),obj.trainSet{1})
+                clear(obj.trainSet{1})
+            end
             
-            Ddetectortest=obj.runDetector(groundTruthLoader.getData(groundTruthLoader.testSet),...
-                {groundTruthLoader.classes.name},...
-                fullfile(groundTruthLoader.path,groundTruthLoader.imageFolder),...
-                detector);
-            save(fullfile(obj.path,obj.testSet{2}),obj.testSet{1})
-            clear(obj.testSet{1})
+            if doTest
+                Ddetectortest=obj.runDetector(groundTruthLoader.getData(groundTruthLoader.testSet),...
+                    {groundTruthLoader.classes.name},...
+                    fullfile(groundTruthLoader.path,groundTruthLoader.imageFolder),...
+                    detector);
+                save(fullfile(obj.path,obj.testSet{2}),obj.testSet{1})
+                clear(obj.testSet{1})
+            end
         end
     end
     methods(Static,Access='protected')

@@ -10,10 +10,18 @@ classdef NYUDataStructure<DataHandlers.DataStructure
             obj=obj@DataHandlers.DataStructure(preallocationSize);
         end
         function load(obj,path)
-            error('NYUDataStructure:notImplemented','Method not implemented')
+            assert(exist(path,'file')>0,'DataStructure:fileNotFound',...
+                'The file %s doesn''t exist.',path)
+            loaded=load(path);
+            obj.data=loaded.data;
         end
         function save(obj,path)
-            error('NYUDataStructure:notImplemented','Method not implemented')
+            [tmpDir,~,~]=fileparts(path);
+            if ~exist(tmpDir,'dir')
+                [~,~,~]=mkdir(tmpDir);
+            end
+            tmpObj.data=obj.data;
+            save(path,'-struct','tmpObj');
         end
     end
 end

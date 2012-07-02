@@ -191,7 +191,7 @@ classdef NYUConverter<DataHandlers.NYULoader
 %                 object(o).polygon.y=[tmp(2,1) tmp(2,2) tmp(2,2) tmp(2,1)];
                 px=[tmp(1,1) tmp(1,1) tmp(1,2) tmp(1,2)];
                 py=[tmp(2,1) tmp(2,2) tmp(2,2) tmp(2,1)];
-                object(o)=DataHandlers.Object3DStructure(allNames{myLabel(1)},px,py,depth,calib);
+                object(o)=DataHandlers.Object3DStructure(allNames{myLabel(1)},[],px,py,depth,calib);
                 if min(abs(tmp(:,1)-tmp(:,2)))<5
                     goodInstances(o)=false;
                 end
@@ -201,7 +201,7 @@ classdef NYUConverter<DataHandlers.NYULoader
         
         function generateNegativeDataSet(ilgt,outpath)
 
-            dataPacks=[{ilgt} ilgt.trainSet];
+            dataPacks=[{ilgt} {ilgt.trainSet}];
 
             output=cell(size(dataPacks,1),1);
 
@@ -209,7 +209,7 @@ classdef NYUConverter<DataHandlers.NYULoader
                 output{i}=DataHandlers.NYUConverter.getSceneData(...
                     DataHandlers.NYUConverter.scenesNegativeDataset,...
                     dataPacks{i,1},dataPacks(i,2:end),DataHandlers.NYUConverter.maxNum);
-                disp(['loaded ' dataPacks{i,2} ' ' dataPacks{i,3}])
+                disp(['loaded ' dataPacks{i,2}])
             end
 
             for i=1:size(dataPacks,1)
@@ -221,18 +221,19 @@ classdef NYUConverter<DataHandlers.NYULoader
                 mkdir(outpath);
             end
             
-            @@@@@@@@@@@@@@@@@@@@@@@@ %change saving strategy
+%             @@@@@@@@@@@@@@@@@@@@@@@@ %change saving strategy
 
             for i=1:size(dataPacks,1)
-                tmpData.(dataPacks{i,2})=output{i};
-                filePath=fullfile(outpath,dataPacks{i,3});
-                if exist(filePath,'file')
-                    save(filePath,'-struct','tmpData','-append');
-                else
-                    save(filePath,'-struct','tmpData');
-                end
-                disp(['saved ' filePath])
-                clear tmpData;
+                output{i}.save(fullfile(outpath,dataPacks{i,2}));
+%                 tmpData.(dataPacks{i,2})=output{i};
+%                 filePath=fullfile(outpath,dataPacks{i,3});
+%                 if exist(filePath,'file')
+%                     save(filePath,'-struct','tmpData','-append');
+%                 else
+%                     save(filePath,'-struct','tmpData');
+%                 end
+%                 disp(['saved ' filePath])
+%                 clear tmpData;
             end
 
             [~,~,~]=copyfile(fullfile(ilgt.path,ilgt.catFileName),...

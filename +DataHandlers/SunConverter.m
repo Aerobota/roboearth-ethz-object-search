@@ -65,15 +65,17 @@ classdef SunConverter<DataHandlers.SunLoader
             end
 
             for i=1:size(dataPacks,1)
-                tmpData.(dataPacks{i,2})=output{i};
                 filePath=fullfile(outpath,dataPacks{i,3});
-                if exist(filePath,'file')
-                    save(filePath,'-struct','tmpData','-append');
-                else
-                    save(filePath,'-struct','tmpData');
-                end
-                disp(['saved ' filePath])
-                clear tmpData;
+                output{i}.save(filePath);
+%                 tmpData.(dataPacks{i,2})=output{i};
+%                 filePath=fullfile(outpath,dataPacks{i,3});
+%                 if exist(filePath,'file')
+%                     save(filePath,'-struct','tmpData','-append');
+%                 else
+%                     save(filePath,'-struct','tmpData');
+%                 end
+%                 disp(['saved ' filePath])
+%                 clear tmpData;
             end
 
             names={ilgt.classes(ismember({ilgt.classes(:).name},classes)).name};
@@ -89,20 +91,20 @@ classdef SunConverter<DataHandlers.SunLoader
 
             for i=1:length(im)
                 for s=1:length(scenes)
-                    if ~isempty(strfind(im(i).annotation.filename,scenes{s}))
+                    if ~isempty(strfind(im.getFilename(i),scenes{s}))
                         sceneSelection(i)=true;
                     end
                 end
             end
-            out=im(sceneSelection);
+            out=im.getSubset(sceneSelection);
         end
 
         function classes=cleanClasses(det,gt,classes)
             occCount=zeros(size(classes));
             gtCount=zeros(size(classes));
             for i=1:length(det)
-                occCount=occCount+ismember(classes,{det(i).annotation.object(:).name});
-                gtCount=gtCount+ismember(classes,{gt(i).annotation.object(:).name});
+                occCount=occCount+ismember(classes,{det.getObject(i).name});
+                gtCount=gtCount+ismember(classes,{gt.getObject(i).name});
             end
             classes=classes(gtCount>9 & occCount>max(occCount)*0.9);
         end
@@ -110,17 +112,17 @@ classdef SunConverter<DataHandlers.SunLoader
         function [det,gt]=cleanImages(det,gt,classes)
             imageComplete=true(size(det));
             for i=1:length(det)
-                imageComplete(i)=all(ismember(classes,{det(i).annotation.object.name}));
+                imageComplete(i)=all(ismember(classes,{det.getObject(i).name}));
             end
-            det=det(imageComplete);
-            gt=gt(imageComplete);
+            det=det.getSubset(imageComplete);
+            gt=gt.getSubset(imageComplete);
         end
 
         function getImageFiles(data,inPath,outPath)
             for i=1:length(data)
-                inImg=fullfile(inPath,DataHandlers.SunConverter.imageFolder,data(i).annotation.folder,data(i).annotation.filename);
-                outDir=fullfile(outPath,DataHandlers.SunConverter.imageFolder,data(i).annotation.folder);
-                outImg=fullfile(outDir,data(i).annotation.filename);
+                inImg=fullfile(inPath,DataHandlers.SunConverter.imageFolder,data.getFolder(i),data.getFilename(i));
+                outDir=fullfile(outPath,DataHandlers.SunConverter.imageFolder,data.getFolder(i));
+                outImg=fullfile(outDir,data.getFilename(i));
                 if exist(inImg,'file') && ~exist(outImg,'file')
                     if ~exist(outDir,'dir')
                         [~,~,~]=mkdir(outDir);
@@ -132,7 +134,7 @@ classdef SunConverter<DataHandlers.SunLoader
 
         function data=cleanObjects(data,classes)
             for i=1:length(data)
-                data(i).annotation.object=data(i).annotation.object(ismember({data(i).annotation.object.name},classes));
+                data.setObject(data.getObject(i,ismember({data.getObject(i).name},classes)),i);
             end
         end
     end

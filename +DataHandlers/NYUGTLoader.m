@@ -3,8 +3,8 @@ classdef NYUGTLoader<DataHandlers.NYULoader
     %   Detailed explanation goes here
     
     properties(Constant)
-        trainSet={'Dtraining' 'groundTruthTrain.mat'}
-        testSet={'Dtest' 'groundTruthTest.mat'}
+        trainSet='groundTruthTrain.mat'
+        testSet='groundTruthTest.mat'
     end
     
     methods

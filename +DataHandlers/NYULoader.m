@@ -25,10 +25,12 @@ classdef NYULoader<DataHandlers.DataLoader
             end
         end
         function out=getData(obj,desiredSet)
-            tmpPath=fullfile(obj.path,desiredSet{2});
+            tmpPath=fullfile(obj.path,desiredSet);
             assert(exist(tmpPath,'file')==2,'The file %s is missing.',tmpPath);
-            in=load(tmpPath,desiredSet{1});
-            out=in.(desiredSet{1});
+            out=DataHandlers.NYUDataStructure();
+            out.load(tmpPath);
+%             in=load(tmpPath,desiredSet{1});
+%             out=in.(desiredSet{1});
         end
         function image=getDataByName(obj,name)
             assert(~isempty(obj.names),'To access data by name the dataset needs to be buffered')
@@ -69,7 +71,7 @@ classdef NYULoader<DataHandlers.DataLoader
         
         function extractFileNames(obj)
             for i=length(obj.data):-1:1
-                obj.names{1,i}=obj.data(i).annotation.filename;
+                obj.names{1,i}=obj.data.getFilename(i);
             end            
         end
     end

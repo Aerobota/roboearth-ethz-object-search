@@ -23,6 +23,8 @@ classdef DistributedDataLoader<DataHandlers.DataLoader
         function obj=DistributedDataLoader(filePath,forceUpdate)
             obj=obj@DataHandlers.DataLoader(filePath);
             
+            warning('This class is deprecated')
+            
             obj.classes=load(fullfile(obj.path,obj.classFile));
             
             if forceUpdate

@@ -2,35 +2,62 @@ classdef SunDataStructure<DataHandlers.DataStructure
     %SUNDATASTRUCTURE Summary of this class goes here
     %   Detailed explanation goes here
     
-%     properties(Access='protected')
-%         data
-%     end
+    properties(Access='protected')
+        datasetName
+    end
     
     methods
-        function obj=SunDataStructure(preallocationSize)
-            if nargin<1
+        function obj=SunDataStructure(datasetName,preallocationSize)
+            if nargin<2
                 preallocationSize=0;
             end
             obj=obj@DataHandlers.DataStructure(preallocationSize);
-%             tmpCell=cell(1,preallocationSize);
-%             obj.data=struct('filename',tmpCell,'depthname',tmpCell,...
-%                 'folder',tmpCell,'imagesize',tmpCell,'object',tmpCell,'calib',tmpCell);
+            obj.datasetName=datasetName;
         end
-%         function addImage(obj,index,filename,depthname,folder,imagesize,object,calib)
-%             assert(isa(object,'DataHandlers.ObjectStructure'),'SunDataStructure:wrongClass',...
-%                 'The object must be of ObjectStructure class.')
-%             obj.data(index).filename=filename;
-%             obj.data(index).depthname=depthname;
-%             obj.data(index).folder=folder;
-%             obj.data(index).imagesize=imagesize;
-%             obj.data(index).object=object;
-%             obj.data(index).calib=calib;
-%         end
         function load(obj,path)
-            error('SunDataStructure:notImplemented','Method not implemented')
+            assert(exist(path,'file')>0,'DataStructure:fileNotFound',...
+                'The file %s doesn''t exist.',path)
+            loaded=load(path,obj.datasetName);
+            tmpData=loaded.(obj.datasetName);
+            hasScore=isfield(tmpData(1).annotation.object,'confidence');
+            for i=length(tmpData):-1:1
+                for o=length(tmpData(i).annotation.object):-1:1
+                    if hasScore
+                        tmpScore=tmpData(i).annotation.object(o).confidence;
+                    else
+                        tmpScore=[];
+                    end
+                    tmpObject(o)=DataHandlers.ObjectStructure(tmpData(i).annotation.object(o).name,...
+                        tmpScore,tmpData(i).annotation.object(o).polygon.x,...
+                        tmpData(i).annotation.object(o).polygon.y);
+                end
+                obj.addImage(i,tmpData(i).annotation.filename,'',tmpData(i).annotation.folder,...
+                    tmpData(i).annotation.imagesize,tmpObject,[]);
+            end
         end
         function save(obj,path)
-            error('SunDataStructure:notImplemented','Method not implemented')
+            [tmpDir,~,~]=fileparts(path);
+            if ~exist(tmpDir,'dir')
+                [~,~,~]=mkdir(tmpDir);
+            end
+            
+            for i=length(obj.data):-1:1
+                tmpStruct(1,i).annotation.filename=obj.getFilename(i);
+                tmpStruct(1,i).annotation.folder=obj.getFolder(i);
+                tmpStruct(1,i).annotation.imagesize=obj.getImagesize(i);
+                for o=length(obj.getObject(i)):-1:1
+                    tmpStruct(1,i).annotation.object(o).name=obj.getObject(i,o).name;
+                    tmpStruct(1,i).annotation.object(o).confidence=obj.getObject(i,o).score;
+                    tmpStruct(1,i).annotation.object(o).polygon=obj.getObject(i,o).polygon;
+                end
+            end
+            
+            tmpData.(obj.datasetName)=tmpStruct;
+            if ~exist(path,'file')
+                save(path,'-struct','tmpData');
+            else
+                save(path,'-struct','tmpData','-append');
+            end
         end
     end
 end

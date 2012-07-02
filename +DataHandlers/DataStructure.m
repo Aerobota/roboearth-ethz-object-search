@@ -6,6 +6,11 @@ classdef DataStructure<handle
         data
     end
     
+    methods(Abstract)
+        load(obj,path)
+        save(obj,path)
+    end
+    
     methods
         function obj=DataStructure(preallocationSize)
             if nargin<1
@@ -22,17 +27,18 @@ classdef DataStructure<handle
                 'The depthname argument must be a character array.')
             assert(ischar(folder),'DataStructure:wrongInput',...
                 'The folder argument must be a character array.')
-            assert((isfield(imagesize,'nrows') && isfield(imagesize,'ncols')) || (isvector(imagesize) && isnumeric(imagesize)),...
+            assert((isfield(imagesize,'nrows') && isfield(imagesize,'ncols')) ||...
+                (isvector(imagesize) && length(imagesize)>1 && isnumeric(imagesize)),...
                 'DataStructure:wrongInput','The imagesize argument must be a vector of length two or a struct with fields {nros,ncols}.')
             assert(isa(object,'DataHandlers.ObjectStructure'),'DataStructure:wrongInput',...
                 'The object argument must be of ObjectStructure class.')
-            assert(isnumeric(calib) && all(size(calib)==[3 3]),'DataStructure:wrongInput',...
-                'The calib argument must be a 3x3 matrix.')
+            assert((isnumeric(calib) && all(size(calib)==[3 3])) || isempty(calib),'DataStructure:wrongInput',...
+                'The calib argument must be a 3x3 or empty matrix.')
             
             obj.data(index).filename=filename;
             obj.data(index).depthname=depthname;
             obj.data(index).folder=folder;
-            if isvector(imagesize)
+            if length(imagesize)>1
                 obj.data(index).imagesize.nrows=imagesize(1);
                 obj.data(index).imagesize.ncols=imagesize(2);
             else
@@ -82,14 +88,19 @@ classdef DataStructure<handle
             end
         end
         
+        function setObject(obj,newObject,i,o)
+            assert(isa(newObject,'DataHandlers.ObjectStructure'),'DataStructure:wrongInput',...
+                'The newObject argument must be of ObjectStructure class.')
+            if nargin<4
+                obj.data(i).object=newObject;
+            else
+                obj.data(i).object(o)=newObject;
+            end
+        end
+        
         function out=getCalib(obj,i)
             out=obj.data(i).calib;
         end
-    end
-    
-    methods(Abstract)
-        load(obj,path)
-        save(obj,path)
     end
     
 end

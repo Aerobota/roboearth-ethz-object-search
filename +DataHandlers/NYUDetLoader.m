@@ -3,8 +3,8 @@ classdef NYUDetLoader<DataHandlers.NYULoader
     %   Detailed explanation goes here
     
     properties(Constant)
-        trainSet={'Ddetectortraining' 'detectionsTrain.mat'}
-        testSet={'Ddetectortest' 'detectionsTest.mat'}
+        trainSet='detectionsTrain.mat'
+        testSet='detectionsTest.mat'
     end
     
     methods
@@ -16,34 +16,46 @@ classdef NYUDetLoader<DataHandlers.NYULoader
             end
         end
         function extractDetections(obj,groundTruthLoader,detector)
-            Ddetectortraining=obj.runDetector(groundTruthLoader.getData(groundTruthLoader.trainSet),...
+            data=obj.runDetector(groundTruthLoader.getData(groundTruthLoader.trainSet),...
                 {groundTruthLoader.classes.name},...
                 fullfile(groundTruthLoader.path,groundTruthLoader.imageFolder),...
                 detector);
-            save(fullfile(obj.path,obj.trainSet{2}),obj.trainSet{1})
-            clear(obj.trainSet{1})
+            data.save(fullfile(obj.path,obj.trainSet))
             
-            Ddetectortest=obj.runDetector(groundTruthLoader.getData(groundTruthLoader.testSet),...
+            data=obj.runDetector(groundTruthLoader.getData(groundTruthLoader.testSet),...
                 {groundTruthLoader.classes.name},...
                 fullfile(groundTruthLoader.path,groundTruthLoader.imageFolder),...
                 detector);
-            save(fullfile(obj.path,obj.testSet{2}),obj.testSet{1})
-            clear(obj.testSet{1})
+            data.save(fullfile(obj.path,obj.testSet))
         end
     end
-    methods(Static,Access='protected')
-        function data=runDetector(data,classes,imgPath,detector)
+    methods(Access='protected')
+        function data=runDetector(obj,data,path,detector)
             nData=length(data);
             parfor i=1:nData
                 %if mod(i,round(nData/10))==0
                     disp(['detecting image ' num2str(i) '/' num2str(nData)])
                 %end
-                data(i).annotation.object=[];
-                for c=1:length(classes)
-                    data(i).annotation.object=[data(i).annotation.object,...
-                        detector.detectClass(classes{c},...
-                        imread(fullfile(imgPath,data(i).annotation.folder,data(i).annotation.filename)))];
+%                 data(i).annotation.object=[];
+%                 for c=1:length(classes)
+%                     data(i).annotation.object=[data(i).annotation.object,...
+%                         detector.detectClass(classes{c},...
+%                         imread(fullfile(imgPath,data(i).annotation.folder,data(i).annotation.filename)))];
+%                 end
+                collectedObjects=[];
+                for c=1:length(obj.classes)
+                    tmpObjects=detector.detectClass(obj.classes{c},...
+                        imread(fullfile(path,obj.imageFolder,data.getFolder(i),data.getFilename(i))));
+                    tmpLoaded=load(fullfile(path,obj.depthFolder,data.getFolder(i),data.getDepthname(i)));
+                    for o=1:length(tmpObjects)
+                        collectedObjects=[collectedObjects,...
+                            DataHandlers.Object3DStructure(tmpObjects(o).name,...
+                            tmpObjects(o).score,tmpObjects(o).polygon.x,tmpObjects(o).polygon.y,...
+                            tmpLoaded.depth,data.getCalib(i))];
+                    end
                 end
+                
+                data.setObject(collectedObjects,i);
             end
         end
     end

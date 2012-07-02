@@ -121,16 +121,18 @@ classdef NYUConverter<DataHandlers.NYULoader
             nImg=length(imageNames);
             subN=round(nImg/10);
             im=DataHandlers.NYUDataStructure(nImg);
+            tmpCalib=cell(1,nImg);
+            tmpObjects=cell(1,nImg);
             %im(1,nImg).annotation=struct;
             parfor i=1:nImg
                 if mod(i,subN)==0
                     disp(['analysing image ' num2str(i) '/' num2str(nImg)])
                 end
                 loaded=load(fullfile(tmp_depthFolder,depthNames{i}),'depth');
-                tmpCalib=[525 0 239.5;0 525 319.5;0 0 1];
-                tmpObjects=DataHandlers.NYUConverter.detectObjects(labels(:,:,i),...
-                    allNames,goodIndices,loaded.depth,tmpCalib);
-                im.addImage(i,imageNames{i},depthNames{i},'',[480 640],tmpObjects,tmpCalib);
+                tmpCalib{i}=[525 0 239.5;0 525 319.5;0 0 1];
+                tmpObjects{i}=DataHandlers.NYUConverter.detectObjects(labels(:,:,i),...
+                    allNames,goodIndices,loaded.depth,tmpCalib{i});
+%                 im.addImage(i,imageNames{i},depthNames{i},'',[480 640],tmpObjects,tmpCalib);
 %                 im(1,i).annotation.filename=imageNames{i};
 %                 im(1,i).annotation.depthname=depthNames{i};
 %                 im(1,i).annotation.folder='';
@@ -139,6 +141,9 @@ classdef NYUConverter<DataHandlers.NYULoader
 %                 im(1,i).annotation.object=DataHandlers.NYUConverter.detectObjects(labels(:,:,i),allNames,goodIndices);
 %                 im(1,i).annotation.calib=[525 0 239.5;0 525 319.5;0 0 1];
 %                 im(1,i).annotation.object=DataHandlers.evaluateDepth(im(1,i).annotation.object,loaded.depth,im(1,i).annotation.calib);
+            end
+            for i=1:nImg
+                im.addImage(i,imageNames{i},depthNames{i},'',[480 640],tmpObjects{i},tmpCalib{i});
             end
         end
 

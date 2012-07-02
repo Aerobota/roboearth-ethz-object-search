@@ -32,6 +32,7 @@ classdef NYUDetLoader<DataHandlers.NYULoader
     methods(Access='protected')
         function data=runDetector(obj,data,path,detector)
             nData=length(data);
+            collectedObjects=cell(1,nData);
             parfor i=1:nData
                 %if mod(i,round(nData/10))==0
                     disp(['detecting image ' num2str(i) '/' num2str(nData)])
@@ -42,20 +43,21 @@ classdef NYUDetLoader<DataHandlers.NYULoader
 %                         detector.detectClass(classes{c},...
 %                         imread(fullfile(imgPath,data(i).annotation.folder,data(i).annotation.filename)))];
 %                 end
-                collectedObjects=[];
+%                 collectedObjects{i}=[];
                 for c=1:length(obj.classes)
                     tmpObjects=detector.detectClass(obj.classes{c},...
                         imread(fullfile(path,obj.imageFolder,data.getFolder(i),data.getFilename(i))));
                     tmpLoaded=load(fullfile(path,obj.depthFolder,data.getFolder(i),data.getDepthname(i)));
                     for o=1:length(tmpObjects)
-                        collectedObjects=[collectedObjects,...
+                        collectedObjects{i}=[collectedObjects{i},...
                             DataHandlers.Object3DStructure(tmpObjects(o).name,...
                             tmpObjects(o).score,tmpObjects(o).polygon.x,tmpObjects(o).polygon.y,...
                             tmpLoaded.depth,data.getCalib(i))];
                     end
                 end
-                
-                data.setObject(collectedObjects,i);
+            end
+            for i=1:nData    
+                data.setObject(collectedObjects{i},i);
             end
         end
     end

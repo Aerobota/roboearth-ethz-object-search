@@ -1,7 +1,7 @@
 %% Parameters
 
-modelPath='Models/falseNames';
-datasetPath='Dataset/NYU_falseNames';
+modelPath='Models/good';
+datasetPath='Dataset/NYU';
 threshold=-1.05;
 
 

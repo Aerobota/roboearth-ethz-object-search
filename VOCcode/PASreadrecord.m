@@ -4,7 +4,7 @@ function record=PASreadrecord(path)
     record.imgname=fullfile(imageLoader.imageFolder,tmpData.getFolder(1),...
         tmpData.getFilename(1));
     
-    for o=1:length(record.annotation.object)
+    for o=1:length(tmpData.getObject(1))
         record.objects(o).class=tmpData.getObject(1,o).name;
         record.objects(o).truncated=false;
         record.objects(o).difficult=false;

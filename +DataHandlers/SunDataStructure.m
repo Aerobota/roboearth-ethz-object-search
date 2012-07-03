@@ -59,5 +59,10 @@ classdef SunDataStructure<DataHandlers.DataStructure
                 save(path,'-struct','tmpData','-append');
             end
         end
+        
+        function newObject=getSubset(obj,indexer)
+            newObject=DataHandlers.SunDataStructure(obj.datasetName);
+            newObject.data=obj.data(indexer);
+        end
     end
 end

@@ -23,5 +23,10 @@ classdef NYUDataStructure<DataHandlers.DataStructure
             tmpObj.data=obj.data;
             save(path,'-struct','tmpObj');
         end
+        function newObject=getSubset(obj,indexer)
+            newObject=DataHandlers.NYUDataStructure();
+            newObject.data=obj.data(indexer);
+        end
     end
+    
 end

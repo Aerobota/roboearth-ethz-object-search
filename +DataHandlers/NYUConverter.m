@@ -23,7 +23,7 @@ classdef NYUConverter<DataHandlers.NYULoader
         end
         
         function convertFromNyuDataset(obj)
-            obj.convertNyu2Sun(obj.path,obj.targetPath);
+            %obj.convertNyu2Sun(obj.path,obj.targetPath);
             obj.generateNegativeDataSet(obj.negativeDataLoader,obj.targetPath);
         end
     end
@@ -206,7 +206,7 @@ classdef NYUConverter<DataHandlers.NYULoader
         
         function generateNegativeDataSet(ilgt,outpath)
 
-            dataPacks=[{ilgt} {ilgt.trainSet}];
+            dataPacks=[{ilgt} ilgt.trainSet];
 
             output=cell(size(dataPacks,1),1);
 
@@ -229,7 +229,7 @@ classdef NYUConverter<DataHandlers.NYULoader
 %             @@@@@@@@@@@@@@@@@@@@@@@@ %change saving strategy
 
             for i=1:size(dataPacks,1)
-                output{i}.save(fullfile(outpath,dataPacks{i,2}));
+                output{i}.save(fullfile(outpath,dataPacks{i,3}));
 %                 tmpData.(dataPacks{i,2})=output{i};
 %                 filePath=fullfile(outpath,dataPacks{i,3});
 %                 if exist(filePath,'file')

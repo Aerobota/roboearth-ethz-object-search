@@ -9,6 +9,7 @@ classdef DataStructure<handle
     methods(Abstract)
         load(obj,path)
         save(obj,path)
+        subset=getSubset(obj,indexer)
     end
     
     methods
@@ -47,10 +48,10 @@ classdef DataStructure<handle
             obj.data(index).object=object;
             obj.data(index).calib=calib;
         end
-        function subset=getSubset(obj,indexer)
-            subset=eval(class(obj));
-            subset.data=subset.data(indexer);
-        end
+%         function subset=getSubset(obj,indexer)
+%             subset=obj.copy();
+%             subset.data=subset.data(indexer);
+%         end
         
         function s=size(obj,index)
             if nargin<2
@@ -100,6 +101,11 @@ classdef DataStructure<handle
         
         function out=getCalib(obj,i)
             out=obj.data(i).calib;
+        end
+        
+        function out=horzcat(a,b)
+            out=a;
+            a.data=[a.data b.data];
         end
     end
     

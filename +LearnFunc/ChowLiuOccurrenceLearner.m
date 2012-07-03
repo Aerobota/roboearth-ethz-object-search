@@ -3,8 +3,8 @@ classdef ChowLiuOccurrenceLearner<LearnFunc.ChowLiuLearner
     %   Detailed explanation goes here
     
     methods
-        function obj=ChowLiuOccurrenceLearner(states,classes)
-            obj=obj@LearnFunc.ChowLiuLearner(classes,LearnFunc.PairwiseOccurrenceMutInf(states));
+        function obj=ChowLiuOccurrenceLearner(classes,evidenceGenerator)
+            obj=obj@LearnFunc.ChowLiuLearner(classes,LearnFunc.PairwiseOccurrenceMutInf(evidenceGenerator));
         end
     end
 end

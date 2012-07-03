@@ -1,6 +1,17 @@
+%% Parameters
+detectorPath='ObjectDetector';
+datasetPath='Dataset/NYU';
+negativePath='Dataset/NYU';
+modelPath='Models';
+removeTemporaries=true;
+nComponents=2;
+
+
+%% Setup
 addpath('VOCcode')
 setup
 
+%% Preprocessing
 if removeTemporaries
     globals
     [~,~,~]=rmdir(cachedir,'s');
@@ -18,11 +29,12 @@ for c=1:length(classes)
 end
 classes=classes(toCompute);
 
+%% Class learning
 errorList=cell(length(classes),1);
 % learn a detector for every class
 for c=1:length(classes)
     try
-        pascal_train(classes{c},2);
+        pascal_train(classes{c},nComponents);
         if ~exist(modelDestFolder,'dir')
             [~,~,~]=mkdir(modelDestFolder);
         end
@@ -33,9 +45,8 @@ for c=1:length(classes)
     end
 end
 
+%% Clean up
 cd(originalPWD)
-
-
 
 for c=1:length(classes)
     if ~isempty(errorList{c})

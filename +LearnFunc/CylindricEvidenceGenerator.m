@@ -1,5 +1,5 @@
-classdef CylindricEvidenceGenerator<LearnFunc.EvidenceGenerator
-    methods(Static)
+classdef CylindricEvidenceGenerator<LearnFunc.LocationEvidenceGenerator
+    methods(Static,Access='protected')
         function evidence=getRelativeEvidence(image)
             pos=LearnFunc.CylindricEvidenceGenerator.getPositionEvidence(image);
 

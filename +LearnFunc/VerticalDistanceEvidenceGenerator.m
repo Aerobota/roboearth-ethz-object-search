@@ -1,5 +1,5 @@
-classdef VerticalDistanceEvidenceGenerator<LearnFunc.EvidenceGenerator
-    methods(Static)
+classdef VerticalDistanceEvidenceGenerator<LearnFunc.LocationEvidenceGenerator
+    methods(Static,Access='protected')
         function evidence=getAbsoluteEvidence(image)
             pos=LearnFunc.VerticalDistanceEvidenceGenerator.getPositionEvidence(image);
             evidence(:,:,1)=pos(ones(length(pos),1),:);

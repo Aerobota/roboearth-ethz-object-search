@@ -27,18 +27,18 @@ classdef SunLoader<DataHandlers.DataLoader
     end
     
     %% Internal methods for loading
-    methods(Access='protected')
-        function classes=getClasses(obj)
-            tmpPath=fullfile(obj.path,obj.catFileName);
-            assert(exist(tmpPath,'file')==2,'The file %s is missing.',tmpPath);
-            in=load(tmpPath);
-            classes(length(in.names),1).name=in.names{end};
-            for i=1:length(in.names)
-                classes(i).name=in.names{i};
-                classes(i).height=in.heights(i);
-            end
-        end
-    end
+%     methods(Access='protected')
+%         function classes=getClasses(obj)
+%             tmpPath=fullfile(obj.path,obj.catFileName);
+%             assert(exist(tmpPath,'file')==2,'The file %s is missing.',tmpPath);
+%             in=load(tmpPath);
+%             classes(length(in.names),1).name=in.names{end};
+%             for i=1:length(in.names)
+%                 classes(i).name=in.names{i};
+%                 classes(i).height=in.heights(i);
+%             end
+%         end
+%     end
     
     %% Methods for file conversion
     methods(Access='protected')

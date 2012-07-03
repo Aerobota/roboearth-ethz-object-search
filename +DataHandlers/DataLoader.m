@@ -11,6 +11,7 @@ classdef DataLoader<handle
         trainSet
         testSet
         imageFolder
+        catFileName
     end
     
     %% Public Methods
@@ -18,6 +19,10 @@ classdef DataLoader<handle
         function obj=DataLoader(filePath)
             assert(exist(filePath,'dir')>0,'DataLoader:DirectoryNotFound','The specified directory was not found');
             obj.path=filePath;
+        end
+        
+        function names=getClassNames(obj)
+            names={obj.classes.name};
         end
     end
     methods(Abstract)
@@ -36,6 +41,16 @@ classdef DataLoader<handle
             alias.monitor='screen';
             
             data=obj.removeAliasesImpl(data,alias);
+        end
+        
+        function classes=getClasses(obj)
+            tmpPath=fullfile(obj.path,obj.catFileName);
+            assert(exist(tmpPath,'file')==2,'The file %s is missing.',tmpPath);
+            in=load(tmpPath);
+            classes(length(in.names),1).name=in.names{end};
+            for i=1:length(in.names)
+                classes(i).name=in.names{i};
+            end
         end
     end
     methods(Abstract,Access='protected')

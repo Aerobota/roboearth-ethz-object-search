@@ -3,14 +3,6 @@ global datasetPath
 global originalPWD;
 global imageLoader;
 
-%% Parameters
-detectorPath='ObjectDetector';
-datasetPath='Dataset/NYU';
-negativePath='Dataset/NYU';
-modelPath='Models';
-removeTemporaries=true;
-
-
 %% Path generating
 originalPWD=pwd;
 modelDestFolder=fullfile(originalPWD,modelPath,'New');

@@ -6,7 +6,6 @@ classdef HOGDetector<DataHandlers.ObjectDetector
         modelPath
     end
     properties(Constant)
-        %modelPath=fullfile(pwd,'Models');
         detectorCodePath=fullfile(pwd,'ObjectDetector');
         modelTag='.mat'
     end
@@ -34,18 +33,16 @@ classdef HOGDetector<DataHandlers.ObjectDetector
             top = nms(bbox, 0.5);
             
             if ~isempty(top)
-                %detections(1,length(top)).name=className;
                 for i=length(top):-1:1
-                    detections(i).name=className;
-                    detections(i).score=bbox(top(i),end);
-                    detections(i).polygon.x(4,1)=bbox(top(i),1);
-                    detections(i).polygon.y(4,1)=bbox(top(i),2);
-                    detections(i).polygon.x(3,1)=bbox(top(i),1);
-                    detections(i).polygon.y(3,1)=bbox(top(i),4);
-                    detections(i).polygon.x(2,1)=bbox(top(i),3);
-                    detections(i).polygon.y(2,1)=bbox(top(i),4);
-                    detections(i).polygon.x(1,1)=bbox(top(i),3);
-                    detections(i).polygon.y(1,1)=bbox(top(i),2);
+                    tmpX(4,1)=bbox(top(i),2);
+                    tmpY(4,1)=bbox(top(i),1);
+                    tmpX(3,1)=bbox(top(i),2);
+                    tmpY(3,1)=bbox(top(i),3);
+                    tmpX(2,1)=bbox(top(i),4);
+                    tmpY(2,1)=bbox(top(i),3);
+                    tmpX(1,1)=bbox(top(i),4);
+                    tmpY(1,1)=bbox(top(i),1);
+                    detections(i)=DataHandlers.ObjectStructure(className,bbox(top(i),end),tmpX,tmpY);
                 end
             else
                 detections=[];

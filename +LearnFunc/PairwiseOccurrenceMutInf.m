@@ -40,7 +40,7 @@ classdef PairwiseOccurrenceMutInf<LearnFunc.MutualInformationEngine
             end
 
             for s=1:nSamples
-                objects={samples(s).annotation.object.name}';
+                objects={samples.getObject(s).name}';
                 counts=zeros(1,length(classes));
                 for o=1:length(objects)
                     [~,id]=ismember(objects(o),classes);

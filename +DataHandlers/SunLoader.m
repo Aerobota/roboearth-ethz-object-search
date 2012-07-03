@@ -21,8 +21,8 @@ classdef SunLoader<DataHandlers.DataLoader
         function out=getData(obj,desiredSet)
             tmpPath=fullfile(obj.path,desiredSet{2});
             assert(exist(tmpPath,'file')==2,'The file %s is missing.',tmpPath);
-            in=load(tmpPath,desiredSet{1});
-            out=in.(desiredSet{1});
+            out=DataHandlers.SunDataStructure(desiredSet{1});
+            out.load(tmpPath);
         end
     end
     
@@ -44,13 +44,17 @@ classdef SunLoader<DataHandlers.DataLoader
     methods(Access='protected')
         function data=removeAliasesImpl(~,data,alias)
             for i=1:length(data)
-                for o=1:length(data(i).annotation.object)
+                tmpObjects=data.getObject(i);
+                for o=1:length(tmpObjects)
+                    tmpName=genvarname(tmpObjects(o).name);
                     try
-                        data(i).annotation.object(o).name=genvarname(data(i).annotation.object(o).name);
-                        data(i).annotation.object(o).name=alias.(data(i).annotation.object(o).name);
+                        tmpName=alias.(tmpName);
                     catch
                     end
+                    tmpObjects(o)=DataHandlers.ObjectStructure(tmpName,tmpObjects(o).score,...
+                        tmpObjects(o).polygon.x,tmpObjects(o).polygon.y);
                 end
+                data.setObject(tmpObjects,i);
             end
         end
     end

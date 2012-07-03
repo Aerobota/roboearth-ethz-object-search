@@ -22,7 +22,7 @@ classdef CylindricEvidenceGenerator<LearnFunc.EvidenceGenerator
     end
     methods(Static,Access='protected')
         function pos=getPositionEvidence(image)
-            pos=[image.annotation.object.pos];
+            pos=[image.getObject(1).pos];
         end
     end
 end

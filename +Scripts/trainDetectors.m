@@ -22,7 +22,7 @@ errorList=cell(length(classes),1);
 % learn a detector for every class
 for c=1:length(classes)
     try
-        pascal_train(classes{c},1);
+        pascal_train(classes{c},2);
         if ~exist(modelDestFolder,'dir')
             [~,~,~]=mkdir(modelDestFolder);
         end

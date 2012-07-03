@@ -29,8 +29,6 @@ classdef NYULoader<DataHandlers.DataLoader
             assert(exist(tmpPath,'file')==2,'The file %s is missing.',tmpPath);
             out=DataHandlers.NYUDataStructure();
             out.load(tmpPath);
-%             in=load(tmpPath,desiredSet{1});
-%             out=in.(desiredSet{1});
         end
         function image=getDataByName(obj,name)
             assert(~isempty(obj.names),'To access data by name the dataset needs to be buffered')

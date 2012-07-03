@@ -23,8 +23,6 @@ classdef SunConverter<DataHandlers.SunLoader
     
     methods(Access='protected')
         function generateSmallDataSet(obj,inpath,outpath)
-%             scenes={'kitchen';'office'};
-
             ilgt=DataHandlers.SunGTLoader(inpath);
             ildet=DataHandlers.SunDetLoader(inpath);
 
@@ -67,15 +65,6 @@ classdef SunConverter<DataHandlers.SunLoader
             for i=1:size(dataPacks,1)
                 filePath=fullfile(outpath,dataPacks{i,3});
                 output{i}.save(filePath);
-%                 tmpData.(dataPacks{i,2})=output{i};
-%                 filePath=fullfile(outpath,dataPacks{i,3});
-%                 if exist(filePath,'file')
-%                     save(filePath,'-struct','tmpData','-append');
-%                 else
-%                     save(filePath,'-struct','tmpData');
-%                 end
-%                 disp(['saved ' filePath])
-%                 clear tmpData;
             end
 
             names={ilgt.classes(ismember({ilgt.classes(:).name},classes)).name};

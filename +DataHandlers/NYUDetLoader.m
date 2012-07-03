@@ -20,6 +20,8 @@ classdef NYUDetLoader<DataHandlers.NYULoader
                 groundTruthLoader.path,detector);
             data.save(fullfile(obj.path,obj.trainSet))
             
+            clear('data')
+            
             data=obj.runDetector(groundTruthLoader.getData(groundTruthLoader.testSet),...
                 groundTruthLoader.path,detector);
             data.save(fullfile(obj.path,obj.testSet))
@@ -30,16 +32,7 @@ classdef NYUDetLoader<DataHandlers.NYULoader
             nData=length(data);
             collectedObjects=cell(1,nData);
             parfor i=1:nData
-                %if mod(i,round(nData/10))==0
-                    disp(['detecting image ' num2str(i) '/' num2str(nData)])
-                %end
-%                 data(i).annotation.object=[];
-%                 for c=1:length(classes)
-%                     data(i).annotation.object=[data(i).annotation.object,...
-%                         detector.detectClass(classes{c},...
-%                         imread(fullfile(imgPath,data(i).annotation.folder,data(i).annotation.filename)))];
-%                 end
-%                 collectedObjects{i}=[];
+                disp(['detecting image ' num2str(i) '/' num2str(nData)])
                 for c=1:length(obj.classes)
                     tmpObjects=detector.detectClass(obj.classes(c).name,...
                         imread(fullfile(path,obj.imageFolder,data.getFolder(i),data.getFilename(i))));

@@ -48,10 +48,6 @@ classdef DataStructure<handle
             obj.data(index).object=object;
             obj.data(index).calib=calib;
         end
-%         function subset=getSubset(obj,indexer)
-%             subset=obj.copy();
-%             subset.data=subset.data(indexer);
-%         end
         
         function s=size(obj,index)
             if nargin<2

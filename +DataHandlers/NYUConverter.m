@@ -9,8 +9,6 @@ classdef NYUConverter<DataHandlers.NYULoader
     properties(Constant)
         scenesNegativeDataset={'outdoor','road','street','mountain'};
         maxNum=600;
-%         trainSet={'groundTruthTrain.mat','Dtraining'}
-%         testSet={'groundTruthTest.mat','Dtest'}
         trainSet='groundTruthTrain.mat'
         testSet='groundTruthTest.mat'
     end
@@ -23,7 +21,7 @@ classdef NYUConverter<DataHandlers.NYULoader
         end
         
         function convertFromNyuDataset(obj)
-            %obj.convertNyu2Sun(obj.path,obj.targetPath);
+            obj.convertNyu2Sun(obj.path,obj.targetPath);
             obj.generateNegativeDataSet(obj.negativeDataLoader,obj.targetPath);
         end
     end
@@ -104,16 +102,14 @@ classdef NYUConverter<DataHandlers.NYULoader
             disp('extracting training set')
             data=DataHandlers.NYUConverter.extractImageSet(imageNames(1,split),...
                 depthNames(1,split),labels(:,:,split),allNames,goodClasses,tmp_depthFolder);
-%             save(fullfile(outPath,DataHandlers.NYUConverter.trainSet{1}),DataHandlers.NYUConverter.trainSet{2});
-%             clear(DataHandlers.NYUConverter.trainSet{2});
             data.save(fullfile(outPath,DataHandlers.NYUConverter.trainSet));
+            
+            clear('data')
             
             disp('extracting test set')
             data=DataHandlers.NYUConverter.extractImageSet(imageNames(1,~split),...
                 depthNames(1,~split),labels(:,:,~split),allNames,goodClasses,tmp_depthFolder);
             data.save(fullfile(outPath,DataHandlers.NYUConverter.testSet));
-%             save(fullfile(outPath,DataHandlers.NYUConverter.testSet{1}),DataHandlers.NYUConverter.testSet{2});
-%             clear(DataHandlers.NYUConverter.testSet{2});
         end
 
         function im=extractImageSet(imageNames,depthNames,labels,allNames,goodClasses,tmp_depthFolder)
@@ -123,7 +119,6 @@ classdef NYUConverter<DataHandlers.NYULoader
             im=DataHandlers.NYUDataStructure(nImg);
             tmpCalib=cell(1,nImg);
             tmpObjects=cell(1,nImg);
-            %im(1,nImg).annotation=struct;
             parfor i=1:nImg
                 if mod(i,subN)==0
                     disp(['analysing image ' num2str(i) '/' num2str(nImg)])
@@ -132,15 +127,6 @@ classdef NYUConverter<DataHandlers.NYULoader
                 tmpCalib{i}=[525 0 239.5;0 525 319.5;0 0 1];
                 tmpObjects{i}=DataHandlers.NYUConverter.detectObjects(labels(:,:,i),...
                     allNames,goodIndices,loaded.depth,tmpCalib{i});
-%                 im.addImage(i,imageNames{i},depthNames{i},'',[480 640],tmpObjects,tmpCalib);
-%                 im(1,i).annotation.filename=imageNames{i};
-%                 im(1,i).annotation.depthname=depthNames{i};
-%                 im(1,i).annotation.folder='';
-%                 im(1,i).annotation.imagesize.nrows=480;
-%                 im(1,i).annotation.imagesize.ncols=640;
-%                 im(1,i).annotation.object=DataHandlers.NYUConverter.detectObjects(labels(:,:,i),allNames,goodIndices);
-%                 im(1,i).annotation.calib=[525 0 239.5;0 525 319.5;0 0 1];
-%                 im(1,i).annotation.object=DataHandlers.evaluateDepth(im(1,i).annotation.object,loaded.depth,im(1,i).annotation.calib);
             end
             for i=1:nImg
                 im.addImage(i,imageNames{i},depthNames{i},'',[480 640],tmpObjects{i},tmpCalib{i});
@@ -189,11 +175,8 @@ classdef NYUConverter<DataHandlers.NYULoader
             for o=length(uniInstances):-1:1
                 mask=instances==o;
                 myLabel=labels(mask==true);
-%                 object(o).name=allNames{myLabel(1)};
                 [row,col]=find(mask);
                 tmp=[min(row) max(row);min(col) max(col)];
-%                 object(o).polygon.x=[tmp(1,1) tmp(1,1) tmp(1,2) tmp(1,2)];
-%                 object(o).polygon.y=[tmp(2,1) tmp(2,2) tmp(2,2) tmp(2,1)];
                 px=[tmp(1,1) tmp(1,1) tmp(1,2) tmp(1,2)];
                 py=[tmp(2,1) tmp(2,2) tmp(2,2) tmp(2,1)];
                 object(o)=DataHandlers.Object3DStructure(allNames{myLabel(1)},[],px,py,depth,calib);
@@ -225,20 +208,9 @@ classdef NYUConverter<DataHandlers.NYULoader
             if ~exist(outpath,'dir')
                 mkdir(outpath);
             end
-            
-%             @@@@@@@@@@@@@@@@@@@@@@@@ %change saving strategy
 
             for i=1:size(dataPacks,1)
                 output{i}.save(fullfile(outpath,dataPacks{i,3}));
-%                 tmpData.(dataPacks{i,2})=output{i};
-%                 filePath=fullfile(outpath,dataPacks{i,3});
-%                 if exist(filePath,'file')
-%                     save(filePath,'-struct','tmpData','-append');
-%                 else
-%                     save(filePath,'-struct','tmpData');
-%                 end
-%                 disp(['saved ' filePath])
-%                 clear tmpData;
             end
 
             [~,~,~]=copyfile(fullfile(ilgt.path,ilgt.catFileName),...

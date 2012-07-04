@@ -16,9 +16,14 @@ classdef DataLoader<handle
     
     %% Public Methods
     methods
-        function obj=DataLoader(filePath)
+        function obj=DataLoader(filePath,classes)
             assert(exist(filePath,'dir')>0,'DataLoader:DirectoryNotFound','The specified directory was not found');
             obj.path=filePath;
+            if nargin<2
+                obj.classes=obj.getClasses();
+            else
+                obj.classes=classes;
+            end
         end
         
         function names=getClassNames(obj)

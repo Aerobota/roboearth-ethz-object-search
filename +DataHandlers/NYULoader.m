@@ -16,13 +16,13 @@ classdef NYULoader<DataHandlers.DataLoader
     
     %% Interface Methods
     methods
-        function obj=NYULoader(filePath,classes)
-            obj=obj@DataHandlers.DataLoader(filePath);
-            if nargin<2
-                obj.classes=obj.getClasses();
-            else
-                obj.classes=classes;
-            end
+        function obj=NYULoader(filePath,varargin)
+            obj=obj@DataHandlers.DataLoader(filePath,varargin{:});
+%             if nargin<2
+%                 obj.classes=obj.getClasses();
+%             else
+%                 obj.classes=classes;
+%             end
         end
         function out=getData(obj,desiredSet)
             tmpPath=fullfile(obj.path,desiredSet);

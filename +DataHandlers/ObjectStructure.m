@@ -5,9 +5,10 @@ classdef ObjectStructure
         name
         polygon
         score
+        overlap
     end
     methods
-        function obj=ObjectStructure(name,score,polygonX,polygonY)
+        function obj=ObjectStructure(name,score,overlap,polygonX,polygonY)
             if nargin==0
                 obj.name='DummyObject';
             else
@@ -24,6 +25,7 @@ classdef ObjectStructure
 
                 obj.name=name;
                 obj.score=score;
+                obj.overlap=overlap;
 
                 if size(polygonX,1)==1
                     obj.polygon.x=polygonX';

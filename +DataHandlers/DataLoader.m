@@ -61,5 +61,34 @@ classdef DataLoader<handle
     methods(Abstract,Access='protected')
         data=removeAliasesImpl(obj,data,alias);
     end
+    methods(Static)
+        function overlap=computeOverlap(detObjects,gtObjects)
+            overlap=zeros(size(detObjects));
+            for gt=1:length(gtObjects)
+                maxOverlap=0;
+                maxIndex=0;
+                gtBB=[min(gtObjects(gt).polygon.x) max(gtObjects(gt).polygon.x);...
+                    min(gtObjects(gt).polygon.y) max(gtObjects(gt).polygon.y)];
+                for det=1:length(detObjects)
+                    if strcmpi(detObjects(det).name,gtObjects(gt).name)
+                        detBB=[min(detObjects(det).polygon.x) max(detObjects(det).polygon.x);...
+                            min(detObjects(det).polygon.y) max(detObjects(det).polygon.y)];
+                        unionArea=max(min(gtBB(1,2),detBB(1,2))-max(gtBB(1,1),detBB(1,1)),0)*...
+                            max(min(gtBB(2,2),detBB(2,2))-max(gtBB(2,1),detBB(2,1)),0);
+                        tmpOverlap=unionArea/((gtBB(1,2)-gtBB(1,1))*(gtBB(2,2)-gtBB(2,1))+...
+                            (detBB(1,2)-detBB(1,1))*(detBB(2,2)-detBB(2,1))-unionArea);
+                        
+                        if maxOverlap<tmpOverlap
+                            maxOverlap=tmpOverlap;
+                            maxIndex=det;
+                        end
+                    end
+                end
+                if maxIndex>0
+                    overlap(maxIndex)=maxOverlap;
+                end
+            end
+        end
+    end
 end
 

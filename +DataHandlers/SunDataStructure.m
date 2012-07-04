@@ -20,6 +20,7 @@ classdef SunDataStructure<DataHandlers.DataStructure
             loaded=load(path,obj.datasetName);
             tmpData=loaded.(obj.datasetName);
             hasScore=isfield(tmpData(1).annotation.object,'confidence');
+            hasOverlap=isfield(tmpData(1).annotation.object,'detection');
             for i=length(tmpData):-1:1
                 for o=length(tmpData(i).annotation.object):-1:1
                     if hasScore
@@ -27,8 +28,13 @@ classdef SunDataStructure<DataHandlers.DataStructure
                     else
                         tmpScore=[];
                     end
+                    if hasOverlap
+                        tmpOverlap=double(tmpData(i).annotation.object(o).detection);
+                    else
+                        tmpOverlap=1;
+                    end
                     tmpObject(o)=DataHandlers.ObjectStructure(tmpData(i).annotation.object(o).name,...
-                        tmpScore,tmpData(i).annotation.object(o).polygon.x,...
+                        tmpScore,tmpOverlap,tmpData(i).annotation.object(o).polygon.x,...
                         tmpData(i).annotation.object(o).polygon.y);
                 end
                 obj.addImage(i,tmpData(i).annotation.filename,'',tmpData(i).annotation.folder,...
@@ -48,6 +54,7 @@ classdef SunDataStructure<DataHandlers.DataStructure
                 for o=length(obj.getObject(i)):-1:1
                     tmpStruct(1,i).annotation.object(o).name=obj.getObject(i,o).name;
                     tmpStruct(1,i).annotation.object(o).confidence=obj.getObject(i,o).score;
+                    tmpStruct(1,i).annotation.object(o).detection=obj.getObject(i,o).overlap>=0.5;
                     tmpStruct(1,i).annotation.object(o).polygon=obj.getObject(i,o).polygon;
                 end
             end

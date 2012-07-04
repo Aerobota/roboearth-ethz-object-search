@@ -42,7 +42,7 @@ classdef HOGDetector<DataHandlers.ObjectDetector
                     tmpY(2,1)=bbox(top(i),3);
                     tmpX(1,1)=bbox(top(i),4);
                     tmpY(1,1)=bbox(top(i),1);
-                    detections(i)=DataHandlers.ObjectStructure(className,bbox(top(i),end),tmpX,tmpY);
+                    detections(i)=DataHandlers.ObjectStructure(className,bbox(top(i),end),[],tmpX,tmpY);
                 end
             else
                 detections=[];

@@ -179,7 +179,7 @@ classdef NYUConverter<DataHandlers.NYULoader
                 tmp=[min(row) max(row);min(col) max(col)];
                 px=[tmp(1,1) tmp(1,1) tmp(1,2) tmp(1,2)];
                 py=[tmp(2,1) tmp(2,2) tmp(2,2) tmp(2,1)];
-                object(o)=DataHandlers.Object3DStructure(allNames{myLabel(1)},[],px,py,depth,calib);
+                object(o)=DataHandlers.Object3DStructure(allNames{myLabel(1)},[],1,px,py,depth,calib);
                 if min(abs(tmp(:,1)-tmp(:,2)))<5
                     goodInstances(o)=false;
                 end

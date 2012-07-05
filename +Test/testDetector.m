@@ -10,7 +10,7 @@ catch
     ilgt.bufferDataset(ilgt.trainSet);
     img=ilgt.getDataByName(imageName);
 end
-image=imread(fullfile(ilgt.path,ilgt.imageFolder,img.annotation.filename));
+image=img.getColourImage(1);
 
 det=DataHandlers.HOGDetector(thresh);
 initTime=toc

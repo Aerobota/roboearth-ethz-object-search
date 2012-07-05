@@ -109,8 +109,8 @@ classdef SunConverter<DataHandlers.SunLoader
 
         function getImageFiles(data,inPath,outPath)
             for i=1:length(data)
-                inImg=fullfile(inPath,DataHandlers.SunConverter.imageFolder,data.getFolder(i),data.getFilename(i));
-                outDir=fullfile(outPath,DataHandlers.SunConverter.imageFolder,data.getFolder(i));
+                inImg=fullfile(inPath,data.imageFolder,data.getFolder(i),data.getFilename(i));
+                outDir=fullfile(outPath,data.imageFolder,data.getFolder(i));
                 outImg=fullfile(outDir,data.getFilename(i));
                 if exist(inImg,'file') && ~exist(outImg,'file')
                     if ~exist(outDir,'dir')

@@ -5,7 +5,7 @@ classdef SunLoader<DataHandlers.DataLoader
     %% Properties
     properties(Constant)
         catFileName='sun09_objectCategories.mat';
-        imageFolder='Images'
+%         imageFolder='Images'
     end
     
     %% Interface

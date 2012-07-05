@@ -11,6 +11,8 @@ classdef DataStructure<handle
     properties(Constant)
         objectFolder='object'
         objectTag='obj_'
+        imageFolder='image'
+        depthFolder='depth'
     end
     
     methods(Abstract)
@@ -122,17 +124,61 @@ classdef DataStructure<handle
         end
         
         function img=getColourImage(obj,i)
-            img=imread(fullfile(obj.dataPath,obj.getFolder(i),obj.getFilename(i)));
+            img=imread(fullfile(obj.dataPath,obj.imageFolder,obj.getFolder(i),obj.getFilename(i)));
         end
         
         function img=getDepthImage(obj,i)
-            loaded=load(fullfile(obj.dataPath,obj.getFolder(i),obj.getDepthname(i)));
+            loaded=load(fullfile(obj.dataPath,obj.depthFolder,obj.getFolder(i),obj.getDepthname(i)));
             img=loaded.depth;
         end
 %         function out=horzcat(a,b)
 %             out=a;
 %             a.data=[a.data b.data];
 %         end
+    end
+    
+    methods(Static)
+        function overlap=computeOverlap(detObjects,gtObjects,mode)
+            assert(ismember(mode,{'complete','exclusive'}),'DataStructure:wrongInput',...
+                'The mode argument must be ''complete'' or ''exclusive''.')
+            if strcmp(mode,'complete')
+                modeComplete=true;
+            else
+                modeComplete=false;
+            end
+            
+            overlap=zeros(size(detObjects));
+            for gt=1:length(gtObjects)
+                if ~modeComplete
+                    maxOverlap=0;
+                    maxIndex=0;
+                end
+                gtBB=[min(gtObjects(gt).polygon.x) max(gtObjects(gt).polygon.x);...
+                    min(gtObjects(gt).polygon.y) max(gtObjects(gt).polygon.y)];
+                for det=1:length(detObjects)
+                    if strcmpi(detObjects(det).name,gtObjects(gt).name)
+                        detBB=[min(detObjects(det).polygon.x) max(detObjects(det).polygon.x);...
+                            min(detObjects(det).polygon.y) max(detObjects(det).polygon.y)];
+                        unionArea=max(min(gtBB(1,2),detBB(1,2))-max(gtBB(1,1),detBB(1,1)),0)*...
+                            max(min(gtBB(2,2),detBB(2,2))-max(gtBB(2,1),detBB(2,1)),0);
+                        tmpOverlap=unionArea/((gtBB(1,2)-gtBB(1,1))*(gtBB(2,2)-gtBB(2,1))+...
+                            (detBB(1,2)-detBB(1,1))*(detBB(2,2)-detBB(2,1))-unionArea);
+                        
+                        if modeComplete
+                            overlap(det)=max(overlap(det),tmpOverlap);
+                        elseif maxOverlap<tmpOverlap
+                            maxOverlap=tmpOverlap;
+                            maxIndex=det;
+                        end
+                    end
+                end
+                if ~modeComplete
+                    if maxIndex>0
+                        overlap(maxIndex)=maxOverlap;
+                    end
+                end
+            end
+        end
     end
     
 end

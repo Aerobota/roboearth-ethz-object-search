@@ -1,5 +1,5 @@
 datasetPath=fullfile(pwd,'Dataset/NYU');
-confidencePoints=0.5%linspace(0,0.99,30);
+confidencePoints=linspace(0,0.99,30);
 
 gtLoader=DataHandlers.NYUGTLoader(datasetPath);
 detLoader=DataHandlers.NYUDetLoader(datasetPath);
@@ -11,6 +11,6 @@ disp('loading detections')
 det=detLoader.getData(detLoader.testSet);
 
 disp('running detection evaluation')
-precRec=blineEval.generateDetectionPerformance(det,gt);
+precRec=blineEval.evaluateDetectionPerformance(det,gt);
 
-% save('tmpPrecRec','precRec');
+save('tmpPrecRec','precRec');

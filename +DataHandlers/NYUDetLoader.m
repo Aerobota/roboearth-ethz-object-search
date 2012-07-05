@@ -54,9 +54,9 @@ classdef NYUDetLoader<DataHandlers.NYULoader
                 disp(['detecting image ' num2str(i) '/' num2str(nData)])
                 for c=1:length(obj.classes)
                     tmpObjects=detector.detectClass(obj.classes(c).name,...
-                        imread(fullfile(path,obj.imageFolder,data.getFolder(i),data.getFilename(i))));
-                    tmpLoaded=load(fullfile(path,obj.depthFolder,data.getFolder(i),data.getDepthname(i)));
-                    tmpOverlap=obj.computeOverlap(tmpObjects,data.getObject(i));
+                        data.getColourImage(i));
+                    tmpLoaded=load(fullfile(path,data.depthFolder,data.getFolder(i),data.getDepthname(i)));
+                    tmpOverlap=data.computeOverlap(tmpObjects,data.getObject(i),'complete');
                     for o=1:length(tmpObjects)
                         size(tmpLoaded.depth)
                         disp(tmpObjects(o).polygon.x)

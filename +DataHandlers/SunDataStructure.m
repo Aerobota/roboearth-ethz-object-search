@@ -6,6 +6,10 @@ classdef SunDataStructure<DataHandlers.DataStructure
         datasetName
     end
     
+    properties(Constant)
+        imageFolder='Images'
+    end
+    
     methods
         function obj=SunDataStructure(path,datasetName,preallocationSize)
             if nargin<3

@@ -2,12 +2,9 @@ classdef BaselineEvaluator<Evaluation.DetectionEvaluator
     %BASELINEEVALUATOR Summary of this class goes here
     %   Detailed explanation goes here
     
-    properties
-    end
-    
     methods
-        function obj=BaselineEvaluator(confidencPoints)
-            obj=obj@Evaluation.DetectionEvaluator(confidencPoints);
+        function obj=BaselineEvaluator(confidencePoints)
+            obj=obj@Evaluation.DetectionEvaluator(confidencePoints);
         end
     end
     methods(Access='protected')

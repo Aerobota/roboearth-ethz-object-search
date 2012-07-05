@@ -1,7 +1,7 @@
 function record=PASreadrecord(path)
     global imageLoader;
     tmpData=imageLoader.getDataByName(path);
-    record.imgname=fullfile(imageLoader.imageFolder,tmpData.getFolder(1),...
+    record.imgname=fullfile(tmpData.imageFolder,tmpData.getFolder(1),...
         tmpData.getFilename(1));
     
     tmpObjects=tmpData.getObject(1);

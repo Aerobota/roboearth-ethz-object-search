@@ -32,9 +32,9 @@ classdef NYUConverter<DataHandlers.NYULoader
         %   Detailed explanation goes here
 
             inFile=fullfile(inPath,'nyu_depth_v2_labeled.mat');
-
-            tmp_imageFolder=fullfile(outPath,obj.imageFolder);
-            tmp_depthFolder=fullfile(outPath,obj.depthFolder);
+            
+            tmp_imageFolder=fullfile(outPath,DataHandlers.NYUDataStructure.imageFolder);
+            tmp_depthFolder=fullfile(outPath,DataHandlers.NYUDataStructure.depthFolder);
 
             disp('extracting images')
             [imageNames,depthNames]=DataHandlers.NYUConverter.extractImages...
@@ -241,8 +241,8 @@ classdef NYUConverter<DataHandlers.NYULoader
 
         function getImageFiles(tmp_data,ilgt,outPath)
             for i=1:length(tmp_data)
-                inImg=fullfile(ilgt.path,ilgt.imageFolder,tmp_data.getFolder(i),tmp_data.getFilename(i));
-                outDir=fullfile(outPath,DataHandlers.NYULoader.imageFolder,tmp_data.getFolder(i));
+                inImg=fullfile(ilgt.path,tmp_data.imageFolder,tmp_data.getFolder(i),tmp_data.getFilename(i));
+                outDir=fullfile(outPath,DataHandlers.NYUDataStructure.imageFolder,tmp_data.getFolder(i));
                 outImg=fullfile(outDir,tmp_data.getFilename(i));
                 if ~exist(outImg,'file')
                     if ~exist(outDir,'dir')

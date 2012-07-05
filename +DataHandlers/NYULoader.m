@@ -10,8 +10,8 @@ classdef NYULoader<DataHandlers.DataLoader
     
     properties(Constant)
         catFileName='objectCategories.mat';
-        imageFolder='image'
-        depthFolder='depth'
+%         imageFolder='image'
+%         depthFolder='depth'
     end
     
     %% Interface Methods

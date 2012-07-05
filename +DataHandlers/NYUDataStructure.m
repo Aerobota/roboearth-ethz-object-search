@@ -40,33 +40,12 @@ classdef NYUDataStructure<DataHandlers.DataStructure
     
     %% Protected Methods for File Conversion
     methods(Access='protected')
-        function tmp_data=removeAliasesImpl(~,tmp_data,alias)
-            tmp_data.names=genvarname(tmp_data.names);
-            relabel=(1:length(tmp_data.names))';
-            myAlias=(1:length(tmp_data.names))';
-            goodLabel=true(size(tmp_data.names));
-            for i=1:length(tmp_data.names)
-                if isfield(alias,tmp_data.names{i})
-                    mem=ismember(tmp_data.names,alias.(tmp_data.names{i}));
-                    if any(mem)
-                        goodLabel(i)=false;
-                        myAlias(i)=find(mem);
-                    else
-                        tmp_data.names{i}=alias.(tmp_data.names{i});
-                    end
-                end
-                relabel(i)=sum(goodLabel(1:i));
-            end
-            tmp_data.names=tmp_data.names(goodLabel);
-            for i=1:size(tmp_data.labels,3)
-                tmpLabel=tmp_data.labels(:,:,i);
-                tmpLabel(tmpLabel~=0)=relabel(myAlias(tmpLabel(tmpLabel~=0)));
-                tmp_data.labels(:,:,i)=tmpLabel;
-            end
-        end
-        
         function name=getStorageName(obj)
             name=[obj.setChooser{2} obj.setChooser{1}];
+        end
+        
+        function name=getObjectSubfolderName(obj)
+            name=obj.getStorageName();
         end
     end
 end

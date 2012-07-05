@@ -4,7 +4,6 @@ classdef DataStructure<handle
     
     %% Properties
     properties(Access='protected')
-        setChooser
         data
         storageName
         classes
@@ -13,6 +12,7 @@ classdef DataStructure<handle
     
     properties(SetAccess='protected')
         path
+        setChooser
     end
     
     properties(Constant)
@@ -38,8 +38,8 @@ classdef DataStructure<handle
     end
     
     methods(Abstract,Access='protected')
-        data=removeAliasesImpl(obj,data,alias);
         name=getStorageName(obj);
+        name=getObjectSubfolderName(obj)
     end
     
     %% Data Loading
@@ -110,19 +110,19 @@ classdef DataStructure<handle
             fclose(fid);            
         end
         
-        function data=removeAliases(obj,data)
-            alias.books='book';
-            alias.bottles='bottle';
-            alias.boxes='box';
-            alias.cars='car';
-            alias.rocks='stone';
-            alias.rock='stone';
-            alias.stones='stone';
-            alias.pillow='cushion';
-            alias.monitor='screen';
-            
-            data=obj.removeAliasesImpl(data,alias);
-        end
+%         function data=removeAliases(obj,data)
+%             alias.books='book';
+%             alias.bottles='bottle';
+%             alias.boxes='box';
+%             alias.cars='car';
+%             alias.rocks='stone';
+%             alias.rock='stone';
+%             alias.stones='stone';
+%             alias.pillow='cushion';
+%             alias.monitor='screen';
+%             
+%             data=obj.removeAliasesImpl(data,alias);
+%         end
         
         %% Get Functions
         function names=getClassNames(obj)
@@ -176,7 +176,7 @@ classdef DataStructure<handle
                 if ~exist(tmpDir,'dir')
                     [~,~,~]=mkdir(tmpDir);
                 end
-                [~,tmpName,~]=fileparts(obj.storageName);
+                tmpName=obj.getObjectSubfolderName();
                 tmpDir=fullfile(obj.path,obj.objectFolder,tmpName);
                 if ~exist(tmpDir,'dir')
                     [~,~,~]=mkdir(tmpDir);

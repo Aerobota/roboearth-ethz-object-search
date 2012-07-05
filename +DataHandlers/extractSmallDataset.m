@@ -30,7 +30,7 @@ function extractSmallDataset(inpath,outpath)
         dataPacks{i}.load();
         getSceneData(scenesSmallDataset,dataPacks{i},output{i});
         disp(['loaded ' num2str(i)])
-        output{i}=output{i}.removeAliases(output{i});
+        output{i}=DataHandlers.removeAliases(output{i});
     end
 
     classes=dataPacks{1}.getClassNames();

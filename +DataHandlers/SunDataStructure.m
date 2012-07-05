@@ -90,25 +90,13 @@ classdef SunDataStructure<DataHandlers.DataStructure
     end
     
     %% Protected Methods
-    methods(Access='protected')
-        function data=removeAliasesImpl(~,data,alias)
-            for i=1:length(data)
-                tmpObjects=data.getObject(i);
-                for o=1:length(tmpObjects)
-                    tmpName=genvarname(tmpObjects(o).name);
-                    try
-                        tmpName=alias.(tmpName);
-                    catch
-                    end
-                    tmpObjects(o)=DataHandlers.ObjectStructure(tmpName,tmpObjects(o).score,double(tmpObjects(o).detection),...
-                        tmpObjects(o).polygon.x,tmpObjects(o).polygon.y);
-                end
-                data.setObject(tmpObjects,i);
-            end
-        end
-        
+    methods(Access='protected')        
         function name=getStorageName(obj)
             name=obj.setChooser{2}{2};
+        end
+        
+        function name=getObjectSubfolderName(obj)
+            name=[obj.setChooser{2}{1} obj.setChooser{1}];
         end
     end
 end

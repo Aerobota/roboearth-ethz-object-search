@@ -100,19 +100,19 @@ classdef NYUConverter<DataHandlers.NYULoader
 
         function extractObjects(split,imageNames,depthNames,labels,allNames,goodClasses,outPath,tmp_depthFolder)
             disp('extracting training set')
-            data=DataHandlers.NYUConverter.extractImageSet(imageNames(1,split),...
-                depthNames(1,split),labels(:,:,split),allNames,goodClasses,tmp_depthFolder);
-            data.save(fullfile(outPath,DataHandlers.NYUConverter.trainSet));
+            data=DataHandlers.NYUConverter.extractImageSet(fullfile(outPath,DataHandlers.NYUConverter.trainSet),...
+                imageNames(1,split),depthNames(1,split),labels(:,:,split),allNames,goodClasses,tmp_depthFolder);
+            data.save();
             
             clear('data')
             
             disp('extracting test set')
-            data=DataHandlers.NYUConverter.extractImageSet(imageNames(1,~split),...
-                depthNames(1,~split),labels(:,:,~split),allNames,goodClasses,tmp_depthFolder);
-            data.save(fullfile(outPath,DataHandlers.NYUConverter.testSet));
+            data=DataHandlers.NYUConverter.extractImageSet(fullfile(outPath,DataHandlers.NYUConverter.testSet),...
+                imageNames(1,~split),depthNames(1,~split),labels(:,:,~split),allNames,goodClasses,tmp_depthFolder);
+            data.save();
         end
 
-        function im=extractImageSet(imageNames,depthNames,labels,allNames,goodClasses,tmp_depthFolder)
+        function im=extractImageSet(path,imageNames,depthNames,labels,allNames,goodClasses,tmp_depthFolder)
             goodIndices=find(ismember(allNames,goodClasses));
             nImg=length(imageNames);
             subN=round(nImg/10);

@@ -21,8 +21,8 @@ classdef SunLoader<DataHandlers.DataLoader
         function out=getData(obj,desiredSet)
             tmpPath=fullfile(obj.path,desiredSet{2});
             assert(exist(tmpPath,'file')==2,'The file %s is missing.',tmpPath);
-            out=DataHandlers.SunDataStructure(desiredSet{1});
-            out.load(tmpPath);
+            out=DataHandlers.SunDataStructure(tmpPath,desiredSet{1});
+            out.load();
         end
     end
     

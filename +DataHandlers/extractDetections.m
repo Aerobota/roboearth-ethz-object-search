@@ -1,6 +1,4 @@
 function extractDetections(groundTruthData,detector)
-    
-
     data=runDetector(groundTruthData,...
         groundTruthLoader.path,detector);
     data.save()

@@ -19,13 +19,6 @@ function extractSmallDataset(inpath,outpath)
     output{4}=DataHandlers.SunDataStructure(outpath,DataHandlers.SunDataStructure.testSet,...
         DataHandlers.SunDataStructure.det);
 
-%     ilgt=DataHandlers.SunGTLoader(inpath);
-%     ildet=DataHandlers.SunDetLoader(inpath);
-
-%     dataPacks={gtTrain,gtTest,detTrain,detTest};
-% 
-%     output=cell(size(dataPacks,1),1);
-
     for i=1:length(dataPacks)
         dataPacks{i}.load();
         getSceneData(scenesSmallDataset,dataPacks{i},output{i});

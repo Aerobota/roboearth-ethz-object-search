@@ -6,8 +6,9 @@ occurrenceStates={'0','1','2+'};
 evidenceGeneratorName='cylindric';
 
 %% Object initialisation
-imageLoader=DataHandlers.NYUGTLoader(fullfile(pwd,datasetPath));
-classes=imageLoader.getClassNames();
+data=DataHandlers.NYUDataStructure(datasetPath,DataHandlers.NYUDataStructure.trainSet,...
+    DataHandlers.NYUDataStructure.gt);
+classes=data.getClassNames();
 
 occurenceEvidenceGenerator=LearnFunc.PairwiseOccurenceEvidenceGenerator(occurrenceStates);
 
@@ -22,7 +23,7 @@ locationLearner=LearnFunc.ChowLiuLocationLearner(classes,locationEvidenceGenerat
 
 %% Data loading
 disp('loading data')
-data=imageLoader.getData(imageLoader.trainSet);
+data.load();
 
 %% Dependency learning
 disp('learning occurence dependency')

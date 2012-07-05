@@ -7,8 +7,16 @@ threshold=-1.05;
 
 %% Init
 detector=DataHandlers.HOGDetector(threshold,fullfile(pwd,modelPath));
-dataLoader=DataHandlers.NYUDetLoader(fullfile(pwd,datasetPath));
-gtLoader=DataHandlers.NYUGTLoader(fullfile(pwd,datasetPath));
 
 %% Extraction
-dataLoader.extractDetections(gtLoader,detector);
+disp('extracting training set')
+gtData=DataHandlers.NYUDataStructure(datasetPath,DataHandlers.NYUDataStructure.trainSet,...
+    DataHandlers.NYUDataStructure.gt);
+gtData.load();
+DataHandlers.extractDetections(gtData,detector);
+
+disp('extracting test set')
+gtData=DataHandlers.NYUDataStructure(datasetPath,DataHandlers.NYUDataStructure.testSet,...
+    DataHandlers.NYUDataStructure.gt);
+gtData.load();
+DataHandlers.extractDetections(gtData,detector);

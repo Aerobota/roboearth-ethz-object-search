@@ -84,7 +84,7 @@ classdef SunDataStructure<DataHandlers.DataStructure
         
         function delete(obj)
             for i=1:length(obj.data)
-                delete(fullfile(obj.path,obj.data(i).objectPath));
+                [~,~,~]=delete(fullfile(obj.path,obj.data(i).objectPath));
             end
         end
     end

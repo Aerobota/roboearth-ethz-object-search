@@ -1,4 +1,6 @@
 %% Parameters
+@@@@@@@@@@@@@@@@@@@@@@@@ %not yet checked
+
 detectorPath='ObjectDetector';
 datasetPath='Dataset/NYU';
 negativePath='Dataset/NYU';

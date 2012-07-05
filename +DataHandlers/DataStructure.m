@@ -2,17 +2,33 @@ classdef DataStructure<handle
     %DATASTRUCTURE Summary of this class goes here
     %   Detailed explanation goes here
     
+    %% Properties
     properties(Access='protected')
+        setChooser
         data
-        dataPath
-        filePath
+        storageName
+        classes
+        nameIndex
+    end
+    
+    properties(SetAccess='protected')
+        path
     end
     
     properties(Constant)
         objectFolder='object'
         objectTag='obj_'
-        imageFolder='image'
         depthFolder='depth'
+    end
+    
+    %% Abstract Methods and Properties
+    properties(Abstract,Constant)
+        imageFolder
+        trainSet
+        testSet
+        gt
+        det
+        catFileName
     end
     
     methods(Abstract)
@@ -21,14 +37,21 @@ classdef DataStructure<handle
         subset=getSubset(obj,indexer)
     end
     
+    methods(Abstract,Access='protected')
+        data=removeAliasesImpl(obj,data,alias);
+        name=getStorageName(obj);
+    end
+    
+    %% Data Loading
     methods
-        function obj=DataStructure(path,preallocationSize)
+        function obj=DataStructure(path,testOrTrain,gtOrDet,preallocationSize)
             tmpCell=cell(1,preallocationSize);
             obj.data=struct('filename',tmpCell,'depthname',tmpCell,...
                 'folder',tmpCell,'imagesize',tmpCell,'calib',tmpCell,'objectPath',tmpCell);%,'object',tmpCell
             
-            [obj.dataPath,~,~]=fileparts(path);
-            obj.filePath=path;
+            obj.path=path;
+            obj.setChooser={testOrTrain gtOrDet};
+            obj.storageName=obj.getStorageName();
         end
         function addImage(obj,index,filename,depthname,folder,imagesize,object,calib)
             assert(ischar(filename),'DataStructure:wrongInput',...
@@ -55,10 +78,10 @@ classdef DataStructure<handle
                 obj.data(index).imagesize=imagesize;
             end
             obj.setObject(object,index);
-%             obj.data(index).object=object;
             obj.data(index).calib=calib;
         end
         
+        %% Support Functions
         function s=size(obj,index)
             if nargin<2
                 s=size(obj.data);
@@ -71,6 +94,44 @@ classdef DataStructure<handle
             l=length(obj.data);
         end
         
+        function subset=getDataByName(obj,name)
+            subset=obj.getSubset(ismember({obj.data.filename},name));
+            assert(~isempty(subset),'Image %s doesn''t exist in this dataset',name);
+            if(size(subset,2)~=1)
+                subset=image.getSubset(1);
+            end
+        end
+        
+        function writeNameListFile(obj,nameListFile)
+            fid=fopen(nameListFile,'wt');
+            for n=1:length(obj)
+                fprintf(fid,'%s\n',obj.getFilename(n));
+            end
+            fclose(fid);            
+        end
+        
+        function data=removeAliases(obj,data)
+            alias.books='book';
+            alias.bottles='bottle';
+            alias.boxes='box';
+            alias.cars='car';
+            alias.rocks='stone';
+            alias.rock='stone';
+            alias.stones='stone';
+            alias.pillow='cushion';
+            alias.monitor='screen';
+            
+            data=obj.removeAliasesImpl(data,alias);
+        end
+        
+        %% Get Functions
+        function names=getClassNames(obj)
+            if isempty(obj.classes)
+                obj.loadClasses();
+            end
+            names=obj.classes;
+        end
+    
         function out=getFilename(obj,i)
             out=obj.data(i).filename;
         end
@@ -88,35 +149,9 @@ classdef DataStructure<handle
         end
         
         function out=getObject(obj,i)
-            tmpPath=fullfile(obj.dataPath,obj.data(i).objectPath);
+            tmpPath=fullfile(obj.path,obj.data(i).objectPath);
             loaded=load(tmpPath);
             out=loaded.object;
-        end
-        
-%         function out=getObjectOld(obj,i)
-%             out=obj.data(i).object;
-%         end
-        
-        function setObject(obj,newObject,i)
-            assert(isa(newObject,'DataHandlers.ObjectStructure'),'DataStructure:wrongInput',...
-                'The newObject argument must be of ObjectStructure class.')
-            tmpPath=fullfile(obj.dataPath,obj.data(i).objectPath);
-            tmpDir=fullfile(obj.dataPath,obj.objectFolder);
-            if exist(tmpPath,'file')~=2
-                if ~exist(tmpDir,'dir')
-                    [~,~,~]=mkdir(tmpDir);
-                end
-                [~,tmpName,~]=fileparts(obj.filePath);
-                tmpDir=fullfile(obj.dataPath,obj.objectFolder,tmpName);
-                if ~exist(tmpDir,'dir')
-                    [~,~,~]=mkdir(tmpDir);
-                end
-                tmpName=fullfile(obj.objectFolder,tmpName,[obj.objectTag num2str(i,'%05d') '.mat']);
-                obj.data(i).objectPath=tmpName;
-                tmpPath=fullfile(obj.dataPath,obj.data(i).objectPath);
-            end
-            saver.object=newObject;
-            save(tmpPath,'-struct','saver');
         end
         
         function out=getCalib(obj,i)
@@ -124,19 +159,50 @@ classdef DataStructure<handle
         end
         
         function img=getColourImage(obj,i)
-            img=imread(fullfile(obj.dataPath,obj.imageFolder,obj.getFolder(i),obj.getFilename(i)));
+            img=imread(fullfile(obj.path,obj.imageFolder,obj.getFolder(i),obj.getFilename(i)));
         end
         
         function img=getDepthImage(obj,i)
-            loaded=load(fullfile(obj.dataPath,obj.depthFolder,obj.getFolder(i),obj.getDepthname(i)));
+            loaded=load(fullfile(obj.path,obj.depthFolder,obj.getFolder(i),obj.getDepthname(i)));
             img=loaded.depth;
         end
-%         function out=horzcat(a,b)
-%             out=a;
-%             a.data=[a.data b.data];
-%         end
+        %% Set Functions
+        function setObject(obj,newObject,i)
+            assert(isa(newObject,'DataHandlers.ObjectStructure'),'DataStructure:wrongInput',...
+                'The newObject argument must be of ObjectStructure class.')
+            tmpPath=fullfile(obj.path,obj.data(i).objectPath);
+            tmpDir=fullfile(obj.path,obj.objectFolder);
+            if exist(tmpPath,'file')~=2
+                if ~exist(tmpDir,'dir')
+                    [~,~,~]=mkdir(tmpDir);
+                end
+                [~,tmpName,~]=fileparts(obj.storageName);
+                tmpDir=fullfile(obj.path,obj.objectFolder,tmpName);
+                if ~exist(tmpDir,'dir')
+                    [~,~,~]=mkdir(tmpDir);
+                end
+                tmpName=fullfile(obj.objectFolder,tmpName,[obj.objectTag num2str(i,'%05d') '.mat']);
+                obj.data(i).objectPath=tmpName;
+                tmpPath=fullfile(obj.path,obj.data(i).objectPath);
+            end
+            saver.object=newObject;
+            save(tmpPath,'-struct','saver');
+        end
     end
     
+    %% Protected Data Loading
+    methods(Access='protected',Sealed)
+        function loadClasses(obj)
+            tmpPath=fullfile(obj.path,obj.catFileName);
+            assert(exist(tmpPath,'file')==2,'The file %s is missing.',tmpPath);
+            in=load(tmpPath);
+            for i=length(in.names):-1:1
+                obj.classes{i}=in.names{i};
+            end
+        end
+    end
+    
+    %% Utility Functions
     methods(Static)
         function overlap=computeOverlap(detObjects,gtObjects,mode)
             assert(ismember(mode,{'complete','exclusive'}),'DataStructure:wrongInput',...
@@ -148,27 +214,27 @@ classdef DataStructure<handle
             end
             
             overlap=zeros(size(detObjects));
-            for gt=1:length(gtObjects)
+            for i=1:length(gtObjects)
                 if ~modeComplete
                     maxOverlap=0;
                     maxIndex=0;
                 end
-                gtBB=[min(gtObjects(gt).polygon.x) max(gtObjects(gt).polygon.x);...
-                    min(gtObjects(gt).polygon.y) max(gtObjects(gt).polygon.y)];
-                for det=1:length(detObjects)
-                    if strcmpi(detObjects(det).name,gtObjects(gt).name)
-                        detBB=[min(detObjects(det).polygon.x) max(detObjects(det).polygon.x);...
-                            min(detObjects(det).polygon.y) max(detObjects(det).polygon.y)];
+                gtBB=[min(gtObjects(i).polygon.x) max(gtObjects(i).polygon.x);...
+                    min(gtObjects(i).polygon.y) max(gtObjects(i).polygon.y)];
+                for j=1:length(detObjects)
+                    if strcmpi(detObjects(j).name,gtObjects(i).name)
+                        detBB=[min(detObjects(j).polygon.x) max(detObjects(j).polygon.x);...
+                            min(detObjects(j).polygon.y) max(detObjects(j).polygon.y)];
                         unionArea=max(min(gtBB(1,2),detBB(1,2))-max(gtBB(1,1),detBB(1,1)),0)*...
                             max(min(gtBB(2,2),detBB(2,2))-max(gtBB(2,1),detBB(2,1)),0);
                         tmpOverlap=unionArea/((gtBB(1,2)-gtBB(1,1))*(gtBB(2,2)-gtBB(2,1))+...
                             (detBB(1,2)-detBB(1,1))*(detBB(2,2)-detBB(2,1))-unionArea);
                         
                         if modeComplete
-                            overlap(det)=max(overlap(det),tmpOverlap);
+                            overlap(j)=max(overlap(j),tmpOverlap);
                         elseif maxOverlap<tmpOverlap
                             maxOverlap=tmpOverlap;
-                            maxIndex=det;
+                            maxIndex=j;
                         end
                     end
                 end

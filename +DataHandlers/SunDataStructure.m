@@ -2,27 +2,32 @@ classdef SunDataStructure<DataHandlers.DataStructure
     %SUNDATASTRUCTURE Summary of this class goes here
     %   Detailed explanation goes here
     
-    properties(Access='protected')
-        datasetName
-    end
+%     properties(Access='protected')
+%         datasetName
+%     end
     
     properties(Constant)
         imageFolder='Images'
+        catFileName='sun09_objectCategories.mat'
+        trainSet='raining'
+        testSet='est'
+        gt={'Dt' 'sun09_groundTruth'}
+        det={'DdetectorT' 'sun09_detectorOutputs'}
     end
     
     methods
-        function obj=SunDataStructure(path,datasetName,preallocationSize)
-            if nargin<3
+        function obj=SunDataStructure(path,testOrTrain,gtOrDet,preallocationSize)
+            if nargin<4
                 preallocationSize=0;
             end
-            obj=obj@DataHandlers.DataStructure(path,preallocationSize);
-            obj.datasetName=datasetName;
+            obj=obj@DataHandlers.DataStructure(path,testOrTrain,gtOrDet,preallocationSize);
         end
         function load(obj)
-            assert(exist(obj.filePath,'file')>0,'DataStructure:fileNotFound',...
-                'The file %s doesn''t exist.',path)
-            loaded=load(obj.filePath,obj.datasetName);
-            tmpData=loaded.(obj.datasetName);
+            filePath=fullfile(obj.path,[obj.storageName '.mat']);
+            assert(exist(filePath,'file')>0,'DataStructure:fileNotFound',...
+                'The file %s doesn''t exist.',filePath)
+            loaded=load(filePath,[obj.setChooser{2}{1} obj.setChooser{1}]);
+            tmpData=loaded.([obj.setChooser{2}{1} obj.setChooser{1}]);
             hasScore=isfield(tmpData(1).annotation.object,'confidence');
             hasOverlap=isfield(tmpData(1).annotation.object,'detection');
             for i=length(tmpData):-1:1
@@ -46,8 +51,9 @@ classdef SunDataStructure<DataHandlers.DataStructure
             end
         end
         function save(obj)
-            if ~exist(obj.dataPath,'dir')
-                [~,~,~]=mkdir(obj.dataPath);
+            filePath=fullfile(obj.path,[obj.storageName '.mat']);
+            if ~exist(obj.path,'dir')
+                [~,~,~]=mkdir(obj.path);
             end
             
             for i=length(obj.data):-1:1
@@ -63,23 +69,46 @@ classdef SunDataStructure<DataHandlers.DataStructure
                 end
             end
             
-            tmpData.(obj.datasetName)=tmpStruct;
-            if ~exist(obj.filePath,'file')
-                save(obj.filePath,'-struct','tmpData');
+            tmpData.([obj.setChooser{2}{1} obj.setChooser{1}])=tmpStruct;
+            if ~exist(filePath,'file')
+                save(filePath,'-struct','tmpData');
             else
-                save(obj.filePath,'-struct','tmpData','-append');
+                save(filePath,'-struct','tmpData','-append');
             end
         end
         
         function newObject=getSubset(obj,indexer)
-            newObject=DataHandlers.SunDataStructure(obj.datasetName);
+            newObject=DataHandlers.SunDataStructure(obj.path,obj.setChooser{1},obj.setChooser{2});
             newObject.data=obj.data(indexer);
         end
         
         function delete(obj)
             for i=1:length(obj.data)
-                delete(fullfile(obj.dataPath,obj.data(i).objectPath));
+                delete(fullfile(obj.path,obj.data(i).objectPath));
             end
+        end
+    end
+    
+    %% Protected Methods
+    methods(Access='protected')
+        function data=removeAliasesImpl(~,data,alias)
+            for i=1:length(data)
+                tmpObjects=data.getObject(i);
+                for o=1:length(tmpObjects)
+                    tmpName=genvarname(tmpObjects(o).name);
+                    try
+                        tmpName=alias.(tmpName);
+                    catch
+                    end
+                    tmpObjects(o)=DataHandlers.ObjectStructure(tmpName,tmpObjects(o).score,double(tmpObjects(o).detection),...
+                        tmpObjects(o).polygon.x,tmpObjects(o).polygon.y);
+                end
+                data.setObject(tmpObjects,i);
+            end
+        end
+        
+        function name=getStorageName(obj)
+            name=obj.setChooser{2}{2};
         end
     end
 end

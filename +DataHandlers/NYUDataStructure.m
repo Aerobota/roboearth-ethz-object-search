@@ -3,25 +3,24 @@ classdef NYUDataStructure<DataHandlers.DataStructure
     %   Detailed explanation goes here
     
     methods
-        function obj=NYUDataStructure(preallocationSize)
-            if nargin<1
+        function obj=NYUDataStructure(path,preallocationSize)
+            if nargin<2
                 preallocationSize=0;
             end
-            obj=obj@DataHandlers.DataStructure(preallocationSize);
+            obj=obj@DataHandlers.DataStructure(path,preallocationSize);
         end
-        function load(obj,path)
-            assert(exist(path,'file')>0,'DataStructure:fileNotFound',...
-                'The file %s doesn''t exist.',path)
-            loaded=load(path);
+        function load(obj)
+            assert(exist(obj.filePath,'file')>0,'DataStructure:fileNotFound',...
+                'The file %s doesn''t exist.',obj.filePath)
+            loaded=load(obj.filePath);
             obj.data=loaded.data;
         end
-        function save(obj,path)
-            [tmpDir,~,~]=fileparts(path);
-            if ~exist(tmpDir,'dir')
-                [~,~,~]=mkdir(tmpDir);
+        function save(obj)
+            if ~exist(obj.dataPath,'dir')
+                [~,~,~]=mkdir(obj.dataPath);
             end
             tmpObj.data=obj.data;
-            save(path,'-struct','tmpObj');
+            save(obj.filePath,'-struct','tmpObj');
         end
         function newObject=getSubset(obj,indexer)
             newObject=DataHandlers.NYUDataStructure();

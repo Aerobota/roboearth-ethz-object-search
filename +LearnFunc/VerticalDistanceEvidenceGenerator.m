@@ -12,8 +12,9 @@ classdef VerticalDistanceEvidenceGenerator<LearnFunc.LocationEvidenceGenerator
     end
     methods(Static,Access='protected')
         function pos=getPositionEvidence(image)
-            for o=length(image.getObject(1)):-1:1
-                pos(1,o)=mean(image.getObject(1,o).polygon.y)/image.getImagesize(1).nrows;
+            tmpObjects=image.getObject(1);
+            for o=length(tmpObjects):-1:1
+                pos(1,o)=mean(tmpObjects(o).polygon.y)/image.getImagesize(1).nrows;
             end
         end
     end

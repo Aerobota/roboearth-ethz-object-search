@@ -123,7 +123,9 @@ classdef SunConverter<DataHandlers.SunLoader
 
         function data=cleanObjects(data,classes)
             for i=1:length(data)
-                data.setObject(data.getObject(i,ismember({data.getObject(i).name},classes)),i);
+                tmpObject=data.getObject(i);
+                tmpObject=tmpObject(ismember({tmpObject.name},classes));
+                data.setObject(tmpObject,i);
             end
         end
     end

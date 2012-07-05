@@ -4,22 +4,29 @@ classdef DataStructure<handle
     
     properties(Access='protected')
         data
+        dataPath
+        filePath
+    end
+    
+    properties(Constant)
+        objectFolder='object'
+        objectTag='obj_'
     end
     
     methods(Abstract)
-        load(obj,path)
-        save(obj,path)
+        load(obj)
+        save(obj)
         subset=getSubset(obj,indexer)
     end
     
     methods
-        function obj=DataStructure(preallocationSize)
-            if nargin<1
-                preallocationSize=0;
-            end
+        function obj=DataStructure(path,preallocationSize)
             tmpCell=cell(1,preallocationSize);
             obj.data=struct('filename',tmpCell,'depthname',tmpCell,...
-                'folder',tmpCell,'imagesize',tmpCell,'object',tmpCell,'calib',tmpCell);
+                'folder',tmpCell,'imagesize',tmpCell,'calib',tmpCell,'objectPath',tmpCell);%,'object',tmpCell
+            
+            [obj.dataPath,~,~]=fileparts(path);
+            obj.filePath=path;
         end
         function addImage(obj,index,filename,depthname,folder,imagesize,object,calib)
             assert(ischar(filename),'DataStructure:wrongInput',...
@@ -45,7 +52,8 @@ classdef DataStructure<handle
             else
                 obj.data(index).imagesize=imagesize;
             end
-            obj.data(index).object=object;
+            obj.setObject(object,index);
+%             obj.data(index).object=object;
             obj.data(index).calib=calib;
         end
         
@@ -77,32 +85,46 @@ classdef DataStructure<handle
             out=obj.data(i).imagesize;
         end
         
-        function out=getObject(obj,i,o)
-            if nargin<3
-                out=obj.data(i).object;
-            else
-                out=obj.data(i).object(o);
-            end
+        function out=getObject(obj,i)
+            tmpPath=fullfile(obj.dataPath,obj.data(i).objectPath);
+            loaded=load(tmpPath);
+            out=loaded.object;
         end
         
-        function setObject(obj,newObject,i,o)
+        function out=getObjectOld(obj,i)
+            out=obj.data(i).object;
+        end
+        
+        function setObject(obj,newObject,i)
             assert(isa(newObject,'DataHandlers.ObjectStructure'),'DataStructure:wrongInput',...
                 'The newObject argument must be of ObjectStructure class.')
-            if nargin<4
-                obj.data(i).object=newObject;
-            else
-                obj.data(i).object(o)=newObject;
+            tmpPath=fullfile(obj.dataPath,obj.data(i).objectPath);
+            tmpDir=fullfile(obj.dataPath,obj.objectFolder);
+            if exist(tmpPath,'file')~=2
+                if ~exist(tmpDir,'dir')
+                    [~,~,~]=mkdir(tmpDir);
+                end
+                [~,tmpName,~]=fileparts(obj.filePath);
+                tmpDir=fullfile(obj.dataPath,obj.objectFolder,tmpName);
+                if ~exist(tmpDir,'dir')
+                    [~,~,~]=mkdir(tmpDir);
+                end
+                tmpName=fullfile(obj.objectFolder,tmpName,[obj.objectTag num2str(i,'%05d') '.mat']);
+                obj.data(i).objectPath=tmpName;
+                tmpPath=fullfile(obj.dataPath,obj.data(i).objectPath);
             end
+            saver.object=newObject;
+            save(tmpPath,'-struct','saver');
         end
         
         function out=getCalib(obj,i)
             out=obj.data(i).calib;
         end
         
-        function out=horzcat(a,b)
-            out=a;
-            a.data=[a.data b.data];
-        end
+%         function out=horzcat(a,b)
+%             out=a;
+%             a.data=[a.data b.data];
+%         end
     end
     
 end

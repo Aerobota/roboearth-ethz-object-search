@@ -11,7 +11,7 @@ classdef DetectionEvaluator
             obj.confidencePoints=confidencePoints;
         end
         
-        function output=generatePrecisionRecallCurve(obj,detTestData,gtTestData)
+        function output=evaluateDetectionPerformance(obj,detTestData,gtTestData)
             confidence=obj.generateConfidence(detTestData);
             output=struct('recal',[],'precision',[],'fpRate',[],'tpRate',[]);
             for c=1:length(obj.confidencePoints)
@@ -28,6 +28,9 @@ classdef DetectionEvaluator
                     truePositives=truePositives+nTP;
                     nFP=sum(goodDetections)-nTP;
                     falsePositives=falsePositives+nFP;
+                    
+                    obj.showPerformance(i,detObjects,gtTestData,goodDetections);
+                    pause
                 end
                 output.recal(end+1)=truePositives/nGTObj;
                 output.precision(end+1)=truePositives/(truePositives+falsePositives);
@@ -38,6 +41,15 @@ classdef DetectionEvaluator
     end
     methods(Abstract,Access='protected')
         confidence=generateConfidence(obj,detTestData)
+    end
+    methods(Static)
+        function showPerformance(index,detObjects,gtData,goodDetections)
+            figure()
+            imshow(gtData.getColourImage(index));
+            hold on
+            plot([detObjects(goodDetections).polygon.y],[detObjects(goodDetections).polygon.x],'-g')
+            plot([detObjects(~goodDetections).polygon.y],[detObjects(~goodDetections).polygon.x],'-r')
+        end
     end
 end
 

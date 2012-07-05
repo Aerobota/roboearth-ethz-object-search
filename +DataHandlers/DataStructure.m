@@ -91,9 +91,9 @@ classdef DataStructure<handle
             out=loaded.object;
         end
         
-        function out=getObjectOld(obj,i)
-            out=obj.data(i).object;
-        end
+%         function out=getObjectOld(obj,i)
+%             out=obj.data(i).object;
+%         end
         
         function setObject(obj,newObject,i)
             assert(isa(newObject,'DataHandlers.ObjectStructure'),'DataStructure:wrongInput',...
@@ -121,6 +121,14 @@ classdef DataStructure<handle
             out=obj.data(i).calib;
         end
         
+        function img=getColourImage(obj,i)
+            img=imread(fullfile(obj.dataPath,obj.getFolder(i),obj.getFilename(i)));
+        end
+        
+        function img=getDepthImage(obj,i)
+            loaded=load(fullfile(obj.dataPath,obj.getFolder(i),obj.getDepthname(i)));
+            img=loaded.depth;
+        end
 %         function out=horzcat(a,b)
 %             out=a;
 %             a.data=[a.data b.data];

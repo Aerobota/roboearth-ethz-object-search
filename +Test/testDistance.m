@@ -10,12 +10,10 @@ learnFunction='gmm';
 
 %% load data
 dataPath='Dataset/NYU';
-% dataPath='Dataset/Trash/Sun09_clean';
-ilgt=DataHandlers.NYUGTLoader(dataPath);
-% ilgt=DataHandlers.SunGTLoader(dataPath);
-im=ilgt.getData(ilgt.trainSet);
+im=DataHandlers.NYUDataStructure(dataPath,DataHandlers.NYUDataStructure.trainSet,DataHandlers.NYUDataStructure.gt);
+im.load();
 
-classes={ilgt.classes.name};
+classes=im.getClassNames();
 
 %% learn location parameters
 if strcmpi(learnFunction,'gmm')

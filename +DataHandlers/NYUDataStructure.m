@@ -32,10 +32,6 @@ classdef NYUDataStructure<DataHandlers.DataStructure
             tmpObj.data=obj.data;
             save(filePath,'-struct','tmpObj');
         end
-%         function newObject=getSubset(obj,indexer)
-%             newObject=DataHandlers.NYUDataStructure(obj.path,obj.setChooser{1},obj.setChooser{2});
-%             newObject.data=obj.data(indexer);
-%         end
     end
     
     %% Protected Methods for File Conversion

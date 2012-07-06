@@ -23,10 +23,9 @@ classdef SunDataStructure<DataHandlers.DataStructure
             obj=obj@DataHandlers.DataStructure(path,testOrTrain,gtOrDet,preallocationSize);
             
             while(isempty(obj.myObjectFolder))
-                tmpFolder=fullfile(tempdir,'Sun09tmp',char(randperm(6)+96))
+                tmpFolder=fullfile(tempdir,'Sun09tmp',char(randperm(6)+96));
                 if ~exist(tmpFolder,'dir')
                     obj.myObjectFolder=tmpFolder;
-%                     [~,~,~]=mkdir(obj.myObjectFolder);
                 end
             end
         end
@@ -84,11 +83,6 @@ classdef SunDataStructure<DataHandlers.DataStructure
                 save(filePath,'-struct','tmpData','-append');
             end
         end
-        
-%         function newObject=getSubset(obj,indexer)
-%             newObject=DataHandlers.SunDataStructure(obj.path,obj.setChooser{1},obj.setChooser{2});
-%             newObject.data=obj.data(indexer);
-%         end
         
         function delete(obj)
             [~,~,~]=rmdir(obj.myObjectFolder,'s');

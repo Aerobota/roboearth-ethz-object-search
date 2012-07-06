@@ -2,14 +2,14 @@ clear all;
 
 
 %% parameters
-datasetPath='Dataset/NYU';
+dataPath='Dataset/NYU';
 multiOccurence=true;
 
 %% load dataset
-ilgt=DataHandlers.NYUGTLoader(datasetPath);
-im=ilgt.getData(ilgt.trainSet);
+im=DataHandlers.NYUDataStructure(dataPath,DataHandlers.NYUDataStructure.trainSet,DataHandlers.NYUDataStructure.gt);
+im.load();
 
-classes={ilgt.classes.name};
+classes=im.getClassNames();
 
 %% learn chow liu
 if multiOccurence

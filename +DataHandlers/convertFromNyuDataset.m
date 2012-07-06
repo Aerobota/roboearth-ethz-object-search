@@ -1,12 +1,9 @@
 function convertFromNyuDataset(nyuPath,sunPath,targetPath)
-            convertNyu2Sun(nyuPath,targetPath);
+            convertNyu(nyuPath,targetPath);
             generateNegativeDataSet(sunPath,targetPath);
 end
 
-function convertNyu2Sun(inPath,outPath)
-%CONVERTNYU2SUN Summary of this function goes here
-%   Detailed explanation goes here
-
+function convertNyu(inPath,outPath)
     inFile=fullfile(inPath,'nyu_depth_v2_labeled.mat');
 
     tmp_imageFolder=fullfile(outPath,DataHandlers.NYUDataStructure.imageFolder);

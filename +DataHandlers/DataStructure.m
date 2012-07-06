@@ -34,7 +34,6 @@ classdef DataStructure<handle
     methods(Abstract)
         load(obj)
         save(obj)
-%         subset=getSubset(obj,indexer)
     end
     
     methods(Abstract,Access='protected')
@@ -95,13 +94,6 @@ classdef DataStructure<handle
             l=length(obj.data);
         end
         
-%         function subset=getDataByName(obj,name)
-%             subset=obj.getSubset(ismember({obj.data.filename},name));
-%             assert(~isempty(subset),'Image %s doesn''t exist in this dataset',name);
-%             if(size(subset,2)~=1)
-%                 subset=image.getSubset(1);
-%             end
-%         end
         function index=name2Index(obj,name)
             [~,index]=ismember(name,{obj.data.filename});
             assert(index>0,'Image %s doesn''t exist in this dataset',name);
@@ -128,20 +120,6 @@ classdef DataStructure<handle
             assert(isa(otherDataStructure,'DataHandlers.DataStructure'));
             obj.data=[obj.data otherDataStructure.data];
         end
-        
-%         function data=removeAliases(obj,data)
-%             alias.books='book';
-%             alias.bottles='bottle';
-%             alias.boxes='box';
-%             alias.cars='car';
-%             alias.rocks='stone';
-%             alias.rock='stone';
-%             alias.stones='stone';
-%             alias.pillow='cushion';
-%             alias.monitor='screen';
-%             
-%             data=obj.removeAliasesImpl(data,alias);
-%         end
         
         %% Get Functions
         function names=getClassNames(obj)
@@ -190,11 +168,7 @@ classdef DataStructure<handle
             assert(isa(newObject,'DataHandlers.ObjectStructure'),'DataStructure:wrongInput',...
                 'The newObject argument must be of ObjectStructure class.')
             tmpPath=fullfile(obj.getPathToObjects(),obj.data(i).objectPath);
-%             tmpDir=fullfile(obj.path,obj.objectFolder);
             if exist(tmpPath,'file')~=2
-%                 if ~exist(tmpDir,'dir')
-%                     [~,~,~]=mkdir(tmpDir);
-%                 end
                 tmpName=obj.getObjectSubfolderName();
                 tmpDir=fullfile(obj.getPathToObjects(),obj.objectFolder,tmpName);
                 if ~exist(tmpDir,'dir')

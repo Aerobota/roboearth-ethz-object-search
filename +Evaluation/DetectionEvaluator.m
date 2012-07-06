@@ -3,7 +3,7 @@ classdef DetectionEvaluator
     %   Detailed explanation goes here
     
     properties(SetAccess='protected')
-        confidencePoints%=linspace(0,0.99,30);
+        confidencePoints
     end
     
     methods

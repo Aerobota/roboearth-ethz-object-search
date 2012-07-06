@@ -2,7 +2,7 @@
 
 modelPath='Models/good';
 datasetPath='Dataset/NYU';
-threshold=-1.05;
+threshold=-1.02;
 
 
 %% Init

@@ -7,10 +7,10 @@ evidenceGenerator=LearnFunc.CylindricEvidenceGenerator();
 
 %% load data
 dataPath='Dataset/NYU';
-ilgt=DataHandlers.NYUGTLoader(dataPath);
-im=ilgt.getData(ilgt.trainSet);
+im=DataHandlers.NYUDataStructure(dataPath,DataHandlers.NYUDataStructure.trainSet,DataHandlers.NYUDataStructure.gt);
+im.load();
 
-classes={ilgt.classes.name};
+classes=im.getClassNames();
 
 %% learn location structure
 ll=LearnFunc.ChowLiuLocationLearner(classes,evidenceGenerator);

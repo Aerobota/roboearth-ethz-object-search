@@ -1,14 +1,14 @@
-datasetPath=fullfile(pwd,'Dataset/NYU');
+dataPath=fullfile(pwd,'Dataset/NYU');
 confidencePoints=linspace(0,0.99,30);
 
-gtLoader=DataHandlers.NYUGTLoader(datasetPath);
-detLoader=DataHandlers.NYUDetLoader(datasetPath);
+gt=DataHandlers.NYUDataStructure(dataPath,DataHandlers.NYUDataStructure.trainSet,DataHandlers.NYUDataStructure.gt);
+det=DataHandlers.SunDataStructure(dataPath,DataHandlers.SunDataStructure.trainSet,DataHandlers.SunDataStructure.gt);
 blineEval=Evaluation.BaselineEvaluator(confidencePoints);
 
 disp('loading ground truth')
-gt=gtLoader.getData(gtLoader.testSet);
+gt.load();
 disp('loading detections')
-det=detLoader.getData(detLoader.testSet);
+det.load();
 
 disp('running detection evaluation')
 precRec=blineEval.evaluateDetectionPerformance(det,gt);

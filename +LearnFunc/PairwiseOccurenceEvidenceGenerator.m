@@ -29,7 +29,6 @@ classdef PairwiseOccurenceEvidenceGenerator<LearnFunc.EvidenceGenerator
                 objects={data.getObject(s).name}';
                 counts=zeros(1,length(classes));
                 for o=1:length(objects)
-%                     [~,id]=ismember(objects(o),classes);
                     id=name2ind.(objects{o});
                     counts(id)=counts(id)+1;
                 end

@@ -19,7 +19,7 @@ classdef DetectionEvaluator
                 truePositives=0;
                 nGTObj=0;
                 falsePositives=0;
-                parfor i=1:length(gtTestData)
+                for i=1:length(gtTestData)
                     disp(['scanning image ' num2str(i)])
                     goodDetections=confidence{i}>obj.confidencePoints(c);
                     
@@ -35,8 +35,8 @@ classdef DetectionEvaluator
                     truePositives=truePositives+nTP;
                     falsePositives=falsePositives+nFP;
                     
-%                     obj.showPerformance(i,detObjects,gtTestData,goodDetections);
-%                     pause
+                    obj.showPerformance(i,detObjects,gtTestData,goodDetections,tmpOverlap,confidence{i});
+                    pause
                 end
                 output.recal(end+1)=truePositives/nGTObj;
                 output.precision(end+1)=truePositives/(truePositives+falsePositives);
@@ -49,24 +49,42 @@ classdef DetectionEvaluator
         confidence=generateConfidence(obj,detTestData)
     end
     methods(Static)
-        function showPerformance(index,detObjects,gtData,goodDetections)
-            figure()
+        function showPerformance(index,detObjects,gtData,goodDetections,tmpOverlap,confidence)
+            figure();
             imshow(gtData.getColourImage(index));
             hold on
             objRecog=detObjects(goodDetections);
             objNRecog=detObjects(~goodDetections);
+            conRecog=confidence(goodDetections);
+            conNRecog=confidence(~goodDetections);
             
-            pGood=[objRecog([objRecog.overlap]>=0.5).polygon];
-            pBad=[objRecog([objRecog.overlap]<0.5).polygon];
-            pCorrect=[objNRecog([objNRecog.overlap]>=0.5).polygon];
+            pGood=objRecog(tmpOverlap>=0.5);
+            conGood=conRecog(tmpOverlap>=0.5);
+            overGood=tmpOverlap(tmpOverlap>=0.5);
+            pBad=objRecog(tmpOverlap<0.5);
+            conBad=conRecog(tmpOverlap<0.5);
+            overBad=tmpOverlap(tmpOverlap<0.5);
+            pCorrect=objNRecog([objNRecog.overlap]>=0.5);
+            conCorrect=conNRecog([objNRecog.overlap]>=0.5);
             if ~isempty(pGood)
-                plot([pGood.y],[pGood.x],'-g')
+                Evaluation.DetectionEvaluator.drawPolygon(pGood,overGood,conGood,'g')
             end
             if ~isempty(pBad)
-                plot([pBad.y],[pBad.x],'-r')
+                Evaluation.DetectionEvaluator.drawPolygon(pBad,overBad,conBad,'r')
             end
             if ~isempty(pCorrect)
-                plot([pCorrect.y],[pCorrect.x],'-b')
+                Evaluation.DetectionEvaluator.drawPolygon(pCorrect,[pCorrect.overlap],conCorrect,'b')
+            end
+        end
+        
+        function drawPolygon(objects,overlaps,confidence,colour)
+            poly=[objects.polygon];
+            x=[poly.x];
+            y=[poly.y];
+            plot(y([1:end 1],:),x([1:end 1],:),colour);
+            for o=1:length(objects)
+                tmpString=[objects(o).name ': ' num2str(overlaps(o)) ',' num2str(confidence(o))];
+                text(min(objects(o).polygon.y),min(objects(o).polygon.x),tmpString,'color',colour);
             end
         end
     end

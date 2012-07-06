@@ -185,8 +185,8 @@ function generateNegativeDataSet(inpath,outpath)
     
     output.save();
 
-    [~,~,~]=copyfile(fullfile(ilgt.path,ilgt.catFileName),...
-        fullfile(outpath,ilgt.catFileName));
+    [~,~,~]=copyfile(fullfile(inpath,dataPacks.catFileName),...
+        fullfile(outpath,output.catFileName));
 end
 
 function getSceneData(scenes,input,output,maxNum)
@@ -217,7 +217,7 @@ end
 function getImageFiles(data,inPath,outPath)
     for i=1:length(data)
         inImg=fullfile(inPath,data.imageFolder,data.getFolder(i),data.getFilename(i));
-        outDir=fullfile(outPath,data.imageFolder,data.getFolder(i));
+        outDir=fullfile(outPath,DataHandlers.NYUDataStructure.imageFolder,data.getFolder(i));
         outImg=fullfile(outDir,data.getFilename(i));
         if exist(inImg,'file') && ~exist(outImg,'file')
             if ~exist(outDir,'dir')

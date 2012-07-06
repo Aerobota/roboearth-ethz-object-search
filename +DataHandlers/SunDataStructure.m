@@ -2,9 +2,9 @@ classdef SunDataStructure<DataHandlers.DataStructure
     %SUNDATASTRUCTURE Summary of this class goes here
     %   Detailed explanation goes here
     
-%     properties(Access='protected')
-%         datasetName
-%     end
+    properties(Access='protected')
+        myObjectFolder
+    end
     
     properties(Constant)
         imageFolder='Images'
@@ -21,6 +21,14 @@ classdef SunDataStructure<DataHandlers.DataStructure
                 preallocationSize=0;
             end
             obj=obj@DataHandlers.DataStructure(path,testOrTrain,gtOrDet,preallocationSize);
+            
+            while(isempty(obj.myObjectFolder))
+                tmpFolder=fullfile(tempdir,'Sun09tmp',char(randperm(6)+96))
+                if ~exist(tmpFolder,'dir')
+                    obj.myObjectFolder=tmpFolder;
+%                     [~,~,~]=mkdir(obj.myObjectFolder);
+                end
+            end
         end
         function load(obj)
             filePath=fullfile(obj.path,[obj.storageName '.mat']);
@@ -77,15 +85,13 @@ classdef SunDataStructure<DataHandlers.DataStructure
             end
         end
         
-        function newObject=getSubset(obj,indexer)
-            newObject=DataHandlers.SunDataStructure(obj.path,obj.setChooser{1},obj.setChooser{2});
-            newObject.data=obj.data(indexer);
-        end
+%         function newObject=getSubset(obj,indexer)
+%             newObject=DataHandlers.SunDataStructure(obj.path,obj.setChooser{1},obj.setChooser{2});
+%             newObject.data=obj.data(indexer);
+%         end
         
         function delete(obj)
-            for i=1:length(obj.data)
-                [~,~,~]=delete(fullfile(obj.path,obj.data(i).objectPath));
-            end
+            [~,~,~]=rmdir(obj.myObjectFolder,'s');
         end
     end
     
@@ -97,6 +103,10 @@ classdef SunDataStructure<DataHandlers.DataStructure
         
         function name=getObjectSubfolderName(obj)
             name=[obj.setChooser{2}{1} obj.setChooser{1}];
+        end
+        
+        function out=getPathToObjects(obj)
+            out=obj.myObjectFolder;
         end
     end
 end

@@ -1,10 +1,10 @@
 function record=PASreadrecord(path)
-    global imageLoader;
-    tmpData=imageLoader.getDataByName(path);
-    record.imgname=fullfile(tmpData.imageFolder,tmpData.getFolder(1),...
-        tmpData.getFilename(1));
+    global imageData;
+    i=imageData.name2Index(path);
+    record.imgname=fullfile(imageData.imageFolder,imageData.getFolder(i),...
+        imageData.getFilename(i));
     
-    tmpObjects=tmpData.getObject(1);
+    tmpObjects=imageData.getObject(i);
     for o=1:length(tmpObjects)
         record.objects(o).class=tmpObjects(o).name;
         record.objects(o).truncated=false;
@@ -13,6 +13,6 @@ function record=PASreadrecord(path)
         record.objects(o).bbox(2)=min([tmpObjects(o).polygon.x]);
         record.objects(o).bbox(3)=max([tmpObjects(o).polygon.y]);
         record.objects(o).bbox(4)=max([tmpObjects(o).polygon.x]);
-        record.imgsize=[tmpData.getImagesize(1).ncols tmpData.getImagesize(1).nrows];
+        record.imgsize=[imageData.getImagesize(i).ncols imageData.getImagesize(i).nrows];
     end
 end

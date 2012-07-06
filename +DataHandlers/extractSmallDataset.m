@@ -94,8 +94,8 @@ function [det,gt]=cleanImages(det,gt,classes)
     for i=1:length(det)
         imageComplete(i)=all(ismember(classes,{det.getObject(i).name}));
     end
-    det=det.getSubset(imageComplete);
-    gt=gt.getSubset(imageComplete);
+    det.reduceDataStructure(imageComplete);
+    gt.reduceDataStructure(imageComplete);
 end
 
 function getImageFiles(data,inPath,outPath)

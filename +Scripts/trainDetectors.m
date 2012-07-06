@@ -1,9 +1,7 @@
 %% Parameters
-@@@@@@@@@@@@@@@@@@@@@@@@ %not yet checked
 
 detectorPath='ObjectDetector';
 datasetPath='Dataset/NYU';
-negativePath='Dataset/NYU';
 modelPath='Models';
 removeTemporaries=true;
 nComponents=2;

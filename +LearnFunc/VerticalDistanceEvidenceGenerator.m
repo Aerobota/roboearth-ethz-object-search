@@ -1,20 +1,20 @@
 classdef VerticalDistanceEvidenceGenerator<LearnFunc.LocationEvidenceGenerator
     methods(Static,Access='protected')
-        function evidence=getAbsoluteEvidence(image)
-            pos=LearnFunc.VerticalDistanceEvidenceGenerator.getPositionEvidence(image);
+        function evidence=getAbsoluteEvidence(images,index)
+            pos=LearnFunc.VerticalDistanceEvidenceGenerator.getPositionEvidence(images,index);
             evidence(:,:,1)=pos(ones(length(pos),1),:);
         end
-        function evidence=getRelativeEvidence(image)
-            pos=LearnFunc.VerticalDistanceEvidenceGenerator.getPositionEvidence(image);
-            nObj=length(image.getObject(1));
+        function evidence=getRelativeEvidence(images,index)
+            pos=LearnFunc.VerticalDistanceEvidenceGenerator.getPositionEvidence(images,index);
+            nObj=length(images.getObject(index));
             evidence(:,:,1)=pos(ones(nObj,1),:)-pos(ones(nObj,1),:)';
         end
     end
     methods(Static,Access='protected')
-        function pos=getPositionEvidence(image)
-            tmpObjects=image.getObject(1);
+        function pos=getPositionEvidence(images,index)
+            tmpObjects=images.getObject(index);
             for o=length(tmpObjects):-1:1
-                pos(1,o)=mean(tmpObjects(o).polygon.y)/image.getImagesize(1).nrows;
+                pos(1,o)=mean(tmpObjects(o).polygon.y)/images.getImagesize(index).nrows;
             end
         end
     end

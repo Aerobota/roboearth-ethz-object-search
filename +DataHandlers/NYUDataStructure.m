@@ -20,7 +20,7 @@ classdef NYUDataStructure<DataHandlers.DataStructure
         function load(obj)
             filePath=fullfile(obj.path,[obj.storageName '.mat']);
             assert(exist(filePath,'file')>0,'DataStructure:fileNotFound',...
-                'The file %s doesn''t exist.',obj.filePath)
+                'The file %s doesn''t exist.',filePath)
             loaded=load(filePath);
             obj.data=loaded.data;
         end
@@ -32,10 +32,10 @@ classdef NYUDataStructure<DataHandlers.DataStructure
             tmpObj.data=obj.data;
             save(filePath,'-struct','tmpObj');
         end
-        function newObject=getSubset(obj,indexer)
-            newObject=DataHandlers.NYUDataStructure(obj.path,obj.setChooser{1},obj.setChooser{2});
-            newObject.data=obj.data(indexer);
-        end
+%         function newObject=getSubset(obj,indexer)
+%             newObject=DataHandlers.NYUDataStructure(obj.path,obj.setChooser{1},obj.setChooser{2});
+%             newObject.data=obj.data(indexer);
+%         end
     end
     
     %% Protected Methods for File Conversion
@@ -46,6 +46,10 @@ classdef NYUDataStructure<DataHandlers.DataStructure
         
         function name=getObjectSubfolderName(obj)
             name=obj.getStorageName();
+        end
+        
+        function out=getPathToObjects(obj)
+            out=obj.path;
         end
     end
 end

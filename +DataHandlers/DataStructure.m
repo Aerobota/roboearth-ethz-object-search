@@ -34,12 +34,13 @@ classdef DataStructure<handle
     methods(Abstract)
         load(obj)
         save(obj)
-        subset=getSubset(obj,indexer)
+%         subset=getSubset(obj,indexer)
     end
     
     methods(Abstract,Access='protected')
         name=getStorageName(obj);
         name=getObjectSubfolderName(obj)
+        out=getPathToObjects(obj)
     end
     
     %% Data Loading
@@ -94,12 +95,16 @@ classdef DataStructure<handle
             l=length(obj.data);
         end
         
-        function subset=getDataByName(obj,name)
-            subset=obj.getSubset(ismember({obj.data.filename},name));
-            assert(~isempty(subset),'Image %s doesn''t exist in this dataset',name);
-            if(size(subset,2)~=1)
-                subset=image.getSubset(1);
-            end
+%         function subset=getDataByName(obj,name)
+%             subset=obj.getSubset(ismember({obj.data.filename},name));
+%             assert(~isempty(subset),'Image %s doesn''t exist in this dataset',name);
+%             if(size(subset,2)~=1)
+%                 subset=image.getSubset(1);
+%             end
+%         end
+        function index=name2Index(obj,name)
+            [~,index]=ismember(name,{obj.data.filename});
+            assert(index>0,'Image %s doesn''t exist in this dataset',name);
         end
         
         function writeNameListFile(obj,nameListFile)
@@ -108,6 +113,20 @@ classdef DataStructure<handle
                 fprintf(fid,'%s\n',obj.getFilename(n));
             end
             fclose(fid);            
+        end
+        
+        function reduceDataStructure(obj,indexer)
+            toRemove=1:length(obj);
+            toRemove(indexer)=[];
+            for i=toRemove
+                obj.removeObject(i);
+            end
+            obj.data=obj.data(indexer);
+        end
+        
+        function addData(obj,otherDataStructure)
+            assert(isa(otherDataStructure,'DataHandlers.DataStructure'));
+            obj.data=[obj.data otherDataStructure.data];
         end
         
 %         function data=removeAliases(obj,data)
@@ -149,7 +168,7 @@ classdef DataStructure<handle
         end
         
         function out=getObject(obj,i)
-            tmpPath=fullfile(obj.path,obj.data(i).objectPath);
+            tmpPath=fullfile(obj.getPathToObjects(),obj.data(i).objectPath);
             loaded=load(tmpPath);
             out=loaded.object;
         end
@@ -170,23 +189,30 @@ classdef DataStructure<handle
         function setObject(obj,newObject,i)
             assert(isa(newObject,'DataHandlers.ObjectStructure'),'DataStructure:wrongInput',...
                 'The newObject argument must be of ObjectStructure class.')
-            tmpPath=fullfile(obj.path,obj.data(i).objectPath);
-            tmpDir=fullfile(obj.path,obj.objectFolder);
+            tmpPath=fullfile(obj.getPathToObjects(),obj.data(i).objectPath);
+%             tmpDir=fullfile(obj.path,obj.objectFolder);
             if exist(tmpPath,'file')~=2
-                if ~exist(tmpDir,'dir')
-                    [~,~,~]=mkdir(tmpDir);
-                end
+%                 if ~exist(tmpDir,'dir')
+%                     [~,~,~]=mkdir(tmpDir);
+%                 end
                 tmpName=obj.getObjectSubfolderName();
-                tmpDir=fullfile(obj.path,obj.objectFolder,tmpName);
+                tmpDir=fullfile(obj.getPathToObjects(),obj.objectFolder,tmpName);
                 if ~exist(tmpDir,'dir')
                     [~,~,~]=mkdir(tmpDir);
                 end
                 tmpName=fullfile(obj.objectFolder,tmpName,[obj.objectTag num2str(i,'%05d') '.mat']);
                 obj.data(i).objectPath=tmpName;
-                tmpPath=fullfile(obj.path,obj.data(i).objectPath);
+                tmpPath=fullfile(obj.getPathToObjects(),obj.data(i).objectPath);
             end
             saver.object=newObject;
             save(tmpPath,'-struct','saver');
+        end
+        %% Remove Functions
+        function removeObject(obj,i)
+            tmpPath=fullfile(obj.getPathToObjects(),obj.data(i).objectPath);
+            if exist(tmpPath,'file')==2
+                delete(tmpPath);
+            end
         end
     end
     

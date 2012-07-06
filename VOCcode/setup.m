@@ -1,14 +1,14 @@
 %% Global definitions
-global datasetPath
+global datasetFolder
 global originalPWD;
-global imageLoader;
+global imageData;
 
 %% Path generating
 originalPWD=pwd;
 modelDestFolder=fullfile(originalPWD,modelPath,'New');
 modelFolder=fullfile(originalPWD,modelPath);
 datasetFolder=fullfile(originalPWD,datasetPath);
-negativeSamplesFolder=fullfile(originalPWD,negativePath);
+% negativeSamplesFolder=fullfile(originalPWD,datasetPath);
 
 addpath(originalPWD);
 addpath(fullfile(originalPWD,detectorPath));
@@ -17,14 +17,24 @@ addpath(fullfile(originalPWD,detectorPath));
 VOCinit
 
 %% Data loading
-imageLoader=DataHandlers.NYUGTLoader(datasetFolder);
-imageLoader.bufferDataset(imageLoader.trainSet);
-imageLoader.writeNameListFile(sprintf(VOCopts.imgsetpath,'trainval'));
-negImageLoader=DataHandlers.SunGTLoader(negativeSamplesFolder);
-imageLoader.addData(negImageLoader.getData(negImageLoader.trainSet));
-imageLoader.writeNameListFile(sprintf(VOCopts.imgsetpath,'train'));
+imageData=DataHandlers.NYUDataStructure(datasetFolder,DataHandlers.NYUDataStructure.trainSet,DataHandlers.NYUDataStructure.gt);
+imageData.load();
+imageData.writeNameListFile(sprintf(VOCopts.imgsetpath,'trainval'));
+negImgData=DataHandlers.SunDataStructure(datasetFolder,DataHandlers.SunDataStructure.trainSet,DataHandlers.SunDataStructure.gt);
+negImgData.load();
 
-classes={imageLoader.classes.name}';
+imageData.addData(negImgData);
+imageData.writeNameListFile(sprintf(VOCopts.imgsetpath,'train'));
+
+classes=imageData.getClassNames();
+% imageLoader=DataHandlers.NYUGTLoader(datasetFolder);
+% imageLoader.bufferDataset(imageLoader.trainSet);
+% imageLoader.writeNameListFile(sprintf(VOCopts.imgsetpath,'trainval'));
+% negImageLoader=DataHandlers.SunGTLoader(negativeSamplesFolder);
+% imageLoader.addData(negImageLoader.getData(negImageLoader.trainSet));
+% imageLoader.writeNameListFile(sprintf(VOCopts.imgsetpath,'train'));
+% 
+% classes={imageLoader.classes.name}';
 
 %% Ready for detector
 cd(detectorPath)

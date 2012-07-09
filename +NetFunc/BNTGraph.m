@@ -16,10 +16,15 @@ classdef BNTGraph<NetFunc.Graph
             obj.myGraphs=[];
         end
         
-        function setCPD(obj,index,cpd)
-            assert(obj.compiled,'BNTGraph:setCPD:uncompiled',...
-                'Adding a CPD to an uncompiled network may lead to undefined behaviour.')
-            obj.net.CPD{index}=cpd;
+%         function setCPD(obj,index,cpd)
+%             assert(obj.compiled,'BNTGraph:setCPD:uncompiled',...
+%                 'Adding a CPD to an uncompiled network may lead to undefined behaviour.')
+%             obj.net.CPD{index}=cpd;
+%         end
+        function setCPD(obj,nodeName,cpdCreator,varargin)
+            obj.setCompileState(true);
+            index=obj.nodes.(nodeName).index;
+            obj.net.CPD{index}=cpdCreator(obj.net,index,varargin);
         end
         
         function close(obj)

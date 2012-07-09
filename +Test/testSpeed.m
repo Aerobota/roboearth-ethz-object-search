@@ -3,6 +3,22 @@ clear all
 N=1000;
 NTests=1;
 
+%% scoreEvidence
+
+ds=DataHandlers.NYUDataStructure('../Koenig12/Dataset/NYU',DataHandlers.NYUDataStructure.trainSet,DataHandlers.NYUDataStructure.det);
+ds.load();
+se=LearnFunc.ScoreEvidenceGenerator;
+
+tic
+e=se.getEvidence(ds,ds.getClassNames);
+singleTime=toc
+
+tic
+e=se.getEvidence(ds,ds.getClassNames,'parallel');
+parallelTime=toc
+
+
+
 %% struct preallocation
 
 tic

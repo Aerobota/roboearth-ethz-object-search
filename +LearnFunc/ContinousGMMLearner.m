@@ -25,7 +25,7 @@ classdef ContinousGMMLearner<LearnFunc.ParameterLearner
     end
     methods(Access='protected')
         function evaluateOrderedSamples(obj,samples)
-            obj.data.samples=samples;
+%             obj.data.samples=samples;
             for i=1:length(obj.classes)
                 for j=1:length(obj.classes)
                     if size(samples{i,j},1)>=obj.minSamples;
@@ -62,6 +62,7 @@ classdef ContinousGMMLearner<LearnFunc.ParameterLearner
                 outMean=[];
                 outCov=[];
                 outCoeff=[];
+                gmm=[];
                 return
             end
             outMean=gmm.mu';

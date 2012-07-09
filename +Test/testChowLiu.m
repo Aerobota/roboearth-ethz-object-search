@@ -18,7 +18,7 @@ else
     occurrenceStates={'0','1+'};
 end
 
-CLLearner=LearnFunc.ChowLiuOccurrenceLearner(occurrenceStates,classes);
+CLLearner=LearnFunc.ChowLiuOccurrenceLearner(classes,LearnFunc.PairwiseOccurenceEvidenceGenerator(occurrenceStates));
 
 parents=CLLearner.learnStructure(im);
 

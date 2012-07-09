@@ -1,6 +1,6 @@
-assert(isa(ll,'LearnFunc.LocationLearner') && iscellstr(classes),'Need to run testDistance first')
+assert(isa(ll,'LearnFunc.ParameterLearner') && iscellstr(classes),'Need to run testDistance first')
 
-objects={'floor','window'};
+objects={'ceiling','light'};
 
 ind1=ismember(classes,objects{1});
 ind2=ismember(classes,objects{2});

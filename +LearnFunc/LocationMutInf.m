@@ -24,6 +24,5 @@ classdef LocationMutInf<LearnFunc.MutualInformationEngine
             end
         end
     end
-    
 end
 

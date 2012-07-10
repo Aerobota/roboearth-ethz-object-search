@@ -45,10 +45,9 @@ classdef PairwiseOccurenceEvidenceGenerator<LearnFunc.EvidenceGenerator
 
             pop=pop+permute(pop,[2 1 4 3])+popDiag;
 
-            pop=pop/nSamples;
+%             pop=pop/nSamples;
         end
-    end
-    methods(Access='protected')
+        
         function indices=getStateIndices(obj,counts)
             assert(size(counts,1)==1,'PairwiseProbability:getStateIndices:matrixSize',...
                 'Counts has to be a row vector.');
@@ -61,32 +60,44 @@ classdef PairwiseOccurenceEvidenceGenerator<LearnFunc.EvidenceGenerator
     methods(Access='protected',Static)
         function comparer=generateComparer(states)
             comparer=cell(length(states),1);
+            lastMax=-1;
             
             for s=1:length(states)
                 minMax=regexp(states{s},'-','split');
                 if length(minMax)==2
-                    if isnan(str2double(minMax{1}))
-                        % '-n' case
-                        comparer{s}=@(x) x<=str2double(minMax{2});
-                        continue;
-                    end
-                    
-                    % 'n-m' case
+%                     if isnan(str2double(minMax{1}))
+%                         % '-n' case
+%                         comparer{s}=@(x) x<=str2double(minMax{2});
+%                         thisMin=0;
+%                         thisMax=minMax{2};
+%                     else
+                        % 'n-m' case
                     tmp(2,1)=str2double(minMax{2});
                     tmp(1,1)=str2double(minMax{1});
                     comparer{s}=@(x) x>=min(tmp) & x<=max(tmp);
-                    continue;
+                    thisMin=min(tmp);
+                    thisMax=max(tmp);
+%                     end
+                else
+                    nPlus=regexp(states{s},'+','split');
+                    if length(nPlus)==2
+                        % 'n+' case
+                        comparer{s}=@(x) x>=str2double(nPlus{1});
+                        thisMin=nPlus{1};
+                        thisMax=inf;
+                    else
+                        % 'n' case
+                        comparer{s}=@(x) x==str2double(states{s});
+                        thisMin=str2double(states{s});
+                        thisMax=thisMin;
+                    end
                 end
-                
-                nPlus=regexp(states{s},'+','split');
-                if length(nPlus)==2
-                    % 'n+' case
-                    comparer{s}=@(x) x>=str2double(nPlus{1});
-                    continue;
+                assert(lastMax<thisMin,'PairwiseOccurrenceEvidenceGenerator:badStates',...
+                    'The states must be monotonically increasing without overlap.')
+                if s==1
+                    assert(thisMax==0,'PairwiseOccurrenceEvidenceGenerator:badStates',...
+                        'The first state has to be ''0''');
                 end
-                
-                % 'n' case
-                comparer{s}=@(x) x==str2double(states{s});
             end
         end
     end

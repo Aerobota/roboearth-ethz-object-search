@@ -23,13 +23,16 @@ classdef ConditionalOccurenceLearner<LearnFunc.ParameterLearner
             booleanCP=cp;
             booleanCP(:,:,2,:)=sum(booleanCP(:,:,2:end,:),3);
             booleanCP(:,:,3:end,:)=[];
-%             EUBase=max(booleanMargP,[],3)-min(booleanMargP,[],3);
             EUBase=obj.computeExpectedUtilityBase(booleanMargP);
             disp(EUBase)
-            EUCond=obj.computeExpectedUtilityConditional(booleanMargP,booleanCP,margP);
+            EUCond=obj.computeExpectedUtilityConditional(booleanCP,margP);
             EUGain=EUCond-EUBase(:,ones(1,size(EUCond,2)));
-%             disp(EUCond)
-%             disp(EUGain)
+            EUGain=EUGain-diag(diag(EUGain));
+            [i,j]=ind2sub([length(obj.classes) length(obj.classes)],find(EUGain>0.01));
+            for c=1:length(obj.classes)
+                collection=i==c;
+                disp([obj.classes{c} ' given ' obj.classes{j(collection)}])
+            end
         end
         
         function eu=computeExpectedUtilityBase(obj,booleanMargP)
@@ -39,20 +42,14 @@ classdef ConditionalOccurenceLearner<LearnFunc.ParameterLearner
                 obj.selectCol(booleanMargP,minI).*obj.selectVal(obj.valueMatrix,maxI,minI);
         end
         
-        function eu=computeExpectedUtilityConditional(obj,booleanMargP,booleanCP,margP)
+        function eu=computeExpectedUtilityConditional(obj,booleanCP,margP)
             eu=zeros(size(booleanCP,1),size(booleanCP,2));
-            [valMarg,maxIMarg]=max(booleanMargP,[],3);
             for i=1:size(booleanCP,4)
-                [valCond,maxICond]=max(booleanCP(:,:,:,i),[],3);
-                disp(maxIChooser)
+                [~,maxI]=max(booleanCP(:,:,:,i),[],3);
                 minI=3-maxI;
-                euCond=obj.selectCol(booleanCP,maxI).*obj.selectVal(obj.valueMatrix,maxI,maxI)+...
-                    obj.selectCol(booleanCP,minI).*obj.selectVal(obj.valueMatrix,maxI,minI);
-%                 size(euCond)
-%                 size(margP(:,i))
-%                 size(repmat(margP(:,i)',[size(booleanCP,1) 1]))
+                euCond=obj.selectCol(booleanCP(:,:,:,i),maxI).*obj.selectVal(obj.valueMatrix,maxI,maxI)+...
+                    obj.selectCol(booleanCP(:,:,:,i),minI).*obj.selectVal(obj.valueMatrix,maxI,minI);
                 eu=eu+euCond.*repmat(margP(:,i)',[size(booleanCP,1) 1]);
-% eu=eu+euCond;
             end
         end
     end

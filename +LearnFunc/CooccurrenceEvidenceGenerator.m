@@ -10,9 +10,9 @@ classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
         end
         
         function cop=getEvidence(obj,data,classes,targetClasses,subsetIndices)
-            if nargin<5
-                subsetIndices=1:length(data);
-            end
+%             if nargin<5
+%                 subsetIndices=1:length(data);
+%             end
             
             nClasses=length(classes);
             cop=zeros([repmat(length(obj.states),[1 length(targetClasses)+1]) nClasses]);

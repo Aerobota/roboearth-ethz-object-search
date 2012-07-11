@@ -2,7 +2,7 @@
 
 datasetPath='Dataset/NYU';
 occurrenceStates={'0','1','2+'};
-maxParents=10; % if maxParents is set too large the conditional probabilities will consume a lot of memory
+maxParents=2; % if maxParents is set too large the conditional probabilities will consume a lot of memory
 
 %% Initialise
 

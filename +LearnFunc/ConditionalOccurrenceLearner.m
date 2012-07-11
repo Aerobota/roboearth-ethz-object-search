@@ -49,12 +49,15 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
                         currentIndices(end+1)=maxI;
                         EULast=EUNew(maxI);
                         dependencies.(obj.classes{cs}).parents{end+1}=obj.classes{maxI};
+                        lastGoodBooleanCP=booleanCP;
+                        lastGoodIndex=maxI;
                         disp([obj.classes{cs} ' given ' obj.classes{maxI} ' improvement: ' num2str(maxVal) ' total: ' num2str(EUNew(maxI))]);
                         warning('need complexity penalty')
                     else
                         break;
                     end
                 end
+                dependencies.(obj.classes{cs}).condProb=obj.cleanBooleanCP(lastGoodBooleanCP,lastGoodIndex);
             end
         end
 %         function dependencies=learnStructure(obj,data)
@@ -79,6 +82,8 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
 %             end
 %         end
 %         
+    end
+    methods(Access='protected')
         function eu=computeExpectedUtilityBase(obj,booleanMargP)
             [~,maxI]=max(booleanMargP,[],1);
             minI=3-maxI;
@@ -119,6 +124,12 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
 %         end
         function out=selectVal(in,i,j)
             out=in((j-1)*size(in,1)+i);
+        end
+        
+        function out=cleanBooleanCP(in,index)
+            s=size(in);
+            out=zeros(s(1:end-1));
+            out(:)=in((index-1)*prod(s(1:end-1))+1:index*prod(s(1:end-1)));
         end
     end
 end

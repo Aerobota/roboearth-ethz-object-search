@@ -8,19 +8,24 @@ occurrenceStates={'0','1','2+'};
 
 dataTrain=DataHandlers.NYUDataStructure(datasetPath,DataHandlers.NYUDataStructure.trainSet,DataHandlers.NYUDataStructure.gt);
 dataTrain.load();
+dataTrain.bufferObjects();
 
 dataTest=DataHandlers.NYUDataStructure(datasetPath,DataHandlers.NYUDataStructure.testSet,DataHandlers.NYUDataStructure.gt);
 dataTest.load();
+dataTest.bufferObjects();
 
 classes=dataTrain.getClassNames;
 classesLarge=classes([3 4 5 6 8 11 13 15 17 19 20 21 23 24 27 28 29 30 31 34 40 41 42 43]);
 
-evidenceGenerator=LearnFunc.PairwiseOccurenceEvidenceGenerator(occurrenceStates);
-learner=LearnFunc.ConditionalOccurenceLearner(classes,evidenceGenerator);
+evidenceGenerator=LearnFunc.CooccurrenceEvidenceGenerator(occurrenceStates);
+
+% evidence=evidenceGenerator.getEvidence(dataTrain,classes,1);
+
+learner=LearnFunc.ConditionalOccurrenceLearner(classes,evidenceGenerator,classesLarge);
 
 %% Learn probabilities
 
-learner.learnParameters(dataTrain);
+learner.learnStructure(dataTrain);
 
 %% Evaluate Test Image
 

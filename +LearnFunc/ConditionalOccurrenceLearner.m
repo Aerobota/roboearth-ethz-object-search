@@ -23,22 +23,25 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
         end
         
         function dependencies=learnStructure(obj,data)
-            margP=obj.evidenceGenerator.getEvidence(data,obj.classes,[]);
-            margP=margP./repmat(sum(margP,1),[size(margP,1) 1]);
-            booleanMargP=[margP(1,:);sum(margP(2:end,:),1)];
+%             margP=obj.evidenceGenerator.getEvidence(data,obj.classes,[]);
+%             margP=margP./repmat(sum(margP,1),[size(margP,1) 1]);
+%             booleanMargP=[margP(1,:);sum(margP(2:end,:),1)];
+            [booleanMargP,~]=obj.computeESS(data,[]);
             for cs=obj.smallIndex
                 dependencies.(obj.classes{cs}).parents=cell(1,0);
-                EUBase=obj.computeExpectedUtilityBase(booleanMargP(:,cs));
-                EULast=EUBase;
+%                 EUBase=obj.computeExpectedUtilityBase(booleanMargP(:,cs));
+                EULast=obj.computeExpectedUtilityConditional(booleanMargP(:,cs),1);
+%                 EULast=EUBase;
                 currentIndices=cs;
                 while(length(currentIndices)-1<obj.maxParents)
-                    cp=obj.evidenceGenerator.getEvidence(data,obj.classes,currentIndices);
-                    tmpMargP=sum(cp,1)/(sum(cp(:))/size(cp,ndims(cp)));
-                    cp=cp./(repmat(sum(cp,1),[size(cp,1) ones(1,ndims(cp)-1)])+eps);
-                    tmpSize=size(cp);
-                    booleanCP=zeros([tmpSize(1)-1 tmpSize(2:end)]);
-                    booleanCP(1:size(booleanCP,1):numel(booleanCP))=cp(1:size(cp,1):numel(cp));
-                    booleanCP(2:size(booleanCP,1):numel(booleanCP))=sum(cp(2:end,:),1);
+                    [booleanCP,tmpMargP]=obj.computeESS(data,currentIndices);
+%                     cp=obj.evidenceGenerator.getEvidence(data,obj.classes,currentIndices);
+%                     tmpMargP=sum(cp,1)/(sum(cp(:))/size(cp,ndims(cp)));
+%                     cp=cp./(repmat(sum(cp,1),[size(cp,1) ones(1,ndims(cp)-1)])+eps);
+%                     tmpSize=size(cp);
+%                     booleanCP=zeros([tmpSize(1)-1 tmpSize(2:end)]);
+%                     booleanCP(1:size(booleanCP,1):numel(booleanCP))=cp(1:size(cp,1):numel(cp));
+%                     booleanCP(2:size(booleanCP,1):numel(booleanCP))=sum(cp(2:end,:),1);
                     EUNew=obj.computeExpectedUtilityConditional(booleanCP,tmpMargP);
                     EUDiff=EUNew-EULast;
                     EUDiff(currentIndices)=0;
@@ -84,12 +87,21 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
 %         
     end
     methods(Access='protected')
-        function eu=computeExpectedUtilityBase(obj,booleanMargP)
-            [~,maxI]=max(booleanMargP,[],1);
-            minI=3-maxI;
-            eu=booleanMargP(maxI).*obj.valueMatrix(maxI,maxI)+...
-                booleanMargP(minI).*obj.valueMatrix(maxI,minI);
+        function [boolCP,margP]=computeESS(obj,data,currentIndices)
+            cp=obj.evidenceGenerator.getEvidence(data,obj.classes,currentIndices);
+            margP=sum(cp,1)/(sum(cp(:))/size(cp,ndims(cp)));
+            cp=cp./(repmat(sum(cp,1),[size(cp,1) ones(1,ndims(cp)-1)])+eps);
+            tmpSize=size(cp);
+            boolCP=zeros([tmpSize(1)-1 tmpSize(2:end)]);
+            boolCP(1:size(boolCP,1):numel(boolCP))=cp(1:size(cp,1):numel(cp));
+            boolCP(2:size(boolCP,1):numel(boolCP))=sum(cp(2:end,:),1);
         end
+%         function eu=computeExpectedUtilityBase(obj,booleanMargP)
+%             [~,maxI]=max(booleanMargP,[],1);
+%             minI=3-maxI;
+%             eu=booleanMargP(maxI).*obj.valueMatrix(maxI,maxI)+...
+%                 booleanMargP(minI).*obj.valueMatrix(maxI,minI);
+%         end
         
         function eu=computeExpectedUtilityConditional(obj,booleanCP,margP)
             eu=zeros(1,size(booleanCP,ndims(booleanCP)));

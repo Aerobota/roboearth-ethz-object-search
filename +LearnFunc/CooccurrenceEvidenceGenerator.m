@@ -9,7 +9,11 @@ classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
             obj.dataBuffer=struct('dataHandle',{},'cBins',{});
         end
         
-        function cop=getEvidence(obj,data,classes,targetClasses)
+        function cop=getEvidence(obj,data,classes,targetClasses,subsetIndices)
+            if nargin<5
+                subsetIndices=1:length(data);
+            end
+            
             nClasses=length(classes);
             cop=zeros([repmat(length(obj.states),[1 length(targetClasses)+1]) nClasses]);
             
@@ -25,30 +29,47 @@ classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
             end
             
             if bufferIndex==0
-                name2indAll=LearnFunc.EvidenceGenerator.generateIndexLookup(classes);
-                obj.dataBuffer(end+1).cBins=zeros(length(classes),length(data));
+                obj.dataBuffer(end+1).cBins=obj.bufferCBins(data,classes);
                 obj.dataBuffer(end).dataHandle=data;
+                bufferIndex=length(obj.dataBuffer);
             end
 
-            for s=1:length(data)
-                if bufferIndex==0
-                    objects={data.getObject(s).name}';
-                    counts=zeros(1,length(classes));
-                    for o=1:length(objects)
-                        id=name2indAll.(objects{o});
-                        counts(id)=counts(id)+1;
-                    end
-                    cBins=obj.getStateIndices(counts)-1;
-                    
-                    obj.dataBuffer(end).cBins(:,s)=cBins;
-                else
+            for s=subsetIndices
+%                 if bufferIndex==0
+%                     objects={data.getObject(s).name}';
+%                     counts=zeros(1,length(classes));
+%                     for o=1:length(objects)
+%                         id=name2indAll.(objects{o});
+%                         counts(id)=counts(id)+1;
+%                     end
+%                     cBins=obj.getStateIndices(counts)-1;
+%                     
+%                     obj.dataBuffer(end).cBins(:,s)=cBins;
+%                 else
                     cBins=obj.dataBuffer(bufferIndex).cBins(:,s);
-                end
+%                 end
                 
                 cBinsTarget=cBins(targetClasses);
                 v=[cBinsTarget(extender) cBins (0:nClasses-1)'];
                 linInd=1+v*k;
                 cop(linInd)=cop(linInd)+1;
+            end
+        end
+    end
+    methods(Access='protected')
+        function cBins=bufferCBins(obj,data,classes)
+            cBins=zeros(length(classes),length(data));
+            name2indAll=LearnFunc.EvidenceGenerator.generateIndexLookup(classes);
+            for s=1:length(data)
+                objects={data.getObject(s).name}';
+                counts=zeros(1,length(classes));
+                for o=1:length(objects)
+                    id=name2indAll.(objects{o});
+                    counts(id)=counts(id)+1;
+                end
+                tmpCBins=obj.getStateIndices(counts)-1;
+
+                cBins(:,s)=tmpCBins;
             end
         end
     end

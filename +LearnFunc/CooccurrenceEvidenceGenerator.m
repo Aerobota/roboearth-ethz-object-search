@@ -10,10 +10,6 @@ classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
         end
         
         function cop=getEvidence(obj,data,classes,targetClasses,subsetIndices)
-%             if nargin<5
-%                 subsetIndices=1:length(data);
-%             end
-            
             nClasses=length(classes);
             cop=zeros([repmat(length(obj.states),[1 length(targetClasses)+1]) nClasses]);
             
@@ -35,19 +31,7 @@ classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
             end
 
             for s=subsetIndices
-%                 if bufferIndex==0
-%                     objects={data.getObject(s).name}';
-%                     counts=zeros(1,length(classes));
-%                     for o=1:length(objects)
-%                         id=name2indAll.(objects{o});
-%                         counts(id)=counts(id)+1;
-%                     end
-%                     cBins=obj.getStateIndices(counts)-1;
-%                     
-%                     obj.dataBuffer(end).cBins(:,s)=cBins;
-%                 else
-                    cBins=obj.dataBuffer(bufferIndex).cBins(:,s);
-%                 end
+                cBins=obj.dataBuffer(bufferIndex).cBins(:,s);
                 
                 cBinsTarget=cBins(targetClasses);
                 v=[cBinsTarget(extender) cBins (0:nClasses-1)'];

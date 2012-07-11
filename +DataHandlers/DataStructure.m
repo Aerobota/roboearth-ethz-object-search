@@ -8,8 +8,6 @@ classdef DataStructure<handle
         storageName
         classes
         nameIndex
-%         bufferedObjects
-%         isbufferedObjects
     end
     
     properties(SetAccess='protected')
@@ -54,7 +52,6 @@ classdef DataStructure<handle
             obj.path=path;
             obj.setChooser={testOrTrain gtOrDet};
             obj.storageName=obj.getStorageName();
-%             obj.isbufferedObjects=false;
         end
         function addImage(obj,index,filename,depthname,folder,imagesize,object,calib)
             assert(ischar(filename),'DataStructure:wrongInput',...
@@ -124,14 +121,6 @@ classdef DataStructure<handle
             obj.data=[obj.data otherDataStructure.data];
         end
         
-%         function bufferObjects(obj)
-%             obj.bufferedObjects=cell(1,0);
-%             for i=length(obj):-1:1
-%                 obj.bufferedObjects{i}=obj.getObject(i);
-%             end
-%             obj.isbufferedObjects=true;
-%         end
-        
         %% Get Functions
         function names=getClassNames(obj)
             if isempty(obj.classes)
@@ -157,13 +146,9 @@ classdef DataStructure<handle
         end
         
         function out=getObject(obj,i)
-%             if obj.isbufferedObjects
-%                 out=obj.bufferedObjects{i};
-%             else
-                tmpPath=fullfile(obj.getPathToObjects(),obj.data(i).objectPath);
-                loaded=load(tmpPath);
-                out=loaded.object;
-%             end
+            tmpPath=fullfile(obj.getPathToObjects(),obj.data(i).objectPath);
+            loaded=load(tmpPath);
+            out=loaded.object;
         end
         
         function out=getCalib(obj,i)

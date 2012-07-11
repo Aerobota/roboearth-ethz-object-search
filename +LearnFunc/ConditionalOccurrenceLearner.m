@@ -8,6 +8,7 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
     
     properties(Constant)
         valueMatrix=[1 -1;-1 1] % value=[trueNegativ falseNegativ;falsePositiv truePositiv]
+        nrSplits=10
     end
     
     methods
@@ -23,21 +24,30 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
         end
         
         function dependencies=learnStructure(obj,data)
-            tmpIndices=randperm(length(data));
-            setIndices{2}=tmpIndices(ceil(length(tmpIndices)/2)+1:end);
-            setIndices{1}=tmpIndices(1:ceil(length(tmpIndices)/2));
-            [booleanMargP{2},~]=obj.computeESS(data,[],setIndices{2});
-            [booleanMargP{1},~]=obj.computeESS(data,[],setIndices{1});
+            for i=obj.nrSplits:-1:1
+                tmpIndices=randperm(length(data));
+                setIndices{i,2}=tmpIndices(ceil(length(tmpIndices)/2)+1:end);
+                setIndices{i,1}=tmpIndices(1:ceil(length(tmpIndices)/2));
+            end
+%             [booleanMargP{2},~]=obj.computeESS(data,[],setIndices{2});
+%             [booleanMargP{1},~]=obj.computeESS(data,[],setIndices{1});
+            EUBase=obj.computeExpectedUtilitySplitDataset(data,[],setIndices);
+%             EUBase=mean(EUBase,1);
             for cs=obj.smallIndex
 %                 dependencies.(obj.classes{cs}).parents=cell(1,0);
-                EULast=mean([obj.computeExpectedUtilityConditional(booleanMargP{1}(:,cs),1,booleanMargP{2}(:,cs))...
-                    obj.computeExpectedUtilityConditional(booleanMargP{2}(:,cs),1,booleanMargP{1}(:,cs))]);
+%                 EULast=mean([obj.computeExpectedUtilityConditional(booleanMargP{1}(:,cs),1,booleanMargP{2}(:,cs))...
+%                     obj.computeExpectedUtilityConditional(booleanMargP{2}(:,cs),1,booleanMargP{1}(:,cs))]);
+%                 disp([EULast EUBase(cs)])
+                EULast=EUBase(cs);
                 currentIndices=cs;
                 while(length(currentIndices)-1<obj.maxParents)
-                    [booleanCP{2},tmpMargP{2}]=obj.computeESS(data,currentIndices,setIndices{2});
-                    [booleanCP{1},tmpMargP{1}]=obj.computeESS(data,currentIndices,setIndices{1});
-                    EUNew=mean([obj.computeExpectedUtilityConditional(booleanCP{1},tmpMargP{1},booleanCP{2});...
-                        obj.computeExpectedUtilityConditional(booleanCP{2},tmpMargP{2},booleanCP{1})],1);
+                    EUNew=obj.computeExpectedUtilitySplitDataset(data,currentIndices,setIndices);
+                    
+%                     EUNew=mean(EUNew,1);
+%                     [booleanCP{2},tmpMargP{2}]=obj.computeESS(data,currentIndices,setIndices{2});
+%                     [booleanCP{1},tmpMargP{1}]=obj.computeESS(data,currentIndices,setIndices{1});
+%                     EUNew=mean([obj.computeExpectedUtilityConditional(booleanCP{1},tmpMargP{1},booleanCP{2});...
+%                         obj.computeExpectedUtilityConditional(booleanCP{2},tmpMargP{2},booleanCP{1})],1);
 %                     EUNew=median([obj.computeExpectedUtilityConditional(booleanCP{1},tmpMargP{1},booleanCP{2});...
 %                         obj.computeExpectedUtilityConditional(booleanCP{2},tmpMargP{2},booleanCP{1})],1);
 %                     EUNew=min([obj.computeExpectedUtilityConditional(booleanCP{1},tmpMargP{1},booleanCP{2});...
@@ -66,6 +76,17 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
         end
     end
     methods(Access='protected')
+        function EUNew=computeExpectedUtilitySplitDataset(obj,data,currentIndices,setIndices)
+            EUNew=[];
+            for i=1:size(setIndices,1)
+                [booleanCP{2},tmpMargP{2}]=obj.computeESS(data,currentIndices,setIndices{i,2});
+                [booleanCP{1},tmpMargP{1}]=obj.computeESS(data,currentIndices,setIndices{i,1});
+                EUNew=[EUNew;obj.computeExpectedUtilityConditional(booleanCP{1},tmpMargP{1},booleanCP{2});...
+                    obj.computeExpectedUtilityConditional(booleanCP{2},tmpMargP{2},booleanCP{1})];
+            end
+%             EUNew=mean(EUNew,1);
+            EUNew=median(EUNew,1);
+        end
         function [boolCP,margP]=computeESS(obj,data,currentIndices,subsetIndices)
             cp=obj.evidenceGenerator.getEvidence(data,obj.classes,currentIndices,subsetIndices);
             margP=sum(cp,1)/(sum(cp(:))/size(cp,ndims(cp)));

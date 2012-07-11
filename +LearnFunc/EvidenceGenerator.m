@@ -1,4 +1,4 @@
-classdef EvidenceGenerator
+classdef EvidenceGenerator<handle
     methods(Abstract)
         evidence=getEvidence(obj,data,classes,varargin);
     end

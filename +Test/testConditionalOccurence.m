@@ -2,7 +2,7 @@
 
 datasetPath='Dataset/NYU';
 occurrenceStates={'0','1','2+'};
-
+maxParents=10; % if maxParents is set too large the conditional probabilities will consume a lot of memory
 
 %% Initialise
 
@@ -21,11 +21,11 @@ evidenceGenerator=LearnFunc.CooccurrenceEvidenceGenerator(occurrenceStates);
 
 % evidence=evidenceGenerator.getEvidence(dataTrain,classes,1);
 
-learner=LearnFunc.ConditionalOccurrenceLearner(classes,evidenceGenerator,classesLarge);
+learner=LearnFunc.ConditionalOccurrenceLearner(classes,evidenceGenerator,classesLarge,maxParents);
 
 %% Learn probabilities
 
-learner.learnStructure(dataTrain);
+dependencies=learner.learnStructure(dataTrain);
 
 %% Evaluate Test Image
 

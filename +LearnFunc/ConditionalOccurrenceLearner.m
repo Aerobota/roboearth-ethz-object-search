@@ -3,6 +3,7 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
         evidenceGenerator
         largeIndex
         smallIndex
+        maxParents
     end
     
     properties(Constant)
@@ -10,13 +11,15 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
     end
     
     methods
-        function obj=ConditionalOccurrenceLearner(classes,evidenceGenerator,largeClasses)
+        function obj=ConditionalOccurrenceLearner(classes,evidenceGenerator,largeClasses,maxParents)
             obj=obj@LearnFunc.StructureLearner(classes);
             obj.evidenceGenerator=evidenceGenerator;
             
             [~,obj.largeIndex]=ismember(largeClasses,obj.classes);
             obj.smallIndex=1:length(obj.classes);
             obj.smallIndex(obj.largeIndex)=[];
+            
+            obj.maxParents=maxParents;
         end
         
         function dependencies=learnStructure(obj,data)
@@ -28,7 +31,7 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
                 EUBase=obj.computeExpectedUtilityBase(booleanMargP(:,cs));
                 EULast=EUBase;
                 currentIndices=cs;
-                while(length(currentIndices)<8)
+                while(length(currentIndices)-1<obj.maxParents)
                     cp=obj.evidenceGenerator.getEvidence(data,obj.classes,currentIndices);
                     tmpMargP=sum(cp,1)/(sum(cp(:))/size(cp,ndims(cp)));
                     cp=cp./(repmat(sum(cp,1),[size(cp,1) ones(1,ndims(cp)-1)])+eps);

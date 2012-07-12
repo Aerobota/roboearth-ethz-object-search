@@ -4,6 +4,7 @@ datasetPath='Dataset/NYU';
 occurrenceStates={'0','1','2+'};
 
 evidenceGeneratorName='cylindric';
+% evidenceGeneratorName='vertical';
 
 %% Object initialisation
 data=DataHandlers.NYUDataStructure(datasetPath,DataHandlers.NYUDataStructure.trainSet,...

@@ -4,7 +4,7 @@
 evidenceGenerator=LearnFunc.CylindricEvidenceGenerator();
 
 learnFunction='gmm';
-%learnFunction='gaussian';
+% learnFunction='gaussian';
 
 %% load data
 dataPath='Dataset/NYU';

@@ -36,5 +36,12 @@ figure()
 plot(result.perClass.fpRate,result.perClass.tpRate,'b*',...
 result.cummulative.fpRate,result.cummulative.tpRate,'r*',...
 [0 1],[0 1],'k--')
+
+legend('separate','summed','precision=0.5','location','southeast')
+xlabel('false positive rate')
+ylabel('true positive rate')
+title('receiver operating characteristic')
+
 hold on
 text(result.perClass.fpRate,result.perClass.tpRate,result.perClass.names,'color','b')
+

@@ -70,7 +70,7 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
                     end
                 end
                 if ~isempty(goodIndices)
-                    dependencies.(classes{cs}).parents=classes(goodIndices);
+                    dependencies.(classes{cs}).parents=classes(goodIndices(2:end));
                     [booleanCPComplete,~]=obj.computeESS(data,goodIndices(1:end-1),1:length(data));
                     [booleanMargP,~]=obj.computeESS(data,[],1:length(data));
                     dependencies.(classes{cs}).condProb=obj.cleanBooleanCP(booleanCPComplete,booleanMargP,goodIndices(end));
@@ -98,9 +98,12 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
             margP=sum(cp,1)/(sum(cp(:))/size(cp,ndims(cp)));
             cp=cp./(repmat(sum(cp,1),[size(cp,1) ones(1,ndims(cp)-1)])+eps);
             tmpSize=size(cp);
+%             boolCP=zeros([tmpSize(1)-1 tmpSize(2:end)]);
+%             boolCP(1:size(boolCP,1):numel(boolCP))=cp(1:size(cp,1):numel(cp));
+%             boolCP(2:size(boolCP,1):numel(boolCP))=sum(cp(2:end,:),1);
             boolCP=zeros([tmpSize(1)-1 tmpSize(2:end)]);
-            boolCP(1:size(boolCP,1):numel(boolCP))=cp(1:size(cp,1):numel(cp));
-            boolCP(2:size(boolCP,1):numel(boolCP))=sum(cp(2:end,:),1);
+            boolCP(1,:)=cp(1,:);
+            boolCP(2,:)=sum(cp(2:end,:),1);
         end
         
         function eu=computeExpectedUtility(obj,booleanCP,margP,booleanDecisionCP)

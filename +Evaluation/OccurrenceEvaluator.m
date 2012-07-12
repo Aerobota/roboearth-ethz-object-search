@@ -15,7 +15,13 @@ classdef OccurrenceEvaluator
             myNames=fieldnames(dependencies);
             
             for i=1:length(myNames)
-                
+                searchIndices=testData.className2Index([myNames(i) dependencies.(myNames{i}).parents]);
+                evidence=obj.evidenceGenerator.getEvidence(testData,searchIndices,1:length(testData));
+                decisions=obj.decisionImpl(dependencies.(myNames{i}));
+                disp(searchIndices)
+                disp(size(evidence))
+                disp(size(decisions))
+                error('stop')
             end
             
         end

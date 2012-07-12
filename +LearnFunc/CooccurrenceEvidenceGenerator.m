@@ -9,13 +9,25 @@ classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
             obj.dataBuffer=struct('dataHandle',{},'cBins',{});
         end
         
-        function cop=getEvidence(obj,data,targetClasses,subsetIndices)
-            nClasses=length(data.getClassNames());
-            cop=zeros([repmat(length(obj.states),[1 length(targetClasses)+1]) nClasses]);
+        function cop=getEvidence(obj,data,targetClasses,subsetIndices,mode)
+            if strcmpi(mode,'all')
+                getAllClasses=true;
+            elseif strcmpi(mode,'single')
+                getAllClasses=false;
+            else
+                error('EvidenceGenerator:badInput','The mode argument has to be ''all'' or ''single''.');
+            end
+            
+            if getAllClasses
+                nClasses=length(data.getClassNames());
+                cop=zeros([repmat(length(obj.states),[1 length(targetClasses)+1]) nClasses]);
+                extender=repmat(1:length(targetClasses),[nClasses 1]);
+            else
+                cop=zeros(repmat(length(obj.states),[1 length(targetClasses)]));
+            end
             
             s=size(cop);
             k=cumprod([1 s(1:end-1)])';
-            extender=repmat(1:length(targetClasses),[nClasses 1]);
             
             bufferIndex=0;
             for i=1:length(obj.dataBuffer)
@@ -31,10 +43,14 @@ classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
             end
 
             for s=subsetIndices
-                cBins=obj.dataBuffer(bufferIndex).cBins(:,s);
-                
-                cBinsTarget=cBins(targetClasses);
-                v=[cBinsTarget(extender) cBins (0:nClasses-1)'];
+                if getAllClasses
+                    cBins=obj.dataBuffer(bufferIndex).cBins(:,s);
+
+                    cBinsTarget=cBins(targetClasses);
+                    v=[cBinsTarget(extender) cBins (0:nClasses-1)'];
+                else
+                    v=obj.dataBuffer(bufferIndex).cBins(targetClasses,s)';
+                end
                 linInd=1+v*k;
                 cop(linInd)=cop(linInd)+1;
             end

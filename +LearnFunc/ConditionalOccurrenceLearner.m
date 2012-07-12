@@ -71,9 +71,12 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
                 end
                 if ~isempty(goodIndices)
                     dependencies.(classes{cs}).parents=classes(goodIndices(2:end));
-                    [booleanCPComplete,~]=obj.computeESS(data,goodIndices(1:end-1),1:length(data));
-                    [booleanMargP,~]=obj.computeESS(data,[],1:length(data));
-                    dependencies.(classes{cs}).condProb=obj.cleanBooleanCP(booleanCPComplete,booleanMargP,goodIndices(end));
+%                     [booleanCPComplete,~]=obj.computeESS(data,goodIndices(1:end-1),1:length(data),'all');
+%                     [booleanMargP,~]=obj.computeESS(data,[],1:length(data),'all');
+                    [booleanCPComplete,~]=obj.computeESS(data,goodIndices,1:length(data),'single');
+                    [booleanMargP,~]=obj.computeESS(data,cs,1:length(data),'single');
+                    dependencies.(classes{cs}).condProb=obj.cleanBooleanCP(booleanCPComplete,booleanMargP);
+                                        
                     tmpSize=size(dependencies.(classes{cs}).condProb);
                     dependencies.(classes{cs}).optimalDecision=zeros([1 tmpSize(2:end)]);
                     dependencies.(classes{cs}).optimalDecision(:)=...
@@ -86,22 +89,22 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
         function EUNew=computeExpectedUtilitySplitDataset(obj,data,currentIndices,setIndices)
             EUNew=[];
             for i=1:size(setIndices,1)
-                [booleanCP{2},tmpMargP{2}]=obj.computeESS(data,currentIndices,setIndices{i,2});
-                [booleanCP{1},tmpMargP{1}]=obj.computeESS(data,currentIndices,setIndices{i,1});
+                [booleanCP{2},tmpMargP{2}]=obj.computeESS(data,currentIndices,setIndices{i,2},'all');
+                [booleanCP{1},tmpMargP{1}]=obj.computeESS(data,currentIndices,setIndices{i,1},'all');
                 EUNew=[EUNew;obj.computeExpectedUtility(booleanCP{1},tmpMargP{1},booleanCP{2});...
                     obj.computeExpectedUtility(booleanCP{2},tmpMargP{2},booleanCP{1})];
             end
             EUNew=median(EUNew,1);
         end
-        function [boolCP,margP]=computeESS(obj,data,currentIndices,subsetIndices)
-            cp=obj.evidenceGenerator.getEvidence(data,currentIndices,subsetIndices);
+        function [boolCP,margP]=computeESS(obj,data,currentIndices,subsetIndices,mode)
+            cp=obj.evidenceGenerator.getEvidence(data,currentIndices,subsetIndices,mode);
             margP=sum(cp,1)/(sum(cp(:))/size(cp,ndims(cp)));
             cp=cp./(repmat(sum(cp,1),[size(cp,1) ones(1,ndims(cp)-1)])+eps);
             tmpSize=size(cp);
 %             boolCP=zeros([tmpSize(1)-1 tmpSize(2:end)]);
 %             boolCP(1:size(boolCP,1):numel(boolCP))=cp(1:size(cp,1):numel(cp));
 %             boolCP(2:size(boolCP,1):numel(boolCP))=sum(cp(2:end,:),1);
-            boolCP=zeros([tmpSize(1)-1 tmpSize(2:end)]);
+            boolCP=zeros([2 tmpSize(2:end)]);
             boolCP(1,:)=cp(1,:);
             boolCP(2,:)=sum(cp(2:end,:),1);
         end
@@ -146,16 +149,17 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
             out=in((j-1)*size(in,1)+i);
         end
         
-        function out=cleanBooleanCP(boolCP,boolMargP,index)
-            s=size(boolCP);
-            if length(s)<=2
-                out=zeros([s(1:end-1) 1]);
-            else
-                out=zeros(s(1:end-1));
-            end
-            out(:)=boolCP((index-1)*prod(s(1:end-1))+1:index*prod(s(1:end-1)));
+        function out=cleanBooleanCP(boolCP,boolMargP)
+%             s=size(boolCP);
+%             if length(s)<=2
+%                 out=zeros([s(1:end-1) 1]);
+%             else
+%                 out=zeros(s(1:end-1));
+%             end
+%             out(:)=boolCP((index-1)*prod(s(1:end-1))+1:index*prod(s(1:end-1)));
+            out=boolCP;
             zeroIndexes=sum(out(:,:),1)==0;
-            out(:,zeroIndexes)=boolMargP(:,index*ones(1,sum(zeroIndexes)));
+            out(:,zeroIndexes)=boolMargP(:,ones(1,sum(zeroIndexes)));
         end
     end
 end

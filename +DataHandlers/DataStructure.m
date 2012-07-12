@@ -8,6 +8,7 @@ classdef DataStructure<handle
         storageName
         classes
         nameIndex
+        class2ind
     end
     
     properties(SetAccess='protected')
@@ -94,9 +95,16 @@ classdef DataStructure<handle
             l=length(obj.data);
         end
         
-        function index=name2Index(obj,name)
+        function index=imageName2Index(obj,name)
             [~,index]=ismember(name,{obj.data.filename});
             assert(index>0,'Image %s doesn''t exist in this dataset',name);
+        end
+        
+        function index=className2Index(obj,name)
+            if isempty(obj.classes)
+                obj.loadClasses();
+            end
+            index=obj.class2ind.(name);
         end
         
         function writeNameListFile(obj,nameListFile)
@@ -198,6 +206,14 @@ classdef DataStructure<handle
             in=load(tmpPath);
             for i=length(in.names):-1:1
                 obj.classes{i}=in.names{i};
+            end
+            
+            obj.generateClassIndexLookup();
+        end
+        
+        function generateClassIndexLookup(obj)
+            for i=1:length(obj.classes)
+                obj.class2ind.(obj.classes{i})=i;
             end
         end
     end

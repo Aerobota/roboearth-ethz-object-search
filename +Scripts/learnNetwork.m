@@ -10,7 +10,7 @@ data=DataHandlers.NYUDataStructure(datasetPath,DataHandlers.NYUDataStructure.tra
     DataHandlers.NYUDataStructure.gt);
 classes=data.getClassNames();
 
-occurenceEvidenceGenerator=LearnFunc.PairwiseOccurenceEvidenceGenerator(occurrenceStates);
+occurenceEvidenceGenerator=LearnFunc.PairwiseOccurrenceEvidenceGenerator(occurrenceStates);
 
 if strcmpi(evidenceGeneratorName,'cylindric')
     locationEvidenceGenerator=LearnFunc.CylindricEvidenceGenerator();

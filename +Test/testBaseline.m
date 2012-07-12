@@ -1,8 +1,8 @@
 dataPath=fullfile(pwd,'Dataset/NYU');
 confidencePoints=0.3%linspace(0,0.99,30);
 
-gt=DataHandlers.NYUDataStructure(dataPath,DataHandlers.NYUDataStructure.testSet,DataHandlers.NYUDataStructure.gt);
-det=DataHandlers.NYUDataStructure(dataPath,DataHandlers.NYUDataStructure.testSet,DataHandlers.NYUDataStructure.det);
+gt=DataHandlers.NYUDataStructure(dataPath,'test','gt');
+det=DataHandlers.NYUDataStructure(dataPath,'test','det');
 blineEval=Evaluation.BaselineEvaluator(confidencePoints);
 
 disp('loading ground truth')

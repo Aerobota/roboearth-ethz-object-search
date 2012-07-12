@@ -7,10 +7,10 @@ valueMatrix=[0 -1;-0.5 1];
 
 %% Initialise
 
-dataTrain=DataHandlers.NYUDataStructure(datasetPath,DataHandlers.NYUDataStructure.trainSet,DataHandlers.NYUDataStructure.gt);
+dataTrain=DataHandlers.NYUDataStructure(datasetPath,'train','gt');
 dataTrain.load();
 
-dataTest=DataHandlers.NYUDataStructure(datasetPath,DataHandlers.NYUDataStructure.testSet,DataHandlers.NYUDataStructure.gt);
+dataTest=DataHandlers.NYUDataStructure(datasetPath,'test','gt');
 dataTest.load();
 
 classes=dataTrain.getClassNames;

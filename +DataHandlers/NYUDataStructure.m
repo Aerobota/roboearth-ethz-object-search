@@ -37,7 +37,17 @@ classdef NYUDataStructure<DataHandlers.DataStructure
     %% Protected Methods for File Conversion
     methods(Access='protected')
         function name=getStorageName(obj)
-            name=[obj.setChooser{2} obj.setChooser{1}];
+            if strcmpi(obj.setChooser{2},'gt')
+                name=obj.gt;
+            else
+                name=obj.det;
+            end
+            
+            if strcmpi(obj.setChooser{1},'train')
+                name=[name obj.trainSet];
+            else
+                name=[name obj.testSet];
+            end
         end
         
         function name=getObjectSubfolderName(obj)

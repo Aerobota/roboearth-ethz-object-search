@@ -7,7 +7,7 @@ evidenceGenerator=LearnFunc.CylindricEvidenceGenerator();
 
 %% load data
 dataPath='Dataset/NYU';
-im=DataHandlers.NYUDataStructure(dataPath,DataHandlers.NYUDataStructure.trainSet,DataHandlers.NYUDataStructure.gt);
+im=DataHandlers.NYUDataStructure(dataPath,'train','gt');
 im.load();
 
 %% learn location structure

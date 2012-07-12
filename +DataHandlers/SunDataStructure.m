@@ -33,8 +33,8 @@ classdef SunDataStructure<DataHandlers.DataStructure
             filePath=fullfile(obj.path,[obj.storageName '.mat']);
             assert(exist(filePath,'file')>0,'DataStructure:fileNotFound',...
                 'The file %s doesn''t exist.',filePath)
-            loaded=load(filePath,[obj.setChooser{2}{1} obj.setChooser{1}]);
-            tmpData=loaded.([obj.setChooser{2}{1} obj.setChooser{1}]);
+            loaded=load(filePath,obj.getObjectSubfolderName());
+            tmpData=loaded.(obj.getObjectSubfolderName());
             hasScore=isfield(tmpData(1).annotation.object,'confidence');
             hasOverlap=isfield(tmpData(1).annotation.object,'detection');
             for i=length(tmpData):-1:1
@@ -76,7 +76,7 @@ classdef SunDataStructure<DataHandlers.DataStructure
                 end
             end
             
-            tmpData.([obj.setChooser{2}{1} obj.setChooser{1}])=tmpStruct;
+            tmpData.(obj.getObjectSubfolderName())=tmpStruct;
             if ~exist(filePath,'file')
                 save(filePath,'-struct','tmpData');
             else
@@ -92,11 +92,24 @@ classdef SunDataStructure<DataHandlers.DataStructure
     %% Protected Methods
     methods(Access='protected')        
         function name=getStorageName(obj)
-            name=obj.setChooser{2}{2};
+            if strcmpi(obj.setChooser{2},'gt')
+                name=obj.gt{2};
+            else
+                name=obj.det{2};
+            end
         end
         
         function name=getObjectSubfolderName(obj)
-            name=[obj.setChooser{2}{1} obj.setChooser{1}];
+            if strcmpi(obj.setChooser{2},'gt')
+                name=obj.gt{1};
+            else
+                name=obj.det{1};
+            end
+            if strcmpi(obj.setChooser{1},'train')
+                name=[name obj.trainSet];
+            else
+                name=[name obj.testSet];
+            end
         end
         
         function out=getPathToObjects(obj)

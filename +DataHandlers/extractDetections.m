@@ -27,7 +27,7 @@ function out=runDetector(data,detector)
             end
         end
     end
-    out=DataHandlers.NYUDataStructure(data.path,data.setChooser{1},DataHandlers.NYUDataStructure.det,nData);
+    out=DataHandlers.NYUDataStructure(data.path,data.setChooser{1},'det',nData);
     for i=1:nData    
         out.addImage(i,data.getFilename(i),data.getDepthname(i),data.getFolder(i),...
             data.getImagesize(i),collectedObjects{i},data.getCalib(i));

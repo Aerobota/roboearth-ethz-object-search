@@ -10,13 +10,11 @@ detector=DataHandlers.HOGDetector(threshold,fullfile(pwd,modelPath));
 
 %% Extraction
 disp('extracting training set')
-gtData=DataHandlers.NYUDataStructure(datasetPath,DataHandlers.NYUDataStructure.trainSet,...
-    DataHandlers.NYUDataStructure.gt);
+gtData=DataHandlers.NYUDataStructure(datasetPath,'train','gt');
 gtData.load();
 DataHandlers.extractDetections(gtData,detector);
 
 disp('extracting test set')
-gtData=DataHandlers.NYUDataStructure(datasetPath,DataHandlers.NYUDataStructure.testSet,...
-    DataHandlers.NYUDataStructure.gt);
+gtData=DataHandlers.NYUDataStructure(datasetPath,'test','gt');
 gtData.load();
 DataHandlers.extractDetections(gtData,detector);

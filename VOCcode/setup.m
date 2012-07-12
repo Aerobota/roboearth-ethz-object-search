@@ -16,10 +16,10 @@ addpath(fullfile(originalPWD,detectorPath));
 VOCinit
 
 %% Data loading
-imageData=DataHandlers.NYUDataStructure(datasetFolder,DataHandlers.NYUDataStructure.trainSet,DataHandlers.NYUDataStructure.gt);
+imageData=DataHandlers.NYUDataStructure(datasetFolder,'train','gt');
 imageData.load();
 imageData.writeNameListFile(sprintf(VOCopts.imgsetpath,'trainval'));
-negImgData=DataHandlers.SunDataStructure(datasetFolder,DataHandlers.SunDataStructure.trainSet,DataHandlers.SunDataStructure.gt);
+negImgData=DataHandlers.SunDataStructure(datasetFolder,'train','gt');
 negImgData.load();
 
 imageData.addData(negImgData);

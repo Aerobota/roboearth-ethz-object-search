@@ -72,14 +72,14 @@ end
 
 function extractObjects(split,imageNames,depthNames,labels,allNames,goodClasses,outPath,tmp_depthFolder)
     disp('extracting training set')
-    data=DataHandlers.NYUDataStructure(outPath,DataHandlers.NYUDataStructure.trainSet,DataHandlers.NYUDataStructure.gt);
+    data=DataHandlers.NYUDataStructure(outPath,'train','gt');
     extractImageSet(data,imageNames(1,split),depthNames(1,split),labels(:,:,split),allNames,goodClasses,tmp_depthFolder);
     data.save();
 
     clear('data')
 
     disp('extracting test set')
-    data=DataHandlers.NYUDataStructure(outPath,DataHandlers.NYUDataStructure.testSet,DataHandlers.NYUDataStructure.gt);
+    data=DataHandlers.NYUDataStructure(outPath,'test','gt');
     extractImageSet(data,imageNames(1,~split),depthNames(1,~split),labels(:,:,~split),allNames,goodClasses,tmp_depthFolder);
     data.save();
 end
@@ -162,11 +162,9 @@ function generateNegativeDataSet(inpath,outpath)
     scenesNegativeDataset={'outdoor','road','street','mountain'};
     maxNum=600;
 
-    dataPacks=DataHandlers.SunDataStructure(inpath,DataHandlers.SunDataStructure.trainSet,...
-        DataHandlers.SunDataStructure.gt);
+    dataPacks=DataHandlers.SunDataStructure(inpath,'train','gt');
     
-    output=DataHandlers.SunDataStructure(outpath,DataHandlers.SunDataStructure.trainSet,...
-        DataHandlers.SunDataStructure.gt);
+    output=DataHandlers.SunDataStructure(outpath,'train','gt');
     
     dataPacks.load();
     getSceneData(scenesNegativeDataset,dataPacks,output,maxNum);

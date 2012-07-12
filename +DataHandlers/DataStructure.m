@@ -46,6 +46,12 @@ classdef DataStructure<handle
     %% Data Loading
     methods
         function obj=DataStructure(path,testOrTrain,gtOrDet,preallocationSize)
+            assert(any(strcmpi(testOrTrain,{'test','train'})),'DataStructure:wrongInput',...
+                'The testOrTrain argument must be ''test'' or ''train''.')
+            assert(any(strcmpi(gtOrDet,{'gt','det'})),'DataStructure:wrongInput',...
+                'The gtOrDet argument must be ''gt'' or ''det''.')
+            
+            
             tmpCell=cell(1,preallocationSize);
             obj.data=struct('filename',tmpCell,'depthname',tmpCell,...
                 'folder',tmpCell,'imagesize',tmpCell,'calib',tmpCell,'objectPath',tmpCell);%,'object',tmpCell

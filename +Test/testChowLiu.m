@@ -6,7 +6,7 @@ dataPath='Dataset/NYU';
 multiOccurence=true;
 
 %% load dataset
-im=DataHandlers.NYUDataStructure(dataPath,DataHandlers.NYUDataStructure.trainSet,DataHandlers.NYUDataStructure.gt);
+im=DataHandlers.NYUDataStructure(dataPath,'train','gt');
 im.load();
 
 

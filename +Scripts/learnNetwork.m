@@ -7,8 +7,7 @@ evidenceGeneratorName='cylindric';
 % evidenceGeneratorName='vertical';
 
 %% Object initialisation
-data=DataHandlers.NYUDataStructure(datasetPath,DataHandlers.NYUDataStructure.trainSet,...
-    DataHandlers.NYUDataStructure.gt);
+data=DataHandlers.NYUDataStructure(datasetPath,'train','gt');
 
 occurenceEvidenceGenerator=LearnFunc.PairwiseOccurrenceEvidenceGenerator(occurrenceStates);
 

@@ -5,7 +5,7 @@ NTests=1;
 
 %% scoreEvidence
 
-ds=DataHandlers.NYUDataStructure('../Koenig12/Dataset/NYU',DataHandlers.NYUDataStructure.trainSet,DataHandlers.NYUDataStructure.det);
+ds=DataHandlers.NYUDataStructure('../Koenig12/Dataset/NYU','train','det');
 ds.load();
 se=LearnFunc.ScoreEvidenceGenerator;
 

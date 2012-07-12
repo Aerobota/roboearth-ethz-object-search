@@ -1,23 +1,15 @@
 function extractSmallDataset(inpath,outpath)
     scenesSmallDataset={'kitchen';'office'};
     
-    dataPacks{1}=DataHandlers.SunDataStructure(inpath,DataHandlers.SunDataStructure.trainSet,...
-        DataHandlers.SunDataStructure.gt);
-    dataPacks{2}=DataHandlers.SunDataStructure(inpath,DataHandlers.SunDataStructure.trainSet,...
-        DataHandlers.SunDataStructure.det);
-    dataPacks{3}=DataHandlers.SunDataStructure(inpath,DataHandlers.SunDataStructure.testSet,...
-        DataHandlers.SunDataStructure.gt);
-    dataPacks{4}=DataHandlers.SunDataStructure(inpath,DataHandlers.SunDataStructure.testSet,...
-        DataHandlers.SunDataStructure.det);
+    dataPacks{1}=DataHandlers.SunDataStructure(inpath,'train','gt');
+    dataPacks{2}=DataHandlers.SunDataStructure(inpath,'train','det');
+    dataPacks{3}=DataHandlers.SunDataStructure(inpath,'test','gt');
+    dataPacks{4}=DataHandlers.SunDataStructure(inpath,'test','det');
     
-    output{1}=DataHandlers.SunDataStructure(outpath,DataHandlers.SunDataStructure.trainSet,...
-        DataHandlers.SunDataStructure.gt);
-    output{2}=DataHandlers.SunDataStructure(outpath,DataHandlers.SunDataStructure.trainSet,...
-        DataHandlers.SunDataStructure.det);
-    output{3}=DataHandlers.SunDataStructure(outpath,DataHandlers.SunDataStructure.testSet,...
-        DataHandlers.SunDataStructure.gt);
-    output{4}=DataHandlers.SunDataStructure(outpath,DataHandlers.SunDataStructure.testSet,...
-        DataHandlers.SunDataStructure.det);
+    output{1}=DataHandlers.SunDataStructure(outpath,'train','gt');
+    output{2}=DataHandlers.SunDataStructure(outpath,'train','det');
+    output{3}=DataHandlers.SunDataStructure(outpath,'test','gt');
+    output{4}=DataHandlers.SunDataStructure(outpath,'test','det');
 
     for i=1:length(dataPacks)
         dataPacks{i}.load();

@@ -4,15 +4,18 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
         largeIndex
         smallIndex
         maxParents
+        valueMatrix % valueMatrix=[trueNegativ falseNegativ;falsePositiv truePositiv]
     end
     
     properties(Constant)
-        valueMatrix=[0 -1;-0.5 1] % [1 -1;-1 1] % value=[trueNegativ falseNegativ;falsePositiv truePositiv]
+%         % valueMatrix=[trueNegativ falseNegativ;falsePositiv truePositiv]
+%         valueMatrix=[0 -1;-0.5 1]
+% %         valueMatrix=[1 -1;-1 1] 
         nrSplits=10
     end
     
     methods
-        function obj=ConditionalOccurrenceLearner(classes,evidenceGenerator,largeClasses,maxParents)
+        function obj=ConditionalOccurrenceLearner(classes,evidenceGenerator,largeClasses,maxParents,valueMatrix)
             obj=obj@LearnFunc.StructureLearner(classes);
             obj.evidenceGenerator=evidenceGenerator;
             
@@ -21,6 +24,7 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
             obj.smallIndex(obj.largeIndex)=[];
             
             obj.maxParents=maxParents;
+            obj.valueMatrix=valueMatrix;
         end
         
         function dependencies=learnStructure(obj,data)
@@ -33,6 +37,7 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
             for cs=obj.smallIndex
                 EULast=EUBase(cs);
                 currentIndices=cs;
+                goodIndices=cs;
                 while(length(currentIndices)-1<obj.maxParents)
                     EUNew=obj.computeExpectedUtilitySplitDataset(data,currentIndices,setIndices);
                     EUDiff=EUNew-EULast;
@@ -43,15 +48,22 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
                     if maxVal>0
                         currentIndices(end+1)=maxI;
                         EULast=EUNew(maxI);
-                        goodIndices=[currentIndices maxI];
+                        goodIndices=currentIndices;
                         disp([obj.classes{cs} ' given ' obj.classes{maxI} ' improvement: ' num2str(maxVal) ' total: ' num2str(EUNew(maxI))]);
                     else
                         break;
                     end
                 end
-                dependencies.(obj.classes{cs}).parents=obj.classes(goodIndices);
-                [booleanCPComplete,~]=obj.computeESS(data,goodIndices(1:end-1),1:length(data));
-                dependencies.(obj.classes{cs}).condProb=obj.cleanBooleanCP(booleanCPComplete,goodIndices(end));
+                if ~isempty(goodIndices)
+                    dependencies.(obj.classes{cs}).parents=obj.classes(goodIndices);
+                    [booleanCPComplete,~]=obj.computeESS(data,goodIndices(1:end-1),1:length(data));
+                    [booleanMargP,~]=obj.computeESS(data,[],1:length(data));
+                    dependencies.(obj.classes{cs}).condProb=obj.cleanBooleanCP(booleanCPComplete,booleanMargP,goodIndices(end));
+                    tmpSize=size(dependencies.(obj.classes{cs}).condProb);
+                    dependencies.(obj.classes{cs}).optimalDecision=zeros([1 tmpSize(2:end)]);
+                    dependencies.(obj.classes{cs}).optimalDecision(:)=...
+                        obj.computeCostOptimalDecisions(dependencies.(obj.classes{cs}).condProb(:,:));
+                end
             end
         end
     end
@@ -61,8 +73,8 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
             for i=1:size(setIndices,1)
                 [booleanCP{2},tmpMargP{2}]=obj.computeESS(data,currentIndices,setIndices{i,2});
                 [booleanCP{1},tmpMargP{1}]=obj.computeESS(data,currentIndices,setIndices{i,1});
-                EUNew=[EUNew;obj.computeExpectedUtilityConditional(booleanCP{1},tmpMargP{1},booleanCP{2});...
-                    obj.computeExpectedUtilityConditional(booleanCP{2},tmpMargP{2},booleanCP{1})];
+                EUNew=[EUNew;obj.computeExpectedUtility(booleanCP{1},tmpMargP{1},booleanCP{2});...
+                    obj.computeExpectedUtility(booleanCP{2},tmpMargP{2},booleanCP{1})];
             end
             EUNew=median(EUNew,1);
         end
@@ -76,18 +88,39 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
             boolCP(2:size(boolCP,1):numel(boolCP))=sum(cp(2:end,:),1);
         end
         
-        function eu=computeExpectedUtilityConditional(obj,booleanCP,margP,booleanDecisionCP)
+        function eu=computeExpectedUtility(obj,booleanCP,margP,booleanDecisionCP)
             eu=zeros(1,size(booleanCP,ndims(booleanCP)));
-            tmpCP=booleanCP(1:size(booleanCP,1),:);
-            tmpDecisionCP=booleanDecisionCP(1:size(booleanCP,1),:);
+            tmpCP=booleanCP(:,:);
+            tmpDecisionCP=booleanDecisionCP(:,:);
             tmpMargP=margP(1,:);
             
+%             if any(tmpMargP(1,sum(tmpCP,1)==0)>0)
+%                 disp(tmpMargP(1,sum(tmpCP,1)==0))
+%                 error('stop')
+%             end
+            
             tmpCoeff=size(tmpCP,2)/length(eu);
-            [~,maxI]=max(tmpDecisionCP,[],1);
-            minI=3-maxI;
-            euCond=tmpCP(maxI+(0:size(tmpCP,2)-1)*size(tmpCP,1)).*obj.selectVal(obj.valueMatrix,maxI,maxI)+...
-                tmpCP(minI+(0:size(tmpCP,2)-1)*size(tmpCP,1)).*obj.selectVal(obj.valueMatrix,maxI,minI);
+%             [~,maxI]=max(tmpDecisionCP,[],1);
+            optDec=obj.computeCostOptimalDecisions(tmpDecisionCP);
+%             minI=3-maxI;
+%             euCond=tmpCP(maxI+(0:size(tmpCP,2)-1)*size(tmpCP,1)).*obj.selectVal(obj.valueMatrix,maxI,maxI)+...
+%                 tmpCP(minI+(0:size(tmpCP,2)-1)*size(tmpCP,1)).*obj.selectVal(obj.valueMatrix,maxI,minI);
+            euCond=obj.computeExpectedUtilityConditional(tmpCP,optDec);
             eu=sum(reshape(euCond.*tmpMargP,[tmpCoeff length(eu)]),1);
+        end
+        
+        function euCond=computeExpectedUtilityConditional(obj,booleanCP,decisionVec)
+            decisionVecOpp=3-decisionVec;
+            euCond=booleanCP(decisionVec+ones(size(decisionVec,1),1)*(0:size(booleanCP,2)-1)*size(booleanCP,1)).*...
+                obj.selectVal(obj.valueMatrix,decisionVec,decisionVec)+...
+                booleanCP(decisionVecOpp+ones(size(decisionVec,1),1)*(0:size(booleanCP,2)-1)*size(booleanCP,1)).*...
+                obj.selectVal(obj.valueMatrix,decisionVec,decisionVecOpp);
+        end
+        
+        function dec=computeCostOptimalDecisions(obj,booleanCP)
+            tmpDecision=(1:2)'*ones(1,size(booleanCP,2));
+            tmpEU=obj.computeExpectedUtilityConditional(booleanCP,tmpDecision);
+            [~,dec]=max(tmpEU,[],1);
         end
     end
     methods(Static)
@@ -95,10 +128,16 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
             out=in((j-1)*size(in,1)+i);
         end
         
-        function out=cleanBooleanCP(in,index)
-            s=size(in);
-            out=zeros(s(1:end-1));
-            out(:)=in((index-1)*prod(s(1:end-1))+1:index*prod(s(1:end-1)));
+        function out=cleanBooleanCP(boolCP,boolMargP,index)
+            s=size(boolCP);
+            if length(s)<=2
+                out=zeros([s(1:end-1) 1]);
+            else
+                out=zeros(s(1:end-1));
+            end
+            out(:)=boolCP((index-1)*prod(s(1:end-1))+1:index*prod(s(1:end-1)));
+            zeroIndexes=sum(out(:,:),1)==0;
+            out(:,zeroIndexes)=boolMargP(:,index*ones(1,sum(zeroIndexes)));
         end
     end
 end

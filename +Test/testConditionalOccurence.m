@@ -3,6 +3,7 @@
 datasetPath='Dataset/NYU';
 occurrenceStates={'0','1','2+'};
 maxParents=10; % if maxParents is set too large the conditional probabilities will consume a lot of memory
+valueMatrix=[0 -1;-0.5 1];
 
 %% Initialise
 
@@ -17,7 +18,7 @@ classesLarge=classes([3 4 5 6 8 11 13 15 17 19 20 21 23 24 27 28 29 30 31 34 40 
 
 evidenceGenerator=LearnFunc.CooccurrenceEvidenceGenerator(occurrenceStates);
 
-learner=LearnFunc.ConditionalOccurrenceLearner(classes,evidenceGenerator,classesLarge,maxParents);
+learner=LearnFunc.ConditionalOccurrenceLearner(classes,evidenceGenerator,classesLarge,maxParents,valueMatrix);
 
 %% Learn probabilities
 

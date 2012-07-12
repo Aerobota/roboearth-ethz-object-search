@@ -1,13 +1,13 @@
 classdef ContinousGaussianLearner<LearnFunc.ParameterLearner    
     methods
-        function obj=ContinousGaussianLearner(classes,evidenceGenerator)
-            obj=obj@LearnFunc.ParameterLearner(classes,evidenceGenerator);
-            for c=1:length(obj.classes)
-                for o=1:length(obj.classes)
-                    obj.data.(obj.classes{c}).(obj.classes{o}).mean=[];
-                    obj.data.(obj.classes{c}).(obj.classes{o}).cov=[];
-                end
-            end
+        function obj=ContinousGaussianLearner(evidenceGenerator)
+            obj=obj@LearnFunc.ParameterLearner(evidenceGenerator);
+%             for c=1:length(obj.classes)
+%                 for o=1:length(obj.classes)
+%                     obj.data.(obj.classes{c}).(obj.classes{o}).mean=[];
+%                     obj.data.(obj.classes{c}).(obj.classes{o}).cov=[];
+%                 end
+%             end
         end
         
         function CPD=getConnectionNodeCPD(obj,network,nodeNumber,fromClass,toClass)
@@ -19,15 +19,15 @@ classdef ContinousGaussianLearner<LearnFunc.ParameterLearner
         end
     end
     methods(Access='protected')
-        function evaluateOrderedSamples(obj,samples)
-            for i=1:length(obj.classes)
-                for j=1:length(obj.classes)
+        function evaluateOrderedSamples(obj,samples,classes)
+            for i=1:length(classes)
+                for j=1:length(classes)
                     if size(samples{i,j},1)>=obj.minSamples;
                         tmpMean=mean(samples{i,j});
                         tmpCov=cov(samples{i,j});
-                        obj.data.(obj.classes{i}).(obj.classes{j}).mean=tmpMean';
-                        obj.data.(obj.classes{i}).(obj.classes{j}).cov=tmpCov;
-                        obj.data.(obj.classes{i}).(obj.classes{j}).nrSamples=size(samples{i,j},1);
+                        obj.data.(classes{i}).(classes{j}).mean=tmpMean';
+                        obj.data.(classes{i}).(classes{j}).cov=tmpCov;
+                        obj.data.(classes{i}).(classes{j}).nrSamples=size(samples{i,j},1);
                     end
                 end
             end

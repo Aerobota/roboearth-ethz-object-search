@@ -18,13 +18,16 @@ classdef ParameterLearner<LearnFunc.Learner
     end
     
     methods
-        function obj=ParameterLearner(classes,evidenceGenerator)
-            obj=obj@LearnFunc.Learner(classes);
+%         function obj=ParameterLearner(classes,evidenceGenerator)
+%             obj=obj@LearnFunc.Learner(classes);
+%             obj.evidenceGenerator=evidenceGenerator;
+%         end
+        function obj=ParameterLearner(evidenceGenerator)
             obj.evidenceGenerator=evidenceGenerator;
         end
         function learnParameters(obj,images)
-            samples=obj.evidenceGenerator.getEvidence(images,obj.classes,'relative');
-            obj.evaluateOrderedSamples(samples);
+            samples=obj.evidenceGenerator.getEvidence(images,'relative');
+            obj.evaluateOrderedSamples(samples,images.getClassNames);
         end
     end
     

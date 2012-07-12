@@ -10,11 +10,11 @@ ds.load();
 se=LearnFunc.ScoreEvidenceGenerator;
 
 tic
-e=se.getEvidence(ds,ds.getClassNames);
+e=se.getEvidence(ds);
 singleTime=toc
 
 tic
-e=se.getEvidence(ds,ds.getClassNames,'parallel');
+e=se.getEvidence(ds,'parallel');
 parallelTime=toc
 
 

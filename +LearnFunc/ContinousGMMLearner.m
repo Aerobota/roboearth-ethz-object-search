@@ -4,14 +4,14 @@ classdef ContinousGMMLearner<LearnFunc.ParameterLearner
     end
     
     methods
-        function obj=ContinousGMMLearner(classes,evidenceGenerator)
-            obj=obj@LearnFunc.ParameterLearner(genvarname(classes),evidenceGenerator);
-            for c=1:length(obj.classes)
-                for o=1:length(obj.classes)
-                    obj.data.(obj.classes{c}).(obj.classes{o}).mean=[];
-                    obj.data.(obj.classes{c}).(obj.classes{o}).cov=[];
-                end
-            end
+        function obj=ContinousGMMLearner(evidenceGenerator)
+            obj=obj@LearnFunc.ParameterLearner(evidenceGenerator);
+%             for c=1:length(obj.classes)
+%                 for o=1:length(obj.classes)
+%                     obj.data.(obj.classes{c}).(obj.classes{o}).mean=[];
+%                     obj.data.(obj.classes{c}).(obj.classes{o}).cov=[];
+%                 end
+%             end
         end
         
         function CPD=getConnectionNodeCPD(obj,network,nodeNumber,fromClass,toClass)
@@ -24,17 +24,17 @@ classdef ContinousGMMLearner<LearnFunc.ParameterLearner
         end
     end
     methods(Access='protected')
-        function evaluateOrderedSamples(obj,samples)
+        function evaluateOrderedSamples(obj,samples,classes)
 %             obj.data.samples=samples;
-            for i=1:length(obj.classes)
-                for j=1:length(obj.classes)
+            for i=1:length(oclasses)
+                for j=1:length(classes)
                     if size(samples{i,j},1)>=obj.minSamples;
                         [tmpMean,tmpCov,tmpCoeff,tmpGMM]=obj.doGMM(samples{i,j});
-                        obj.data.(obj.classes{i}).(obj.classes{j}).mean=tmpMean;
-                        obj.data.(obj.classes{i}).(obj.classes{j}).cov=tmpCov;
-                        obj.data.(obj.classes{i}).(obj.classes{j}).mixCoeff=tmpCoeff;
-                        obj.data.(obj.classes{i}).(obj.classes{j}).gmm=tmpGMM;
-                        obj.data.(obj.classes{i}).(obj.classes{j}).nrSamples=size(samples{i,j},1);
+                        obj.data.(classes{i}).(classes{j}).mean=tmpMean;
+                        obj.data.(classes{i}).(classes{j}).cov=tmpCov;
+                        obj.data.(classes{i}).(classes{j}).mixCoeff=tmpCoeff;
+                        obj.data.(classes{i}).(classes{j}).gmm=tmpGMM;
+                        obj.data.(classes{i}).(classes{j}).nrSamples=size(samples{i,j},1);
                     end
                 end
             end

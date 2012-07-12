@@ -1,6 +1,6 @@
 classdef EvidenceGenerator<handle
     methods(Abstract)
-        evidence=getEvidence(obj,data,classes,varargin);
+        evidence=getEvidence(obj,data,varargin);
     end
 %     methods(Static,Access='protected')
 %         function name2ind=generateIndexLookup(names)

@@ -11,13 +11,11 @@ dataPath='Dataset/NYU';
 im=DataHandlers.NYUDataStructure(dataPath,DataHandlers.NYUDataStructure.trainSet,DataHandlers.NYUDataStructure.gt);
 im.load();
 
-classes=im.getClassNames();
-
 %% learn location parameters
 if strcmpi(learnFunction,'gmm')
-    ll=LearnFunc.ContinousGMMLearner(classes,evidenceGenerator);
+    ll=LearnFunc.ContinousGMMLearner(evidenceGenerator);
 else
-	ll=LearnFunc.ContinousGaussianLearner(classes,evidenceGenerator);
+	ll=LearnFunc.ContinousGaussianLearner(evidenceGenerator);
 end
 tic
 ll.learnParameters(im);

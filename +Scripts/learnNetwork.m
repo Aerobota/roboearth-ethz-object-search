@@ -8,7 +8,6 @@ evidenceGeneratorName='cylindric';
 %% Object initialisation
 data=DataHandlers.NYUDataStructure(datasetPath,DataHandlers.NYUDataStructure.trainSet,...
     DataHandlers.NYUDataStructure.gt);
-classes=data.getClassNames();
 
 occurenceEvidenceGenerator=LearnFunc.PairwiseOccurrenceEvidenceGenerator(occurrenceStates);
 
@@ -18,8 +17,8 @@ else
     locationEvidenceGenerator=LearnFunc.VerticalDistanceEvidenceGenerator();
 end
 
-occurenceLearner=LearnFunc.ChowLiuOccurrenceLearner(classes,occurenceEvidenceGenerator);
-locationLearner=LearnFunc.ChowLiuLocationLearner(classes,locationEvidenceGenerator);
+occurenceLearner=LearnFunc.ChowLiuOccurrenceLearner(occurenceEvidenceGenerator);
+locationLearner=LearnFunc.ChowLiuLocationLearner(locationEvidenceGenerator);
 
 %% Data loading
 disp('loading data')
@@ -28,6 +27,8 @@ data.load();
 %% Dependency learning
 disp('learning occurence dependency')
 occurenceDependency=occurenceLearner.learnStructure(data);
+
+classes=data.getClassNames();
 
 gOcc=NetFunc.BNTGraph();
 conn.node='node';

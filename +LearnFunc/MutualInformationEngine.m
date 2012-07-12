@@ -16,7 +16,7 @@ classdef MutualInformationEngine
     end
     
     methods(Abstract)
-        mutInf=mutualInformation(obj,data,classes)
+        mutInf=mutualInformation(obj,data)
     end
     
 end

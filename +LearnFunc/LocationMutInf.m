@@ -6,8 +6,8 @@ classdef LocationMutInf<LearnFunc.MutualInformationEngine
         function obj=LocationMutInf(evidenceGenerator)
             obj=obj@LearnFunc.MutualInformationEngine(evidenceGenerator);
         end
-        function mutInf=mutualInformation(obj,data,classes)
-            samples=obj.evidenceGenerator.getEvidence(data,classes,'absolute');
+        function mutInf=mutualInformation(obj,data)
+            samples=obj.evidenceGenerator.getEvidence(data,'absolute');
             mutInf=zeros(size(samples));
             for i=1:size(mutInf,1)
                 for j=1:size(mutInf,2)

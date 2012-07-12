@@ -3,8 +3,8 @@ classdef ChowLiuLocationLearner<LearnFunc.ChowLiuLearner
     %   Detailed explanation goes here
     
     methods
-        function obj=ChowLiuLocationLearner(classes,evidenceGenerator)
-            obj=obj@LearnFunc.ChowLiuLearner(classes,LearnFunc.LocationMutInf(evidenceGenerator));
+        function obj=ChowLiuLocationLearner(evidenceGenerator)
+            obj=obj@LearnFunc.ChowLiuLearner(LearnFunc.LocationMutInf(evidenceGenerator));
         end
     end
 end

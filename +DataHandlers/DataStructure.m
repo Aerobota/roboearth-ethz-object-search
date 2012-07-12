@@ -104,7 +104,14 @@ classdef DataStructure<handle
             if isempty(obj.classes)
                 obj.loadClasses();
             end
-            index=obj.class2ind.(name);
+            
+            if iscellstr(name)
+                for i=length(name):-1:1
+                    index(1,i)=obj.class2ind.(name{i});
+                end
+            else
+                index=obj.class2ind.(name);
+            end
         end
         
         function writeNameListFile(obj,nameListFile)

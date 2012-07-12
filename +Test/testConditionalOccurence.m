@@ -14,11 +14,11 @@ dataTest=DataHandlers.NYUDataStructure(datasetPath,DataHandlers.NYUDataStructure
 dataTest.load();
 
 classes=dataTrain.getClassNames;
-classesLarge=classes([3 4 5 6 8 11 13 15 17 19 20 21 23 24 27 28 29 30 31 34 40 41 42 43]);
+classesSmall=classes([1 2 7 9 10 12 14 16 18 22 25 26 32 33 35 36 37 38 39]);
 
 evidenceGenerator=LearnFunc.CooccurrenceEvidenceGenerator(occurrenceStates);
 
-learner=LearnFunc.ConditionalOccurrenceLearner(classes,evidenceGenerator,classesLarge,maxParents,valueMatrix);
+learner=LearnFunc.ConditionalOccurrenceLearner(evidenceGenerator,classesSmall,valueMatrix);
 
 %% Learn probabilities
 

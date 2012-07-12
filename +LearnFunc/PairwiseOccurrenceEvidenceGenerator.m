@@ -14,11 +14,12 @@ classdef PairwiseOccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerat
 %             obj.comparer=obj.generateComparer(obj.states);
         end       
         
-        function pop=getEvidence(obj,data,classes,~)
+        function pop=getEvidence(obj,data,~)
+            classes=data.getClassNames();
             pop=zeros(length(classes),length(classes),length(obj.states),length(obj.states)); %pop(i,j,state_i,state_j)
             popDiag=zeros(length(classes),length(classes),length(obj.states),length(obj.states));
             
-            name2ind=LearnFunc.EvidenceGenerator.generateIndexLookup(classes);
+%             name2ind=LearnFunc.EvidenceGenerator.generateIndexLookup(classes);
 
             nSamples=length(data);
 
@@ -26,7 +27,7 @@ classdef PairwiseOccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerat
                 objects={data.getObject(s).name}';
                 counts=zeros(1,length(classes));
                 for o=1:length(objects)
-                    id=name2ind.(objects{o});
+                    id=data.className2Index(objects{o});
                     counts(id)=counts(id)+1;
                 end
                 cBins=obj.getStateIndices(counts);

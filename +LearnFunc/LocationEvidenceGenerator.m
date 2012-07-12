@@ -3,13 +3,13 @@ classdef LocationEvidenceGenerator<LearnFunc.EvidenceGenerator
     %   Detailed explanation goes here
     
     methods
-        function evidence=getEvidence(obj,data,classes,varargin)
+        function evidence=getEvidence(obj,data,varargin)
             if length(varargin)==1
                 if strcmpi(varargin{1},'relative')
-                    evidence=obj.orderRelativeEvidenceSamples(data,classes);
+                    evidence=obj.orderRelativeEvidenceSamples(data);
                     return
                 elseif strcmpi(varargin{1},'absolute')
-                    evidence=obj.orderAbsoluteEvidenceSamples(data,classes);
+                    evidence=obj.orderAbsoluteEvidenceSamples(data);
                     return
                 end
             end
@@ -24,8 +24,9 @@ classdef LocationEvidenceGenerator<LearnFunc.EvidenceGenerator
     end
     
     methods(Access='protected')
-        function samples=orderRelativeEvidenceSamples(obj,images,classes)
-            name2ind=LearnFunc.EvidenceGenerator.generateIndexLookup(classes);
+        function samples=orderRelativeEvidenceSamples(obj,images)
+            classes=images.getClassNames();
+%             name2ind=LearnFunc.EvidenceGenerator.generateIndexLookup(classes);
             samples=cell(length(classes),length(classes));
             for i=1:length(images)
                 evidence=obj.getRelativeEvidence(images,i);
@@ -33,16 +34,17 @@ classdef LocationEvidenceGenerator<LearnFunc.EvidenceGenerator
                 objects=images.getObject(i);
                 for o=1:length(objects)
                     for t=o+1:length(objects)
-                        indo=name2ind.(objects(o).name);
-                        indt=name2ind.(objects(t).name);
+                        indo=images.className2Index(objects(o).name);
+                        indt=images.className2Index(objects(t).name);
                         samples{indo,indt}(end+1,:)=evidence(o,t,:);
                         samples{indt,indo}(end+1,:)=evidence(t,o,:);
                     end
                 end
             end
         end
-        function samples=orderAbsoluteEvidenceSamples(obj,images,classes)
-            name2ind=LearnFunc.EvidenceGenerator.generateIndexLookup(classes);
+        function samples=orderAbsoluteEvidenceSamples(obj,images)
+            classes=images.getClassNames();
+%             name2ind=LearnFunc.EvidenceGenerator.generateIndexLookup(classes);
             samples=cell(length(classes),length(classes));
             for i=1:length(images)
                 evidence=obj.getAbsoluteEvidence(images,i);
@@ -50,8 +52,8 @@ classdef LocationEvidenceGenerator<LearnFunc.EvidenceGenerator
                 objects=images.getObject(i);
                 for o=1:length(objects)
                     for t=o+1:length(objects)
-                        indo=name2ind.(objects(o).name);
-                        indt=name2ind.(objects(t).name);
+                        indo=images.className2Index(objects(o).name);
+                        indt=images.className2Index(objects(t).name);
                         samples{indo,indt}(end+1,1,:)=evidence(o,o,:);
                         samples{indo,indt}(end,2,:)=evidence(o,t,:);
                         samples{indt,indo}(end+1,1,:)=evidence(t,t,:);

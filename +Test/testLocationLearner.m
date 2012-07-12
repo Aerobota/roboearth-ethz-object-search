@@ -10,15 +10,16 @@ dataPath='Dataset/NYU';
 im=DataHandlers.NYUDataStructure(dataPath,DataHandlers.NYUDataStructure.trainSet,DataHandlers.NYUDataStructure.gt);
 im.load();
 
-classes=im.getClassNames();
-
 %% learn location structure
-ll=LearnFunc.ChowLiuLocationLearner(classes,evidenceGenerator);
+ll=LearnFunc.ChowLiuLocationLearner(evidenceGenerator);
 
 parents=ll.learnStructure(im);
 
 
 %% build simple graph with only one node per class
+
+classes=im.getClassNames();
+
 g=NetFunc.BNTGraph();
 conn.node='node';
 for c=1:length(classes)

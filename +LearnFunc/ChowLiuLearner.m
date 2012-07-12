@@ -7,14 +7,17 @@ classdef ChowLiuLearner<LearnFunc.StructureLearner
     end
     
     methods
-        function obj=ChowLiuLearner(classes,mutualInformationEngine)
-            obj=obj@LearnFunc.StructureLearner(classes);
+        function obj=ChowLiuLearner(mutualInformationEngine)
             obj.mutInfEngine=mutualInformationEngine;
         end
+%         function obj=ChowLiuLearner(classes,mutualInformationEngine)
+%             obj=obj@LearnFunc.StructureLearner(classes);
+%             obj.mutInfEngine=mutualInformationEngine;
+%         end
         function dependencies=learnStructure(obj,data)
-            pmi=obj.mutInfEngine.mutualInformation(data,obj.classes);
+            pmi=obj.mutInfEngine.mutualInformation(data);
             adjacency=obj.generateChowLiu(pmi);
-            dependencies=obj.directGraph(adjacency,obj.classes);
+            dependencies=obj.directGraph(adjacency,data.getClassNames);
         end
     end
     methods(Access='protected',Static)

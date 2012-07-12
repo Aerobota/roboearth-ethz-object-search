@@ -2,11 +2,11 @@ classdef StructureLearner<LearnFunc.Learner
     %STRUCTURELEARNER Summary of this class goes here
     %   Detailed explanation goes here
     
-    methods
-        function obj=StructureLearner(classes)
-            obj=obj@LearnFunc.Learner(classes);
-        end
-    end
+%     methods
+%         function obj=StructureLearner(classes)
+%             obj=obj@LearnFunc.Learner(classes);
+%         end
+%     end
     
     methods(Abstract)
         dependencies=learnStructure(obj,data)

@@ -1,9 +1,7 @@
 classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
     properties(SetAccess='protected')
         evidenceGenerator
-        largeIndex
-        smallIndex
-        maxParents
+        smallClasses
         valueMatrix % valueMatrix=[trueNegativ falseNegativ;falsePositiv truePositiv]
     end
     
@@ -12,29 +10,46 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
 %         valueMatrix=[0 -1;-0.5 1]
 % %         valueMatrix=[1 -1;-1 1] 
         nrSplits=10
+        maxParents=10
     end
     
     methods
-        function obj=ConditionalOccurrenceLearner(classes,evidenceGenerator,largeClasses,maxParents,valueMatrix)
-            obj=obj@LearnFunc.StructureLearner(classes);
+%         function obj=ConditionalOccurrenceLearner(classes,evidenceGenerator,largeClasses,maxParents,valueMatrix)
+%             obj=obj@LearnFunc.StructureLearner(classes);
+%             obj.evidenceGenerator=evidenceGenerator;
+%             
+%             [~,obj.largeIndex]=ismember(largeClasses,obj.classes);
+%             obj.smallIndex=1:length(obj.classes);
+%             obj.smallIndex(obj.largeIndex)=[];
+%             
+%             obj.maxParents=maxParents;
+%             obj.valueMatrix=valueMatrix;
+%         end
+        function obj=ConditionalOccurrenceLearner(evidenceGenerator,smallClasses,valueMatrix)
             obj.evidenceGenerator=evidenceGenerator;
             
-            [~,obj.largeIndex]=ismember(largeClasses,obj.classes);
-            obj.smallIndex=1:length(obj.classes);
-            obj.smallIndex(obj.largeIndex)=[];
+            obj.smallClasses=smallClasses;
             
-            obj.maxParents=maxParents;
             obj.valueMatrix=valueMatrix;
         end
         
         function dependencies=learnStructure(obj,data)
+            % get classes and indices of small indices
+            classes=data.getClassNames();
+            smallIndex=data.className2Index(obj.smallClasses);
+            
+            % generate dataset splits
             for i=obj.nrSplits:-1:1
                 tmpIndices=randperm(length(data));
                 setIndices{i,2}=tmpIndices(ceil(length(tmpIndices)/2)+1:end);
                 setIndices{i,1}=tmpIndices(1:ceil(length(tmpIndices)/2));
             end
+            
+            % calculate the base expected utility for all classes
             EUBase=obj.computeExpectedUtilitySplitDataset(data,[],setIndices);
-            for cs=obj.smallIndex
+            
+            % for every small class greedy search for best parents
+            for cs=smallIndex
                 EULast=EUBase(cs);
                 currentIndices=cs;
                 goodIndices=cs;
@@ -42,27 +57,27 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
                     EUNew=obj.computeExpectedUtilitySplitDataset(data,currentIndices,setIndices);
                     EUDiff=EUNew-EULast;
                     EUDiff(currentIndices)=0;
-                    EUDiff(obj.smallIndex)=0;
+                    EUDiff(smallIndex)=0;
                     EUDiff(EUDiff<0.001)=0;
                     [maxVal,maxI]=max(EUDiff);
                     if maxVal>0
                         currentIndices(end+1)=maxI;
                         EULast=EUNew(maxI);
                         goodIndices=currentIndices;
-                        disp([obj.classes{cs} ' given ' obj.classes{maxI} ' improvement: ' num2str(maxVal) ' total: ' num2str(EUNew(maxI))]);
+                        disp([classes{cs} ' given ' classes{maxI} ' improvement: ' num2str(maxVal) ' total: ' num2str(EUNew(maxI))]);
                     else
                         break;
                     end
                 end
                 if ~isempty(goodIndices)
-                    dependencies.(obj.classes{cs}).parents=obj.classes(goodIndices);
+                    dependencies.(classes{cs}).parents=classes(goodIndices);
                     [booleanCPComplete,~]=obj.computeESS(data,goodIndices(1:end-1),1:length(data));
                     [booleanMargP,~]=obj.computeESS(data,[],1:length(data));
-                    dependencies.(obj.classes{cs}).condProb=obj.cleanBooleanCP(booleanCPComplete,booleanMargP,goodIndices(end));
-                    tmpSize=size(dependencies.(obj.classes{cs}).condProb);
-                    dependencies.(obj.classes{cs}).optimalDecision=zeros([1 tmpSize(2:end)]);
-                    dependencies.(obj.classes{cs}).optimalDecision(:)=...
-                        obj.computeCostOptimalDecisions(dependencies.(obj.classes{cs}).condProb(:,:));
+                    dependencies.(classes{cs}).condProb=obj.cleanBooleanCP(booleanCPComplete,booleanMargP,goodIndices(end));
+                    tmpSize=size(dependencies.(classes{cs}).condProb);
+                    dependencies.(classes{cs}).optimalDecision=zeros([1 tmpSize(2:end)]);
+                    dependencies.(classes{cs}).optimalDecision(:)=...
+                        obj.computeCostOptimalDecisions(dependencies.(classes{cs}).condProb(:,:));
                 end
             end
         end
@@ -79,7 +94,7 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
             EUNew=median(EUNew,1);
         end
         function [boolCP,margP]=computeESS(obj,data,currentIndices,subsetIndices)
-            cp=obj.evidenceGenerator.getEvidence(data,obj.classes,currentIndices,subsetIndices);
+            cp=obj.evidenceGenerator.getEvidence(data,currentIndices,subsetIndices);
             margP=sum(cp,1)/(sum(cp(:))/size(cp,ndims(cp)));
             cp=cp./(repmat(sum(cp,1),[size(cp,1) ones(1,ndims(cp)-1)])+eps);
             tmpSize=size(cp);

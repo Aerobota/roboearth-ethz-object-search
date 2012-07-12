@@ -9,8 +9,8 @@ classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
             obj.dataBuffer=struct('dataHandle',{},'cBins',{});
         end
         
-        function cop=getEvidence(obj,data,classes,targetClasses,subsetIndices)
-            nClasses=length(classes);
+        function cop=getEvidence(obj,data,targetClasses,subsetIndices)
+            nClasses=length(data.getClassNames());
             cop=zeros([repmat(length(obj.states),[1 length(targetClasses)+1]) nClasses]);
             
             s=size(cop);
@@ -25,7 +25,7 @@ classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
             end
             
             if bufferIndex==0
-                obj.dataBuffer(end+1).cBins=obj.bufferCBins(data,classes);
+                obj.dataBuffer(end+1).cBins=obj.bufferCBins(data);
                 obj.dataBuffer(end).dataHandle=data;
                 bufferIndex=length(obj.dataBuffer);
             end
@@ -41,14 +41,15 @@ classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
         end
     end
     methods(Access='protected')
-        function cBins=bufferCBins(obj,data,classes)
-            cBins=zeros(length(classes),length(data));
-            name2indAll=LearnFunc.EvidenceGenerator.generateIndexLookup(classes);
+        function cBins=bufferCBins(obj,data)
+            nClasses=length(data.getClassNames());
+            cBins=zeros(nClasses,length(data));
+%             name2indAll=LearnFunc.EvidenceGenerator.generateIndexLookup(classes);
             for s=1:length(data)
                 objects={data.getObject(s).name}';
-                counts=zeros(1,length(classes));
+                counts=zeros(1,nClasses);
                 for o=1:length(objects)
-                    id=name2indAll.(objects{o});
+                    id=data.className2Index(objects{o});
                     counts(id)=counts(id)+1;
                 end
                 tmpCBins=obj.getStateIndices(counts)-1;

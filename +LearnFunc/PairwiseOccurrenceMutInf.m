@@ -7,8 +7,8 @@ classdef PairwiseOccurrenceMutInf<LearnFunc.MutualInformationEngine
             obj=obj@LearnFunc.MutualInformationEngine(evidenceGenerator);
         end
         
-        function pmi=mutualInformation(obj,data,classes)
-            samples=obj.evidenceGenerator.getEvidence(data,classes);
+        function pmi=mutualInformation(obj,data)
+            samples=obj.evidenceGenerator.getEvidence(data);
             pop=samples/sum(sum(samples(1,1,:,:)));
             
             margP=zeros(size(pop,1),size(pop,3));

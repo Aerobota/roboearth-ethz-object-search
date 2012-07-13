@@ -30,13 +30,11 @@ classdef LocationEvidenceGenerator<LearnFunc.EvidenceGenerator
             for i=1:length(images)
                 evidence=obj.getRelativeEvidence(images,i);
                 
-                objects=images.getObject(i);
-                for o=1:length(objects)
-                    for t=o+1:length(objects)
-                        indo=images.className2Index(objects(o).name);
-                        indt=images.className2Index(objects(t).name);
-                        samples{indo,indt}(end+1,:)=evidence(o,t,:);
-                        samples{indt,indo}(end+1,:)=evidence(t,o,:);
+                ind=images.className2Index({images.getObject(i).name});
+                for o=1:length(ind)
+                    for t=o+1:length(ind)
+                        samples{ind(o),ind(t)}(end+1,:)=evidence(o,t,:);
+                        samples{ind(t),ind(o)}(end+1,:)=evidence(t,o,:);
                     end
                 end
             end
@@ -47,15 +45,14 @@ classdef LocationEvidenceGenerator<LearnFunc.EvidenceGenerator
             for i=1:length(images)
                 evidence=obj.getAbsoluteEvidence(images,i);
                 
-                objects=images.getObject(i);
-                for o=1:length(objects)
-                    for t=o+1:length(objects)
-                        indo=images.className2Index(objects(o).name);
-                        indt=images.className2Index(objects(t).name);
-                        samples{indo,indt}(end+1,1,:)=evidence(o,o,:);
-                        samples{indo,indt}(end,2,:)=evidence(o,t,:);
-                        samples{indt,indo}(end+1,1,:)=evidence(t,t,:);
-                        samples{indt,indo}(end,2,:)=evidence(t,o,:);
+                
+                ind=images.className2Index({images.getObject(i).name});
+                for o=1:length(ind)
+                    for t=o+1:length(ind)
+                        samples{ind(o),ind(t)}(end+1,1,:)=evidence(o,o,:);
+                        samples{ind(o),ind(t)}(end,2,:)=evidence(o,t,:);
+                        samples{ind(t),ind(o)}(end+1,1,:)=evidence(t,t,:);
+                        samples{ind(t),ind(o)}(end,2,:)=evidence(t,o,:);
                     end
                 end
             end

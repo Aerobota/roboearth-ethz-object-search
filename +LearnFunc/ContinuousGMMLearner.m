@@ -1,16 +1,16 @@
-classdef ContinousGMMLearner<LearnFunc.ParameterLearner
+classdef ContinuousGMMLearner<LearnFunc.ParameterLearner
     properties(Constant)
         maxComponents=3;
     end
     
     methods
-        function obj=ContinousGMMLearner(evidenceGenerator)
+        function obj=ContinuousGMMLearner(evidenceGenerator)
             obj=obj@LearnFunc.ParameterLearner(evidenceGenerator);
         end
         
         function CPD=getConnectionNodeCPD(obj,network,nodeNumber,fromClass,toClass)
             assert(~isempty(obj.data.(fromClass).(toClass).mean),...
-                'Continous2DLearner:getConnectionNodeCPD:missingConnectionData',...
+                'Continuous2DLearner:getConnectionNodeCPD:missingConnectionData',...
                 'The requested classes have too few cooccurences to generate a CPD');
             CPD(1)=gaussian_CPD(network,nodeNumber(1),'mean',obj.data.(fromClass).(toClass).mean,...
                 'cov',obj.data.(fromClass).(toClass).cov);
@@ -19,20 +19,31 @@ classdef ContinousGMMLearner<LearnFunc.ParameterLearner
     end
     methods(Access='protected')
         function evaluateOrderedSamples(obj,samples,classes)
-            for i=1:length(classes)
+            slicedSamples=cell(size(samples,1),1);
+            slicedOutput=cell(length(classes),1);
+            for i=1:length(slicedSamples)
+                slicedSamples{i}=samples(i,:);
+            end
+            parfor i=1:length(classes)
                 for j=1:length(classes)
-                    if size(samples{i,j},1)>=obj.minSamples;
-                        [tmpMean,tmpCov,tmpCoeff,tmpGMM]=obj.doGMM(samples{i,j});
-                        obj.data.(classes{i}).(classes{j}).mean=tmpMean;
-                        obj.data.(classes{i}).(classes{j}).cov=tmpCov;
-                        obj.data.(classes{i}).(classes{j}).mixCoeff=tmpCoeff;
-                        obj.data.(classes{i}).(classes{j}).gmm=tmpGMM;
-                        obj.data.(classes{i}).(classes{j}).nrSamples=size(samples{i,j},1);
+                    if size(slicedSamples{i}{j},1)>=LearnFunc.ParameterLearner.minSamples;
+                        [tmpMean,tmpCov,tmpCoeff,tmpGMM]=LearnFunc.ContinuousGMMLearner.doGMM(slicedSamples{i}{j});
+                        slicedOutput{i}.(classes{j}).mean=tmpMean;
+                        slicedOutput{i}.(classes{j}).cov=tmpCov;
+                        slicedOutput{i}.(classes{j}).mixCoeff=tmpCoeff;
+                        slicedOutput{i}.(classes{j}).gmm=tmpGMM;
+                        slicedOutput{i}.(classes{j}).nrSamples=size(slicedSamples{i}{j},1);
                     end
                 end
+                disp(['finished with class ' classes{i}])
+            end
+            for i=1:length(classes)
+                obj.data.(classes{i})=slicedOutput{i};
             end
         end
-        function [outMean,outCov,outCoeff,gmm]=doGMM(obj,samples)
+    end
+    methods(Static,Access='protected')
+        function [outMean,outCov,outCoeff,gmm]=doGMM(samples)
             randomIndices=randperm(size(samples,1));
             split=ceil(length(randomIndices)/3);
             test={samples(randomIndices(1:split),:),...
@@ -41,10 +52,10 @@ classdef ContinousGMMLearner<LearnFunc.ParameterLearner
             train={[samples(randomIndices(split+1:2*split),:);samples(randomIndices(2*split+1:end),:)],...
                 [samples(randomIndices(1:split),:);samples(randomIndices(2*split+1:end),:)],...
                 [samples(randomIndices(1:split),:);samples(randomIndices(split+1:2*split),:)]};
-            score=zeros(obj.maxComponents,1);
-            for k=1:obj.maxComponents
+            score=zeros(LearnFunc.ContinuousGMMLearner.maxComponents,1);
+            for k=1:LearnFunc.ContinuousGMMLearner.maxComponents
                 for s=1:length(train)
-                    score(k)=score(k)+obj.evaluateModelComplexity(train{s},test{s},k);
+                    score(k)=score(k)+LearnFunc.ContinuousGMMLearner.evaluateModelComplexity(train{s},test{s},k);
                 end
             end
             
@@ -61,9 +72,7 @@ classdef ContinousGMMLearner<LearnFunc.ParameterLearner
             outMean=gmm.mu';
             outCov=gmm.Sigma;
             outCoeff=gmm.PComponents;
-        end
-    end
-    methods(Static,Access='protected')    
+        end   
         function score=evaluateModelComplexity(trainSet,testSet,k)
             warning('off','stats:gmdistribution:FailedToConverge')
             try

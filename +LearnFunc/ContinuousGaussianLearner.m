@@ -1,12 +1,12 @@
-classdef ContinousGaussianLearner<LearnFunc.ParameterLearner    
+classdef ContinuousGaussianLearner<LearnFunc.ParameterLearner    
     methods
-        function obj=ContinousGaussianLearner(evidenceGenerator)
+        function obj=ContinuousGaussianLearner(evidenceGenerator)
             obj=obj@LearnFunc.ParameterLearner(evidenceGenerator);
         end
         
         function CPD=getConnectionNodeCPD(obj,network,nodeNumber,fromClass,toClass)
             assert(~isempty(obj.data.(fromClass).(toClass).mean),...
-                'Continous2DLearner:getConnectionNodeCPD:missingConnectionData',...
+                'Continuous2DLearner:getConnectionNodeCPD:missingConnectionData',...
                 'The requested classes have too few cooccurences to generate a CPD');
             CPD=gaussian_CPD(network,nodeNumber,'mean',obj.data.(fromClass).(toClass).mean,...
                 'cov',obj.data.(fromClass).(toClass).cov);

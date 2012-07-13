@@ -1,8 +1,11 @@
 %% Parameters
 
 datasetPath='Dataset/NYU';
-occurrenceStates={'0','1','2+'};
+% occurrenceStates={'0','1','2+'};
+occurrenceStates={'0','1+'};
 valueMatrix=[0 -1;-0.5 1];
+% valueMatrix=[0 -0.5;-1 1];
+% valueMatrix=[0 -1;-0.3 1];
 % valueMatrix=[1 -1;-1 1];
 
 %% Initialise

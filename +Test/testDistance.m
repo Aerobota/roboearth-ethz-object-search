@@ -7,15 +7,16 @@ learnFunction='gmm';
 % learnFunction='gaussian';
 
 %% load data
+disp('loading data')
 dataPath='Dataset/NYU';
 im=DataHandlers.NYUDataStructure(dataPath,'train','gt');
 im.load();
 
 %% learn location parameters
 if strcmpi(learnFunction,'gmm')
-    ll=LearnFunc.ContinousGMMLearner(evidenceGenerator);
+    ll=LearnFunc.ContinuousGMMLearner(evidenceGenerator);
 else
-	ll=LearnFunc.ContinousGaussianLearner(evidenceGenerator);
+	ll=LearnFunc.ContinuousGaussianLearner(evidenceGenerator);
 end
 tic
 ll.learnParameters(im);

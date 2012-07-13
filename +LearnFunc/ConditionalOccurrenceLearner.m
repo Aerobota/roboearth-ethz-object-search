@@ -75,6 +75,12 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
 %                     [booleanMargP,~]=obj.computeESS(data,[],1:length(data),'all');
                     [booleanCPComplete,~]=obj.computeESS(data,goodIndices,1:length(data),'single');
                     [booleanMargP,~]=obj.computeESS(data,cs,1:length(data),'single');
+                    
+%                     disp(booleanCPComplete)
+%                     disp(booleanMargP)
+%                     
+%                     error('stop')
+                    dependencies.(classes{cs}).margP=booleanMargP;
                     dependencies.(classes{cs}).condProb=obj.cleanBooleanCP(booleanCPComplete,booleanMargP);
                                         
                     tmpSize=size(dependencies.(classes{cs}).condProb);
@@ -98,6 +104,9 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
         end
         function [boolCP,margP]=computeESS(obj,data,currentIndices,subsetIndices,mode)
             cp=obj.evidenceGenerator.getEvidence(data,currentIndices,subsetIndices,mode);
+%             if strcmpi(mode,'single')
+%                 disp(cp)
+%             end
             margP=sum(cp,1)/(sum(cp(:))/size(cp,ndims(cp)));
             cp=cp./(repmat(sum(cp,1),[size(cp,1) ones(1,ndims(cp)-1)])+eps);
             tmpSize=size(cp);

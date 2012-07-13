@@ -22,11 +22,17 @@ classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
                 nClasses=length(data.getClassNames());
                 cop=zeros([repmat(length(obj.states),[1 length(targetClasses)+1]) nClasses]);
                 extender=repmat(1:length(targetClasses),[nClasses 1]);
+                s=size(cop);
             else
-                cop=zeros(repmat(length(obj.states),[1 length(targetClasses)]));
+                if length(targetClasses)==1
+                    cop=zeros(length(obj.states),1);
+                    s=length(cop);
+                else
+                    cop=zeros(repmat(length(obj.states),[1 length(targetClasses)]));
+                    s=size(cop);
+                end
             end
             
-            s=size(cop);
             k=cumprod([1 s(1:end-1)])';
             
             bufferIndex=0;

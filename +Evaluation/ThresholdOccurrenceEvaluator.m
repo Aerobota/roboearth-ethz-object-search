@@ -2,14 +2,17 @@ classdef ThresholdOccurrenceEvaluator<Evaluation.OccurrenceEvaluator
     %COSTOPTIMALEVALUATOR Summary of this class goes here
     %   Detailed explanation goes here
     
-    properties(SetAccess='protected')
-        thresholds
-    end
+%     properties(SetAccess='protected')
+%         thresholds
+%     end
     
     methods
-        function obj=ThresholdOccurrenceEvaluator(evidenceGenerator,nrOfThresholds)
+%         function obj=ThresholdOccurrenceEvaluator(evidenceGenerator,nrOfThresholds)
+%             obj=obj@Evaluation.OccurrenceEvaluator(evidenceGenerator);
+%             obj.thresholds=linspace(0,1,nrOfThresholds)';
+%         end
+        function obj=ThresholdOccurrenceEvaluator(evidenceGenerator)
             obj=obj@Evaluation.OccurrenceEvaluator(evidenceGenerator);
-            obj.thresholds=linspace(0,1,nrOfThresholds)';
         end
     end
     methods(Access='protected')

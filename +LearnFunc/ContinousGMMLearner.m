@@ -6,12 +6,6 @@ classdef ContinousGMMLearner<LearnFunc.ParameterLearner
     methods
         function obj=ContinousGMMLearner(evidenceGenerator)
             obj=obj@LearnFunc.ParameterLearner(evidenceGenerator);
-%             for c=1:length(obj.classes)
-%                 for o=1:length(obj.classes)
-%                     obj.data.(obj.classes{c}).(obj.classes{o}).mean=[];
-%                     obj.data.(obj.classes{c}).(obj.classes{o}).cov=[];
-%                 end
-%             end
         end
         
         function CPD=getConnectionNodeCPD(obj,network,nodeNumber,fromClass,toClass)
@@ -25,7 +19,6 @@ classdef ContinousGMMLearner<LearnFunc.ParameterLearner
     end
     methods(Access='protected')
         function evaluateOrderedSamples(obj,samples,classes)
-%             obj.data.samples=samples;
             for i=1:length(classes)
                 for j=1:length(classes)
                     if size(samples{i,j},1)>=obj.minSamples;

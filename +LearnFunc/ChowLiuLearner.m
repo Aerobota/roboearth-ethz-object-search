@@ -10,10 +10,6 @@ classdef ChowLiuLearner<LearnFunc.StructureLearner
         function obj=ChowLiuLearner(mutualInformationEngine)
             obj.mutInfEngine=mutualInformationEngine;
         end
-%         function obj=ChowLiuLearner(classes,mutualInformationEngine)
-%             obj=obj@LearnFunc.StructureLearner(classes);
-%             obj.mutInfEngine=mutualInformationEngine;
-%         end
         function dependencies=learnStructure(obj,data)
             pmi=obj.mutInfEngine.mutualInformation(data);
             adjacency=obj.generateChowLiu(pmi);

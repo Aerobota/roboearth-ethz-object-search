@@ -66,7 +66,6 @@ classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
         function cBins=bufferCBins(obj,data)
             nClasses=length(data.getClassNames());
             cBins=zeros(nClasses,length(data));
-%             name2indAll=LearnFunc.EvidenceGenerator.generateIndexLookup(classes);
             for s=1:length(data)
                 objects={data.getObject(s).name}';
                 counts=zeros(1,nClasses);

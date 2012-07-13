@@ -26,7 +26,6 @@ classdef LocationEvidenceGenerator<LearnFunc.EvidenceGenerator
     methods(Access='protected')
         function samples=orderRelativeEvidenceSamples(obj,images)
             classes=images.getClassNames();
-%             name2ind=LearnFunc.EvidenceGenerator.generateIndexLookup(classes);
             samples=cell(length(classes),length(classes));
             for i=1:length(images)
                 evidence=obj.getRelativeEvidence(images,i);
@@ -44,7 +43,6 @@ classdef LocationEvidenceGenerator<LearnFunc.EvidenceGenerator
         end
         function samples=orderAbsoluteEvidenceSamples(obj,images)
             classes=images.getClassNames();
-%             name2ind=LearnFunc.EvidenceGenerator.generateIndexLookup(classes);
             samples=cell(length(classes),length(classes));
             for i=1:length(images)
                 evidence=obj.getAbsoluteEvidence(images,i);

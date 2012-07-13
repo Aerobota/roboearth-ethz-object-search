@@ -18,10 +18,6 @@ classdef ParameterLearner<LearnFunc.Learner
     end
     
     methods
-%         function obj=ParameterLearner(classes,evidenceGenerator)
-%             obj=obj@LearnFunc.Learner(classes);
-%             obj.evidenceGenerator=evidenceGenerator;
-%         end
         function obj=ParameterLearner(evidenceGenerator)
             obj.evidenceGenerator=evidenceGenerator;
         end

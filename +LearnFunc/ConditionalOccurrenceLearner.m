@@ -5,26 +5,12 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
         valueMatrix % valueMatrix=[trueNegativ falseNegativ;falsePositiv truePositiv]
     end
     
-    properties(Constant)
-%         % valueMatrix=[trueNegativ falseNegativ;falsePositiv truePositiv]
-%         valueMatrix=[0 -1;-0.5 1]
-% %         valueMatrix=[1 -1;-1 1] 
+    properties(Constant) 
         nrSplits=10
         maxParents=10
     end
     
     methods
-%         function obj=ConditionalOccurrenceLearner(classes,evidenceGenerator,largeClasses,maxParents,valueMatrix)
-%             obj=obj@LearnFunc.StructureLearner(classes);
-%             obj.evidenceGenerator=evidenceGenerator;
-%             
-%             [~,obj.largeIndex]=ismember(largeClasses,obj.classes);
-%             obj.smallIndex=1:length(obj.classes);
-%             obj.smallIndex(obj.largeIndex)=[];
-%             
-%             obj.maxParents=maxParents;
-%             obj.valueMatrix=valueMatrix;
-%         end
         function obj=ConditionalOccurrenceLearner(evidenceGenerator,smallClasses,valueMatrix)
             obj.evidenceGenerator=evidenceGenerator;
             
@@ -71,15 +57,9 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
                 end
                 if ~isempty(goodIndices)
                     dependencies.(classes{cs}).parents=classes(goodIndices(2:end));
-%                     [booleanCPComplete,~]=obj.computeESS(data,goodIndices(1:end-1),1:length(data),'all');
-%                     [booleanMargP,~]=obj.computeESS(data,[],1:length(data),'all');
+                    
                     [booleanCPComplete,~]=obj.computeESS(data,goodIndices,1:length(data),'single');
                     [booleanMargP,~]=obj.computeESS(data,cs,1:length(data),'single');
-                    
-%                     disp(booleanCPComplete)
-%                     disp(booleanMargP)
-%                     
-%                     error('stop')
                     dependencies.(classes{cs}).margP=booleanMargP;
                     dependencies.(classes{cs}).condProb=obj.cleanBooleanCP(booleanCPComplete,booleanMargP);
                                         
@@ -104,15 +84,9 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
         end
         function [boolCP,margP]=computeESS(obj,data,currentIndices,subsetIndices,mode)
             cp=obj.evidenceGenerator.getEvidence(data,currentIndices,subsetIndices,mode);
-%             if strcmpi(mode,'single')
-%                 disp(cp)
-%             end
             margP=sum(cp,1)/(sum(cp(:))/size(cp,ndims(cp)));
             cp=cp./(repmat(sum(cp,1),[size(cp,1) ones(1,ndims(cp)-1)])+eps);
             tmpSize=size(cp);
-%             boolCP=zeros([tmpSize(1)-1 tmpSize(2:end)]);
-%             boolCP(1:size(boolCP,1):numel(boolCP))=cp(1:size(cp,1):numel(cp));
-%             boolCP(2:size(boolCP,1):numel(boolCP))=sum(cp(2:end,:),1);
             boolCP=zeros([2 tmpSize(2:end)]);
             boolCP(1,:)=cp(1,:);
             boolCP(2,:)=sum(cp(2:end,:),1);
@@ -123,18 +97,8 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
             tmpCP=booleanCP(:,:);
             tmpDecisionCP=booleanDecisionCP(:,:);
             tmpMargP=margP(1,:);
-            
-%             if any(tmpMargP(1,sum(tmpCP,1)==0)>0)
-%                 disp(tmpMargP(1,sum(tmpCP,1)==0))
-%                 error('stop')
-%             end
-            
             tmpCoeff=size(tmpCP,2)/length(eu);
-%             [~,maxI]=max(tmpDecisionCP,[],1);
             optDec=obj.computeCostOptimalDecisions(tmpDecisionCP);
-%             minI=3-maxI;
-%             euCond=tmpCP(maxI+(0:size(tmpCP,2)-1)*size(tmpCP,1)).*obj.selectVal(obj.valueMatrix,maxI,maxI)+...
-%                 tmpCP(minI+(0:size(tmpCP,2)-1)*size(tmpCP,1)).*obj.selectVal(obj.valueMatrix,maxI,minI);
             euCond=obj.computeExpectedUtilityConditional(tmpCP,optDec);
             eu=sum(reshape(euCond.*tmpMargP,[tmpCoeff length(eu)]),1);
         end
@@ -159,13 +123,6 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
         end
         
         function out=cleanBooleanCP(boolCP,boolMargP)
-%             s=size(boolCP);
-%             if length(s)<=2
-%                 out=zeros([s(1:end-1) 1]);
-%             else
-%                 out=zeros(s(1:end-1));
-%             end
-%             out(:)=boolCP((index-1)*prod(s(1:end-1))+1:index*prod(s(1:end-1)));
             out=boolCP;
             zeroIndexes=sum(out(:,:),1)==0;
             out(:,zeroIndexes)=boolMargP(:,ones(1,sum(zeroIndexes)));

@@ -14,11 +14,6 @@ classdef OccurrenceEvidenceGenerator<LearnFunc.EvidenceGenerator
         function indices=getStateIndices(obj,counts)
             assert(size(counts,1)==1,'PairwiseProbability:getStateIndices:matrixSize',...
                 'Counts has to be a row vector.');
-%             logical=cell2mat(cellfun(@(x) x(counts),obj.comparer,'UniformOutput',false));
-
-%             logicalCell=cellfun(@(x) x(counts),obj.comparer,'UniformOutput',false);
-%             logical=vertcat(logicalCell{:});
-%             [indices,~]=find(logical);
 
             indices=zeros(length(counts),1);
             for i=1:length(obj.comparer)
@@ -37,13 +32,7 @@ classdef OccurrenceEvidenceGenerator<LearnFunc.EvidenceGenerator
             for s=1:length(states)
                 minMax=regexp(states{s},'-','split');
                 if length(minMax)==2
-%                     if isnan(str2double(minMax{1}))
-%                         % '-n' case
-%                         comparer{s}=@(x) x<=str2double(minMax{2});
-%                         thisMin=0;
-%                         thisMax=minMax{2};
-%                     else
-                        % 'n-m' case
+                    % 'n-m' case
                     tmp(2,1)=str2double(minMax{2});
                     tmp(1,1)=str2double(minMax{1});
                     lowerBound=min(tmp);
@@ -51,7 +40,6 @@ classdef OccurrenceEvidenceGenerator<LearnFunc.EvidenceGenerator
                     comparer{s}=@(x) x>=lowerBound & x<=upperBound;
                     thisMin=min(tmp);
                     thisMax=max(tmp);
-%                     end
                 else
                     nPlus=regexp(states{s},'+','split');
                     if length(nPlus)==2

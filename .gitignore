@@ -1,6 +1,7 @@
 #ignore temporary files
 *~
 tmp*
+*.asv
 
 #ignore hidden files
 .*

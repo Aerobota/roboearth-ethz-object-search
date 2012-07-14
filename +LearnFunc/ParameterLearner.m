@@ -23,6 +23,7 @@ classdef ParameterLearner<LearnFunc.Learner
         end
         function learnParameters(obj,images)
             samples=obj.evidenceGenerator.getEvidence(images,'relative');
+            obj.data.samples=samples;
             obj.evaluateOrderedSamples(samples,images.getClassNames);
         end
     end

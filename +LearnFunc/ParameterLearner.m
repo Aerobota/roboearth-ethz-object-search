@@ -11,6 +11,7 @@ classdef ParameterLearner<LearnFunc.Learner
     
     methods(Abstract)
         CPD=getConnectionNodeCPD(obj,network,nodeNumber,fromClass,toClass);
+        prob=getProbabilityFromEvidence(obj,evidence,fromClass,toClass);
     end
     
     methods(Abstract,Access='protected')
@@ -27,6 +28,5 @@ classdef ParameterLearner<LearnFunc.Learner
             obj.evaluateOrderedSamples(samples,images.getClassNames);
         end
     end
-    
 end
 

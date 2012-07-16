@@ -28,12 +28,9 @@ classdef CylindricEvidenceGenerator<LearnFunc.LocationEvidenceGenerator
 
             pos=[tmpX(:)';tmpY(:)';ones(1,numel(tmpX))];
             pos=images.getCalib(index)\pos;
-
+            
             for d=1:3
-                for c=1:size(tmpX,2)
-                    pos(d,(c-1)*size(tmpX,1)+1:c*size(tmpX,1))=pos(d,(c-1)*size(tmpX,1)+1:c*size(tmpX,1)).*...
-                        depthImage(tmpX(:,c)'+(tmpY(:,c)'-1)*size(tmpX,1));
-                end
+                pos(d,:)=pos(d,:).*depthImage(tmpX(:)'+(tmpY(:)'-1)*size(tmpX,1));
             end
         end
     end

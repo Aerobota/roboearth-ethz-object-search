@@ -1,8 +1,8 @@
 %% parameters
 
-dataPath='Dataset/NYU';
+datasetPath='Dataset/NYU';
 
-%evidenceGenerator=LearnFunc.VerticalDistanceEvidenceGenerator();
+% evidenceGenerator=LearnFunc.VerticalDistanceEvidenceGenerator();
 evidenceGenerator=LearnFunc.CylindricEvidenceGenerator();
 
 learnFunction='gmm';
@@ -10,7 +10,7 @@ learnFunction='gmm';
 
 %% load data
 disp('loading data')
-im=DataHandlers.NYUDataStructure(dataPath,'train','gt');
+im=DataHandlers.NYUDataStructure(datasetPath,'train','gt');
 im.load();
 
 %% learn location parameters

@@ -9,12 +9,20 @@ classdef ContinuousGMMLearner<LearnFunc.ParameterLearner
         end
         
         function CPD=getConnectionNodeCPD(obj,network,nodeNumber,fromClass,toClass)
-            assert(~isempty(obj.data.(fromClass).(toClass).mean),...
-                'Continuous2DLearner:getConnectionNodeCPD:missingConnectionData',...
+            assert(isfield(obj.data.(fromClass),toClass),... %~isempty(obj.data.(fromClass).(toClass).mean)
+                'ParameterLearner:missingConnectionData',...
                 'The requested classes have too few cooccurences to generate a CPD');
             CPD(1)=gaussian_CPD(network,nodeNumber(1),'mean',obj.data.(fromClass).(toClass).mean,...
                 'cov',obj.data.(fromClass).(toClass).cov);
             CPD(2)=tabular_CPD(network,nodeNumber(2),'CPT',obj.data.(fromClass).(toClass).mixCoeff);
+        end
+        
+        function prob=getProbabilityFromEvidence(obj,evidence,fromClass,toClass)
+            assert(isfield(obj.data.(fromClass),toClass),... %~isempty(obj.data.(fromClass).(toClass).gmm)
+                'ParameterLearner:missingConnectionData',...
+                'The requested classes have too few cooccurences to generate a probability');
+            prob=obj.data.(fromClass).(toClass).gmm.pdf(evidence);
+%             error('ParameterLearner:notImplemented','This method is not implemented yet');
         end
     end
     methods(Access='protected')

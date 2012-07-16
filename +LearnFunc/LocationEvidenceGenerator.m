@@ -16,16 +16,29 @@ classdef LocationEvidenceGenerator<LearnFunc.EvidenceGenerator
             error('LocationEvidenceGenerator:getEvidence:wrongInput',...
                 'The varargin argument has to be ''relative'' or ''absolute''.')
         end
+        
+        function evidence=getEvidenceForImage(obj,data,index,baseClasses)
+            allNames={data.getObject(index).name};
+            baseIndices=ismember(allNames,baseClasses);
+            evidence.names=allNames(baseIndices);
+            
+            objectPos=obj.getPositionEvidence(data,index);
+            objectPos=objectPos(:,baseIndices);
+            
+            searchedPos=obj.getPositionForImage(data,index);
+            
+            evidence.relEvi=obj.getRelativeEvidence(objectPos,searchedPos);
+        end
     end
-    
-%     methods(Abstract,Static)
-%         evidence=getEvidenceForImage(data,index,baseClasses)
-%     end
     
     methods(Abstract,Static,Access='protected')
         evidence=getRelativeEvidence(sourcePos,targetPos)
         evidence=getAbsoluteEvidence(pos)
         pos=getPositionEvidence(images,index)
+        pos=getPositionForImage(images,index)
+    end
+    methods(Abstract,Static)
+        distance=evidence2Distance(evidence)
     end
     
     methods(Access='protected')

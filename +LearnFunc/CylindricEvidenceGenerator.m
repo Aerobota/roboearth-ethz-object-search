@@ -1,8 +1,6 @@
 classdef CylindricEvidenceGenerator<LearnFunc.LocationEvidenceGenerator
     methods(Static,Access='protected')
         function evidence=getRelativeEvidence(sourcePos,targetPos)
-%             pos=LearnFunc.CylindricEvidenceGenerator.getPositionEvidence(images,index);
-
             for d=3:-1:1
                 dist(:,:,d)=bsxfun(@minus,sourcePos(d,:)',targetPos(d,:));
             end
@@ -11,7 +9,6 @@ classdef CylindricEvidenceGenerator<LearnFunc.LocationEvidenceGenerator
             evidence(:,:,1)=sqrt(dist(:,:,2).^2+dist(:,:,3).^2);
         end
         function evidence=getAbsoluteEvidence(pos)
-%             pos=LearnFunc.CylindricEvidenceGenerator.getPositionEvidence(images,index);
             relEvi=LearnFunc.CylindricEvidenceGenerator.getRelativeEvidence(pos,pos);
             evidence=repmat(pos,[1 1 size(pos,2)]);
             evidence=permute(evidence,[2,3,1]);
@@ -23,10 +20,4 @@ classdef CylindricEvidenceGenerator<LearnFunc.LocationEvidenceGenerator
             pos=[images.getObject(index).pos];
         end
     end
-    
-%     methods(Static)
-%         function evidence=getEvidenceForImage(data,index,baseClasses)
-%             tmpObjects
-%         end
-%     end
 end

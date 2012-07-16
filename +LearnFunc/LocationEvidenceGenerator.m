@@ -18,9 +18,14 @@ classdef LocationEvidenceGenerator<LearnFunc.EvidenceGenerator
         end
     end
     
+%     methods(Abstract,Static)
+%         evidence=getEvidenceForImage(data,index,baseClasses)
+%     end
+    
     methods(Abstract,Static,Access='protected')
-        evidence=getRelativeEvidence(images,index)
-        evidence=getAbsoluteEvidence(images,index)
+        evidence=getRelativeEvidence(sourcePos,targetPos)
+        evidence=getAbsoluteEvidence(pos)
+        pos=getPositionEvidence(images,index)
     end
     
     methods(Access='protected')
@@ -28,7 +33,8 @@ classdef LocationEvidenceGenerator<LearnFunc.EvidenceGenerator
             classes=images.getClassNames();
             samples=cell(length(classes),length(classes));
             for i=1:length(images)
-                evidence=obj.getRelativeEvidence(images,i);
+                pos=obj.getPositionEvidence(images,i);
+                evidence=obj.getRelativeEvidence(pos,pos);
                 
                 ind=images.className2Index({images.getObject(i).name});
                 for o=1:length(ind)
@@ -43,8 +49,8 @@ classdef LocationEvidenceGenerator<LearnFunc.EvidenceGenerator
             classes=images.getClassNames();
             samples=cell(length(classes),length(classes));
             for i=1:length(images)
-                evidence=obj.getAbsoluteEvidence(images,i);
-                
+                pos=obj.getPositionEvidence(images,i);
+                evidence=obj.getAbsoluteEvidence(pos);
                 
                 ind=images.className2Index({images.getObject(i).name});
                 for o=1:length(ind)

@@ -7,6 +7,8 @@ classdef DataStructure<handle
         data
         storageName
         classes
+        classesLarge
+        classesSmall
         class2ind
     end
     
@@ -125,6 +127,19 @@ classdef DataStructure<handle
             end
             names=obj.classes;
         end
+        
+        function names=getLargeClassNames(obj)
+            if isempty(obj.classesLarge)
+                obj.loadClasses();
+            end
+            names=obj.classesLarge;
+        end
+        function names=getSmallClassNames(obj)
+            if isempty(obj.classesSmall)
+                obj.loadClasses();
+            end
+            names=obj.classesSmall;
+        end
     
         function out=getFilename(obj,i)
             out=obj.data(i).filename;
@@ -193,9 +208,12 @@ classdef DataStructure<handle
             tmpPath=fullfile(obj.path,obj.catFileName);
             assert(exist(tmpPath,'file')==2,'The file %s is missing.',tmpPath);
             in=load(tmpPath);
-            for i=length(in.names):-1:1
-                obj.classes{i}=in.names{i};
-            end
+            obj.classes=in.names;
+            obj.classesLarge=in.largeNames;
+            obj.classesSmall=in.smallNames;
+%             for i=length(in.names):-1:1
+%                 obj.classes{i}=in.names{i};
+%             end
             
             obj.generateClassIndexLookup();
         end

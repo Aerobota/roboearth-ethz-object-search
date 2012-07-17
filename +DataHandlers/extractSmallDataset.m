@@ -39,7 +39,9 @@ function extractSmallDataset(inpath,outpath)
     end
 
     names=classes;
-    save(fullfile(outpath,DataHandlers.SunDataStructure.catFileName),'names');
+    smallNames=DataHandlers.extractSmallClasses(classes);
+    largeNames=setdiff(classes,smallNames);
+    save(fullfile(outpath,DataHandlers.SunDataStructure.catFileName),'names','smallNames','largeNames');
 end
 
 function getSceneData(scenes,input,output)

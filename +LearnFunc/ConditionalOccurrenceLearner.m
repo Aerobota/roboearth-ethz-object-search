@@ -1,6 +1,5 @@
 classdef ConditionalOccurrenceLearner<LearnFunc.Learner
     properties(SetAccess='protected')
-        smallClasses
         valueMatrix % valueMatrix=[trueNegativ falseNegativ;falsePositiv truePositiv]
     end
     
@@ -10,10 +9,8 @@ classdef ConditionalOccurrenceLearner<LearnFunc.Learner
     end
     
     methods
-        function obj=ConditionalOccurrenceLearner(evidenceGenerator,smallClasses,valueMatrix)
+        function obj=ConditionalOccurrenceLearner(evidenceGenerator,valueMatrix)
             obj=obj@LearnFunc.Learner(evidenceGenerator);
-            
-            obj.smallClasses=smallClasses;
             
             obj.valueMatrix=valueMatrix;
         end
@@ -23,9 +20,9 @@ classdef ConditionalOccurrenceLearner<LearnFunc.Learner
         end
         
         function learn(obj,data)
-            % get classes and indices of small indices
+            % get classes and indices of small classes
             classes=data.getClassNames();
-            smallIndex=data.className2Index(obj.smallClasses);
+            smallIndex=data.className2Index(data.getSmallClassNames());
             
             % generate dataset splits
             for i=obj.nrSplits:-1:1

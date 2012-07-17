@@ -17,17 +17,17 @@ classdef LocationEvidenceGenerator<LearnFunc.EvidenceGenerator
                 'The varargin argument has to be ''relative'' or ''absolute''.')
         end
         
-        function evidence=getEvidenceForImage(obj,data,index,baseClasses)
+        function evidence=getEvidenceForImage(obj,data,index)
             allNames={data.getObject(index).name};
-            baseIndices=ismember(allNames,baseClasses);
+            baseIndices=ismember(allNames,data.getLargeClassNames());
             evidence.names=allNames(baseIndices);
             
             objectPos=obj.getPositionEvidence(data,index);
             objectPos=objectPos(:,baseIndices);
             
-            searchedPos=obj.getPositionForImage(data,index);
+            evidence.absEvi=obj.getPositionForImage(data,index);
             
-            evidence.relEvi=obj.getRelativeEvidence(objectPos,searchedPos);
+            evidence.relEvi=obj.getRelativeEvidence(objectPos,evidence.absEvi);
         end
     end
     

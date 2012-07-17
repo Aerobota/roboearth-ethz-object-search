@@ -17,11 +17,10 @@ dataTest=DataHandlers.NYUDataStructure(datasetPath,'test');
 dataTest.load();
 
 classes=dataTrain.getClassNames;
-classesSmall=classes([1 2 7 9 10 12 14 16 18 22 25 26 32 33 35 36 37 38 39]);
 
 evidenceGenerator=LearnFunc.CooccurrenceEvidenceGenerator(occurrenceStates);
 
-learner=LearnFunc.ConditionalOccurrenceLearner(evidenceGenerator,classesSmall,valueMatrix);
+learner=LearnFunc.ConditionalOccurrenceLearner(evidenceGenerator,valueMatrix);
 
 evaluatorOpt=Evaluation.CostOptimalOccurrenceEvaluator();
 evaluatorThresh=Evaluation.ThresholdOccurrenceEvaluator();

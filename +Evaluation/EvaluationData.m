@@ -1,4 +1,4 @@
-classdef OccurrenceEvaluationData
+classdef EvaluationData
     
     properties(SetAccess='protected')
         names
@@ -17,7 +17,7 @@ classdef OccurrenceEvaluationData
     end
     
     methods
-        function obj=OccurrenceEvaluationData(names,truePos,falsePos,pos,neg,baseline)
+        function obj=EvaluationData(names,truePos,falsePos,pos,neg,baseline)
             obj.issummed=1+(size(truePos,2)==1);
             obj.names=names;
             obj.tpRate=truePos./pos(ones(size(truePos,1),1),:);

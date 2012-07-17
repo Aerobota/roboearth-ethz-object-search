@@ -66,6 +66,8 @@ function tmp_names=extractGoodClasses(labels,tmp_names,outPath)
     end
     tmp_names=tmp_names(counts>100)';
     tmpSave.names=tmp_names;
+    tmpSave.smallNames=DataHandlers.extractSmallClasses(tmp_names);
+    tmpSave.largeNames=setdiff(tmp_names,tmpSave.smallNames);
     save(fullfile(outPath,DataHandlers.NYUDataStructure.catFileName),'-struct','tmpSave');
 end
 

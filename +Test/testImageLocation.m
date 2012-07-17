@@ -16,10 +16,8 @@ data.load();
 %% Get evidence
 
 classes=data.getClassNames;
-classesSmall=classes([1 2 7 9 10 12 14 16 18 22 25 26 32 33 35 36 37 38 39]);
-baseClasses=setdiff(classes,classesSmall);
 
-evidence=ll.evidenceGenerator.getEvidenceForImage(data,imageNr,baseClasses);
+evidence=ll.evidenceGenerator.getEvidenceForImage(data,imageNr);
 
 distance=ll.evidenceGenerator.evidence2Distance(evidence.relEvi);
 minDist=zeros(data.getImagesize(imageNr).nrows,data.getImagesize(imageNr).ncols);
@@ -79,3 +77,8 @@ if doAnimation
     end
     movie(m,3,1)
 end
+
+%% Run evaluator
+
+eval=Evaluation.LocationEvaluator(baseClasses);
+result=eval.evaluate(data,ll);

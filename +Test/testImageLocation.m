@@ -1,15 +1,16 @@
 %% Parameters
 
-imageNr=150;
+imageNr=1;
 targetClass='bottle';
+doAnimation=false;
 
 %% Init
 
-if exist('ll','var')~=1 || ~isa(ll,'LearnFunc.ParameterLearner')
+if exist('ll','var')~=1 || ~isa(ll,'LearnFunc.Learner')
     error('Need to run Test.testDistance first')
 end
 
-data=DataHandlers.NYUDataStructure(datasetPath,'test','gt');
+data=DataHandlers.NYUDataStructure(datasetPath,'test');
 data.load();
 
 %% Get evidence
@@ -17,8 +18,6 @@ data.load();
 classes=data.getClassNames;
 classesSmall=classes([1 2 7 9 10 12 14 16 18 22 25 26 32 33 35 36 37 38 39]);
 baseClasses=setdiff(classes,classesSmall);
-
-% disp(intersect(classesSmall,{data.getObject(imageNr).name}));
 
 evidence=ll.evidenceGenerator.getEvidenceForImage(data,imageNr,baseClasses);
 
@@ -33,7 +32,7 @@ for o=1:size(evidence.relEvi,1)
     try
         probVec(o,:)=ll.getProbabilityFromEvidence(squeeze(evidence.relEvi(o,:,:)),evidence.names{o},targetClass);
     catch tmpError
-        if strcmpi(tmpError.identifier,'ParameterLearner:missingConnectionData')
+        if strcmpi(tmpError.identifier,'Learner:missingConnectionData')
             goodObjects(o)=false;
         else
             tmpError.rethrow();
@@ -70,11 +69,13 @@ subplot(2,2,4)
 imshow(data.getColourImage(imageNr).*uint8(gtLocation(:,:,[1 1 1])))
 title(['groundtruth location for all ' targetClass])
 
-figure()
-for f=size(probVec,1):-1:1
-    tmpProbMat(:)=probVec(f,:);
-    imshow(tmpProbMat,[min(min(tmpProbMat)) max(max(tmpProbMat))])
-    text(4,4,evidence.names{f},'BackgroundColor','w','VerticalAlignment','top','margin',3)
-    m(f)=getframe;
+if doAnimation
+    figure()
+    for f=size(probVec,1):-1:1
+        tmpProbMat(:)=probVec(f,:);
+        imshow(tmpProbMat,[min(min(tmpProbMat)) max(max(tmpProbMat))])
+        text(4,4,evidence.names{f},'BackgroundColor','w','VerticalAlignment','top','margin',3)
+        m(f)=getframe;
+    end
+    movie(m,3,1)
 end
-movie(m,3,1)

@@ -4,18 +4,16 @@ classdef NYUDataStructure<DataHandlers.DataStructure
     properties(Constant)
         imageFolder='image'
         catFileName='objectCategories.mat'
-        trainSet='Train'
-        testSet='Test'
-        gt='groundTruth'
-        det='detections'
+        testSet='groundTruthTest'
+        trainSet='groundTruthTrain'
     end
     
     methods
-        function obj=NYUDataStructure(path,testOrTrain,gtOrDet,preallocationSize)
-            if nargin<4
+        function obj=NYUDataStructure(path,testOrTrain,preallocationSize)
+            if nargin<3
                 preallocationSize=0;
             end
-            obj=obj@DataHandlers.DataStructure(path,testOrTrain,gtOrDet,preallocationSize);
+            obj=obj@DataHandlers.DataStructure(path,testOrTrain,preallocationSize);
         end
         function load(obj)
             filePath=fullfile(obj.path,[obj.storageName '.mat']);
@@ -37,16 +35,10 @@ classdef NYUDataStructure<DataHandlers.DataStructure
     %% Protected Methods for File Conversion
     methods(Access='protected')
         function name=getStorageName(obj)
-            if strcmpi(obj.setChooser{2},'gt')
-                name=obj.gt;
+            if strcmpi(obj.setChooser,'train')
+                name=obj.trainSet;
             else
-                name=obj.det;
-            end
-            
-            if strcmpi(obj.setChooser{1},'train')
-                name=[name obj.trainSet];
-            else
-                name=[name obj.testSet];
+                name=obj.testSet;
             end
         end
         

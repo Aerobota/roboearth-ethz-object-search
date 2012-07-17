@@ -9,18 +9,17 @@ classdef SunDataStructure<DataHandlers.DataStructure
     properties(Constant)
         imageFolder='Images'
         catFileName='sun09_objectCategories.mat'
-        trainSet='raining'
-        testSet='est'
-        gt={'Dt' 'sun09_groundTruth'}
-        det={'DdetectorT' 'sun09_detectorOutputs'}
+        testSet='Dtest'
+        trainSet='Dtraining'
+        storageFile='sun09_groundTruth'
     end
     
     methods
-        function obj=SunDataStructure(path,testOrTrain,gtOrDet,preallocationSize)
-            if nargin<4
+        function obj=SunDataStructure(path,testOrTrain,preallocationSize)
+            if nargin<3
                 preallocationSize=0;
             end
-            obj=obj@DataHandlers.DataStructure(path,testOrTrain,gtOrDet,preallocationSize);
+            obj=obj@DataHandlers.DataStructure(path,testOrTrain,preallocationSize);
             
             while(isempty(obj.myObjectFolder))
                 tmpFolder=fullfile(tempdir,'Sun09tmp',char(randperm(6)+96));
@@ -35,23 +34,12 @@ classdef SunDataStructure<DataHandlers.DataStructure
                 'The file %s doesn''t exist.',filePath)
             loaded=load(filePath,obj.getObjectSubfolderName());
             tmpData=loaded.(obj.getObjectSubfolderName());
-            hasScore=isfield(tmpData(1).annotation.object,'confidence');
-            hasOverlap=isfield(tmpData(1).annotation.object,'detection');
             for i=length(tmpData):-1:1
+                tmpObject=DataHandlers.ObjectStructure.empty();
                 for o=length(tmpData(i).annotation.object):-1:1
-                    if hasScore
-                        tmpScore=tmpData(i).annotation.object(o).confidence;
-                    else
-                        tmpScore=[];
-                    end
-                    if hasOverlap
-                        tmpOverlap=double(tmpData(i).annotation.object(o).detection);
-                    else
-                        tmpOverlap=1;
-                    end
                     tmpObject(o)=DataHandlers.ObjectStructure(tmpData(i).annotation.object(o).name,...
-                        tmpScore,tmpOverlap,tmpData(i).annotation.object(o).polygon.x,...
-                        tmpData(i).annotation.object(o).polygon.y);
+                        double(tmpData(i).annotation.object(o).polygon.x),...
+                        double(tmpData(i).annotation.object(o).polygon.y));
                 end
                 obj.addImage(i,tmpData(i).annotation.filename,'',tmpData(i).annotation.folder,...
                     tmpData(i).annotation.imagesize,tmpObject,[]);
@@ -70,8 +58,6 @@ classdef SunDataStructure<DataHandlers.DataStructure
                 tmpObjects=obj.getObject(i);
                 for o=length(tmpObjects):-1:1
                     tmpStruct(1,i).annotation.object(o).name=tmpObjects(o).name;
-                    tmpStruct(1,i).annotation.object(o).confidence=tmpObjects(o).score;
-                    tmpStruct(1,i).annotation.object(o).detection=tmpObjects(o).overlap>=0.5;
                     tmpStruct(1,i).annotation.object(o).polygon=tmpObjects(o).polygon;
                 end
             end
@@ -92,23 +78,14 @@ classdef SunDataStructure<DataHandlers.DataStructure
     %% Protected Methods
     methods(Access='protected')        
         function name=getStorageName(obj)
-            if strcmpi(obj.setChooser{2},'gt')
-                name=obj.gt{2};
-            else
-                name=obj.det{2};
-            end
+            name=obj.storageFile;
         end
         
         function name=getObjectSubfolderName(obj)
-            if strcmpi(obj.setChooser{2},'gt')
-                name=obj.gt{1};
+            if strcmpi(obj.setChooser,'train')
+                name=obj.trainSet;
             else
-                name=obj.det{1};
-            end
-            if strcmpi(obj.setChooser{1},'train')
-                name=[name obj.trainSet];
-            else
-                name=[name obj.testSet];
+                name=obj.testSet;
             end
         end
         

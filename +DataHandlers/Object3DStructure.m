@@ -8,15 +8,15 @@ classdef Object3DStructure<DataHandlers.ObjectStructure
     end
     
     methods
-        function obj=Object3DStructure(name,score,overlap,polygonX,polygonY,depth,calib)
+        function obj=Object3DStructure(name,polygonX,polygonY,depth,calib)
             if nargin==0
                 superClassArgs=cell(1,0);
             else
-                superClassArgs={name,score,overlap,polygonX,polygonY};
+                superClassArgs={name,polygonX,polygonY};
             end
             obj=obj@DataHandlers.ObjectStructure(superClassArgs{:});
             
-            if nargin>=6
+            if nargin>=5
                 if isvector(depth) && isvector(calib)
                     assert(isnumeric(depth) && length(depth)==3,'DataStructure:wrongInput',...
                         'The depth argument must be a vector of length 3 representing the 3D-coordinates of the object.')

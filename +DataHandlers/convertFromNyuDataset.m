@@ -1,6 +1,5 @@
-function convertFromNyuDataset(nyuPath,sunPath,targetPath)
-            convertNyu(nyuPath,targetPath);
-            generateNegativeDataSet(sunPath,targetPath);
+function convertFromNyuDataset(nyuPath,targetPath)
+    convertNyu(nyuPath,targetPath);
 end
 
 function convertNyu(inPath,outPath)
@@ -72,14 +71,14 @@ end
 
 function extractObjects(split,imageNames,depthNames,labels,allNames,goodClasses,outPath,tmp_depthFolder)
     disp('extracting training set')
-    data=DataHandlers.NYUDataStructure(outPath,'train','gt');
+    data=DataHandlers.NYUDataStructure(outPath,'train');
     extractImageSet(data,imageNames(1,split),depthNames(1,split),labels(:,:,split),allNames,goodClasses,tmp_depthFolder);
     data.save();
 
     clear('data')
 
     disp('extracting test set')
-    data=DataHandlers.NYUDataStructure(outPath,'test','gt');
+    data=DataHandlers.NYUDataStructure(outPath,'test');
     extractImageSet(data,imageNames(1,~split),depthNames(1,~split),labels(:,:,~split),allNames,goodClasses,tmp_depthFolder);
     data.save();
 end
@@ -150,76 +149,10 @@ function object=detectObjects(labels,allNames,goodIndices,depth,calib)
         tmp=[min(row) max(row);min(col) max(col)];
         px=[tmp(1,1) tmp(1,1) tmp(1,2) tmp(1,2)];
         py=[tmp(2,1) tmp(2,2) tmp(2,2) tmp(2,1)];
-        object(o)=DataHandlers.Object3DStructure(allNames{myLabel(1)},[],1,px,py,depth,calib);
+        object(o)=DataHandlers.Object3DStructure(allNames{myLabel(1)},px,py,depth,calib);
         if min(abs(tmp(:,1)-tmp(:,2)))<5
             goodInstances(o)=false;
         end
     end
     object=object(goodInstances);
 end
-
-function generateNegativeDataSet(inpath,outpath)
-    scenesNegativeDataset={'outdoor','road','street','mountain'};
-    maxNum=600;
-
-    dataPacks=DataHandlers.SunDataStructure(inpath,'train','gt');
-    
-    output=DataHandlers.SunDataStructure(outpath,'train','gt');
-    
-    dataPacks.load();
-    getSceneData(scenesNegativeDataset,dataPacks,output,maxNum);
-    disp('loaded data')
-
-    
-    getImageFiles(output,inpath,outpath);
-    disp('copied image files')
-
-    if ~exist(outpath,'dir')
-        mkdir(outpath);
-    end
-    
-    output.save();
-
-    [~,~,~]=copyfile(fullfile(inpath,dataPacks.catFileName),...
-        fullfile(outpath,output.catFileName));
-end
-
-function getSceneData(scenes,input,output,maxNum)
-    sceneSelection=false(size(input));
-    count=0;
-    for i=1:length(input)
-        for s=1:length(scenes)
-            if ~isempty(strfind(input.getFilename(i),scenes{s}))
-                sceneSelection(i)=true;
-                count=count+1;
-            end
-            if count>=maxNum
-                break
-            end
-        end
-    end
-    
-    cIndex=1;
-    for i=1:length(input)
-        if sceneSelection(i)
-            output.addImage(cIndex,input.getFilename(i),input.getDepthname(i),...
-                input.getFolder(i),input.getImagesize(i),input.getObject(i),input.getCalib(i));
-            cIndex=cIndex+1;
-        end
-    end
-end
-
-function getImageFiles(data,inPath,outPath)
-    for i=1:length(data)
-        inImg=fullfile(inPath,data.imageFolder,data.getFolder(i),data.getFilename(i));
-        outDir=fullfile(outPath,DataHandlers.NYUDataStructure.imageFolder,data.getFolder(i));
-        outImg=fullfile(outDir,data.getFilename(i));
-        if exist(inImg,'file') && ~exist(outImg,'file')
-            if ~exist(outDir,'dir')
-                [~,~,~]=mkdir(outDir);
-            end
-            [~,~,~]=copyfile(inImg,outImg);
-        end
-    end
-end
-

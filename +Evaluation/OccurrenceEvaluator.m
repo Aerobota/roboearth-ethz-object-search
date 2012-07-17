@@ -1,4 +1,4 @@
-classdef OccurrenceEvaluator
+classdef OccurrenceEvaluator<Evaluation.Evaluator
     %OCCURRENCEEVALUATOR Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -6,19 +6,11 @@ classdef OccurrenceEvaluator
         evidenceGenerator
     end
     
-    properties(Constant)
-        thresholds=linspace(0,1,200)';
-    end
-    
     methods
-        function obj=OccurrenceEvaluator(evidenceGenerator)
-            obj.evidenceGenerator=evidenceGenerator;
-        end
-        
-        function result=evaluate(obj,testData,dependencies)
-            [tpFull,fpFull,posFull,negFull]=obj.calculateStatistics(testData,dependencies,'full');
-            [tpBase,fpBase,posBase,negBase]=obj.calculateStatistics(testData,dependencies,'baseline');
-            myNames=fieldnames(dependencies);
+        function result=evaluate(obj,testData,occurrenceLearner)
+            [tpFull,fpFull,posFull,negFull]=obj.calculateStatistics(testData,occurrenceLearner,'full');
+            [tpBase,fpBase,posBase,negBase]=obj.calculateStatistics(testData,occurrenceLearner,'baseline');
+            myNames=occurrenceLearner.getLearnedClasses();
 
             tmpBaseline=Evaluation.OccurrenceEvaluationData(myNames,...
                 sum(tpBase,2),sum(fpBase,2),sum(posBase,2),sum(negBase,2));
@@ -37,7 +29,7 @@ classdef OccurrenceEvaluator
     
     methods(Access='protected')
         function [truePositives,falsePositives,positives,negatives]=...
-                calculateStatistics(obj,testData,dependencies,mode)
+                calculateStatistics(obj,testData,occLearner,mode)
             
             if strcmpi(mode,'baseline')
                 calcBaseline=true;
@@ -45,7 +37,7 @@ classdef OccurrenceEvaluator
                 calcBaseline=false;
             end
             
-            myNames=fieldnames(dependencies);
+            myNames=occLearner.getLearnedClasses();
             
             truePositives=[];
             falsePositives=[];
@@ -56,19 +48,19 @@ classdef OccurrenceEvaluator
                 if calcBaseline
                     searchIndices=testData.className2Index(myNames{i});
                 else
-                    searchIndices=testData.className2Index([myNames(i) dependencies.(myNames{i}).parents]);
+                    searchIndices=testData.className2Index([myNames(i) occLearner.model.(myNames{i}).parents]);
                 end
                 
-                evidence=obj.evidenceGenerator.getEvidence(testData,searchIndices,1:length(testData),'single');
+                evidence=occLearner.evidenceGenerator.getEvidence(testData,searchIndices,1:length(testData),'single');
                 tmpSize=size(evidence);
                 boolEvidence=zeros([2 tmpSize(2:end)]);
                 boolEvidence(1,:)=evidence(1,:);
                 boolEvidence(2,:)=sum(evidence(2:end,:),1);
                 
                 if calcBaseline
-                    decisions=obj.decisionBaseline(dependencies.(myNames{i}).margP);
+                    decisions=obj.decisionBaseline(occLearner.model.(myNames{i}).margP);
                 else
-                    decisions=obj.decisionImpl(dependencies.(myNames{i}));
+                    decisions=obj.decisionImpl(occLearner.model.(myNames{i}));
                 end
                 
                 neg=repmat(boolEvidence(1,:),[size(decisions,1) 1]);

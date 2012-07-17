@@ -10,7 +10,7 @@ learnFunction='gmm';
 
 %% load data
 disp('loading data')
-im=DataHandlers.NYUDataStructure(datasetPath,'train','gt');
+im=DataHandlers.NYUDataStructure(datasetPath,'train');
 im.load();
 
 %% learn location parameters
@@ -20,5 +20,5 @@ else
 	ll=LearnFunc.ContinuousGaussianLearner(evidenceGenerator);
 end
 tic
-ll.learnParameters(im);
+ll.learn(im);
 learnTime=toc

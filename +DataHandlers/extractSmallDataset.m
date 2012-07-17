@@ -1,15 +1,11 @@
 function extractSmallDataset(inpath,outpath)
     scenesSmallDataset={'kitchen';'office'};
     
-    dataPacks{1}=DataHandlers.SunDataStructure(inpath,'train','gt');
-    dataPacks{2}=DataHandlers.SunDataStructure(inpath,'train','det');
-    dataPacks{3}=DataHandlers.SunDataStructure(inpath,'test','gt');
-    dataPacks{4}=DataHandlers.SunDataStructure(inpath,'test','det');
+    dataPacks{1}=DataHandlers.SunDataStructure(inpath,'train');
+    dataPacks{2}=DataHandlers.SunDataStructure(inpath,'test');
     
-    output{1}=DataHandlers.SunDataStructure(outpath,'train','gt');
-    output{2}=DataHandlers.SunDataStructure(outpath,'train','det');
-    output{3}=DataHandlers.SunDataStructure(outpath,'test','gt');
-    output{4}=DataHandlers.SunDataStructure(outpath,'test','det');
+    output{1}=DataHandlers.SunDataStructure(outpath,'train');
+    output{2}=DataHandlers.SunDataStructure(outpath,'test');
 
     for i=1:length(dataPacks)
         dataPacks{i}.load();
@@ -19,26 +15,21 @@ function extractSmallDataset(inpath,outpath)
     end
 
     classes=dataPacks{1}.getClassNames();
-    for i=1:round(length(dataPacks)/2)
-        classes=cleanClasses(output{2*i},output{2*i-1},classes);
+    for i=1:length(dataPacks)
+        classes=cleanClasses(output{i},classes);
     end
     disp('cleaned classes')
-
-    for i=1:round(length(dataPacks)/2)
-        [output{2*i},output{2*i-1}]=cleanImages(output{2*i},output{2*i-1},classes);
-    end
-    disp('cleaned images')
-
-    for i=1:length(output)
-        getImageFiles(output{i},inpath,outpath);
-    end
-    disp('copied image files')
 
     for i=1:length(output)
         output{i}=cleanObjects(output{i},classes);
     end
     disp('cleaned objects')
 
+    for i=1:length(output)
+        getImageFiles(output{i},inpath,outpath);
+    end
+    disp('copied image files')
+    
     if ~exist(outpath,'dir')
         mkdir(outpath);
     end
@@ -71,23 +62,12 @@ function getSceneData(scenes,input,output)
     end
 end
 
-function classes=cleanClasses(det,gt,classes)
-    occCount=zeros(size(classes));
+function classes=cleanClasses(gt,classes)
     gtCount=zeros(size(classes));
-    for i=1:length(det)
-        occCount=occCount+ismember(classes,{det.getObject(i).name});
+    for i=1:length(gt)
         gtCount=gtCount+ismember(classes,{gt.getObject(i).name});
     end
-    classes=classes(gtCount>9 & occCount>max(occCount)*0.9);
-end
-
-function [det,gt]=cleanImages(det,gt,classes)
-    imageComplete=true(size(det));
-    for i=1:length(det)
-        imageComplete(i)=all(ismember(classes,{det.getObject(i).name}));
-    end
-    det.reduceDataStructure(imageComplete);
-    gt.reduceDataStructure(imageComplete);
+    classes=classes(gtCount>9);
 end
 
 function getImageFiles(data,inPath,outPath)
@@ -105,9 +85,14 @@ function getImageFiles(data,inPath,outPath)
 end
 
 function data=cleanObjects(data,classes)
+    goodData=true(size(data));
     for i=1:length(data)
         tmpObject=data.getObject(i);
         tmpObject=tmpObject(ismember({tmpObject.name},classes));
+        if isempty(tmpObject)
+            goodData(i)=false;
+        end
         data.setObject(tmpObject,i);
     end
+    data.reduceDataStructure(goodData);
 end

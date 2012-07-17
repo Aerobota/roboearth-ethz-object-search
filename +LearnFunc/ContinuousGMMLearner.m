@@ -1,32 +1,29 @@
-classdef ContinuousGMMLearner<LearnFunc.ParameterLearner
+classdef ContinuousGMMLearner<LearnFunc.Learner
     properties(Constant)
         maxComponents=3;
     end
     
     methods
         function obj=ContinuousGMMLearner(evidenceGenerator)
-            obj=obj@LearnFunc.ParameterLearner(evidenceGenerator);
-        end
-        
-        function CPD=getConnectionNodeCPD(obj,network,nodeNumber,fromClass,toClass)
-            assert(isfield(obj.data.(fromClass),toClass),... %~isempty(obj.data.(fromClass).(toClass).mean)
-                'ParameterLearner:missingConnectionData',...
-                'The requested classes have too few cooccurences to generate a CPD');
-            CPD(1)=gaussian_CPD(network,nodeNumber(1),'mean',obj.data.(fromClass).(toClass).mean,...
-                'cov',obj.data.(fromClass).(toClass).cov);
-            CPD(2)=tabular_CPD(network,nodeNumber(2),'CPT',obj.data.(fromClass).(toClass).mixCoeff);
+            obj=obj@LearnFunc.Learner(evidenceGenerator);
         end
         
         function prob=getProbabilityFromEvidence(obj,evidence,fromClass,toClass)
-            assert(isfield(obj.data.(fromClass),toClass),... %~isempty(obj.data.(fromClass).(toClass).gmm)
-                'ParameterLearner:missingConnectionData',...
+            assert(isfield(obj.model.(fromClass),toClass),...
+                'Learner:missingConnectionData',...
                 'The requested classes have too few cooccurences to generate a probability');
-            prob=obj.data.(fromClass).(toClass).gmm.pdf(evidence);
-%             error('ParameterLearner:notImplemented','This method is not implemented yet');
+            if isvector(evidence)
+                if size(evidence,1)==1
+                    evidence=evidence';
+                end
+            end
+            prob=obj.model.(fromClass).(toClass).gmm.pdf(evidence);
         end
-    end
-    methods(Access='protected')
-        function evaluateOrderedSamples(obj,samples,classes)
+        
+        function learn(obj,data)
+            samples=obj.evidenceGenerator.getEvidence(data,'relative');
+            obj.model.samples=samples;
+            classes=data.getClassNames();
             slicedSamples=cell(size(samples,1),1);
             slicedOutput=cell(length(classes),1);
             for i=1:length(slicedSamples)
@@ -34,7 +31,7 @@ classdef ContinuousGMMLearner<LearnFunc.ParameterLearner
             end
             parfor i=1:length(classes)
                 for j=1:length(classes)
-                    if size(slicedSamples{i}{j},1)>=LearnFunc.ParameterLearner.minSamples;
+                    if size(slicedSamples{i}{j},1)>=obj.minSamples;
                         [tmpMean,tmpCov,tmpCoeff,tmpGMM]=LearnFunc.ContinuousGMMLearner.doGMM(slicedSamples{i}{j});
                         slicedOutput{i}.(classes{j}).mean=tmpMean;
                         slicedOutput{i}.(classes{j}).cov=tmpCov;
@@ -46,7 +43,7 @@ classdef ContinuousGMMLearner<LearnFunc.ParameterLearner
                 disp(['finished with class ' classes{i}])
             end
             for i=1:length(classes)
-                obj.data.(classes{i})=slicedOutput{i};
+                obj.model.(classes{i})=slicedOutput{i};
             end
         end
     end

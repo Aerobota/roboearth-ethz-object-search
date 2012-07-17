@@ -52,7 +52,7 @@ function data=removeAliasesSun(data,alias)
                 tmpName=alias.(tmpName);
             catch
             end
-            tmpObjects(o)=DataHandlers.ObjectStructure(tmpName,tmpObjects(o).score,tmpObjects(o).overlap,...
+            tmpObjects(o)=DataHandlers.ObjectStructure(tmpName,...
                 tmpObjects(o).polygon.x,tmpObjects(o).polygon.y);
         end
         data.setObject(tmpObjects,i);

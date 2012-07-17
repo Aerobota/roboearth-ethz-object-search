@@ -8,10 +8,6 @@ tmp*
 
 #ignore folders
 Dataset/*
-AnnotationTool/*
-ObjectDetector/*
-Models/*
 
 #exception files
 !.gitignore
-!ObjectDetector/globals.m

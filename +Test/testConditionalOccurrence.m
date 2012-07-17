@@ -10,10 +10,10 @@ valueMatrix=[0 -1;-0.5 1];
 
 %% Initialise
 
-dataTrain=DataHandlers.NYUDataStructure(datasetPath,'train','gt');
+dataTrain=DataHandlers.NYUDataStructure(datasetPath,'train');
 dataTrain.load();
 
-dataTest=DataHandlers.NYUDataStructure(datasetPath,'test','gt');
+dataTest=DataHandlers.NYUDataStructure(datasetPath,'test');
 dataTest.load();
 
 classes=dataTrain.getClassNames;
@@ -23,17 +23,17 @@ evidenceGenerator=LearnFunc.CooccurrenceEvidenceGenerator(occurrenceStates);
 
 learner=LearnFunc.ConditionalOccurrenceLearner(evidenceGenerator,classesSmall,valueMatrix);
 
-evaluatorOpt=Evaluation.CostOptimalOccurrenceEvaluator(evidenceGenerator);
-evaluatorThresh=Evaluation.ThresholdOccurrenceEvaluator(evidenceGenerator);
+evaluatorOpt=Evaluation.CostOptimalOccurrenceEvaluator();
+evaluatorThresh=Evaluation.ThresholdOccurrenceEvaluator();
 
 %% Learn probabilities
 
-dependencies=learner.learnStructure(dataTrain);
+learner.learn(dataTrain);
 
 %% Evaluate Test Images
 
-resultOpt=evaluatorOpt.evaluate(dataTest,dependencies);
-resultThresh=evaluatorThresh.evaluate(dataTest,dependencies);
+resultOpt=evaluatorOpt.evaluate(dataTest,learner);
+resultThresh=evaluatorThresh.evaluate(dataTest,learner);
 
 figure()
 resultOpt.perClass.drawROC('receiver operating characteristic for optimal value');

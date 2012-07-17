@@ -7,7 +7,6 @@ classdef DataStructure<handle
         data
         storageName
         classes
-        nameIndex
         class2ind
     end
     
@@ -25,11 +24,9 @@ classdef DataStructure<handle
     %% Abstract Methods and Properties
     properties(Abstract,Constant)
         imageFolder
-        trainSet
-        testSet
-        gt
-        det
         catFileName
+        testSet
+        trainSet
     end
     
     methods(Abstract)
@@ -45,19 +42,16 @@ classdef DataStructure<handle
     
     %% Data Loading
     methods
-        function obj=DataStructure(path,testOrTrain,gtOrDet,preallocationSize)
+        function obj=DataStructure(path,testOrTrain,preallocationSize)
             assert(any(strcmpi(testOrTrain,{'test','train'})),'DataStructure:wrongInput',...
                 'The testOrTrain argument must be ''test'' or ''train''.')
-            assert(any(strcmpi(gtOrDet,{'gt','det'})),'DataStructure:wrongInput',...
-                'The gtOrDet argument must be ''gt'' or ''det''.')
-            
             
             tmpCell=cell(1,preallocationSize);
             obj.data=struct('filename',tmpCell,'depthname',tmpCell,...
                 'folder',tmpCell,'imagesize',tmpCell,'calib',tmpCell,'objectPath',tmpCell);%,'object',tmpCell
             
             obj.path=path;
-            obj.setChooser={testOrTrain gtOrDet};
+            obj.setChooser=testOrTrain;
             obj.storageName=obj.getStorageName();
         end
         function addImage(obj,index,filename,depthname,folder,imagesize,object,calib)
@@ -101,11 +95,6 @@ classdef DataStructure<handle
             l=length(obj.data);
         end
         
-        function index=imageName2Index(obj,name)
-            [~,index]=ismember(name,{obj.data.filename});
-            assert(index>0,'Image %s doesn''t exist in this dataset',name);
-        end
-        
         function index=className2Index(obj,name)
             if isempty(obj.classes)
                 obj.loadClasses();
@@ -120,14 +109,6 @@ classdef DataStructure<handle
             end
         end
         
-        function writeNameListFile(obj,nameListFile)
-            fid=fopen(nameListFile,'wt');
-            for n=1:length(obj)
-                fprintf(fid,'%s\n',obj.getFilename(n));
-            end
-            fclose(fid);            
-        end
-        
         function reduceDataStructure(obj,indexer)
             toRemove=1:length(obj);
             toRemove(indexer)=[];
@@ -135,11 +116,6 @@ classdef DataStructure<handle
                 obj.removeObject(i);
             end
             obj.data=obj.data(indexer);
-        end
-        
-        function addData(obj,otherDataStructure)
-            assert(isa(otherDataStructure,'DataHandlers.DataStructure'));
-            obj.data=[obj.data otherDataStructure.data];
         end
         
         %% Get Functions
@@ -230,51 +206,5 @@ classdef DataStructure<handle
             end
         end
     end
-    
-    %% Utility Functions
-    methods(Static)
-        function overlap=computeOverlap(detObjects,gtObjects,mode)
-            assert(ismember(mode,{'complete','exclusive'}),'DataStructure:wrongInput',...
-                'The mode argument must be ''complete'' or ''exclusive''.')
-            if strcmp(mode,'complete')
-                modeComplete=true;
-            else
-                modeComplete=false;
-            end
-            
-            overlap=zeros(size(detObjects));
-            for i=1:length(gtObjects)
-                if ~modeComplete
-                    maxOverlap=0;
-                    maxIndex=0;
-                end
-                gtBB=[min(gtObjects(i).polygon.x) max(gtObjects(i).polygon.x);...
-                    min(gtObjects(i).polygon.y) max(gtObjects(i).polygon.y)];
-                for j=1:length(detObjects)
-                    if strcmpi(detObjects(j).name,gtObjects(i).name)
-                        detBB=[min(detObjects(j).polygon.x) max(detObjects(j).polygon.x);...
-                            min(detObjects(j).polygon.y) max(detObjects(j).polygon.y)];
-                        unionArea=max(min(gtBB(1,2),detBB(1,2))-max(gtBB(1,1),detBB(1,1)),0)*...
-                            max(min(gtBB(2,2),detBB(2,2))-max(gtBB(2,1),detBB(2,1)),0);
-                        tmpOverlap=unionArea/((gtBB(1,2)-gtBB(1,1))*(gtBB(2,2)-gtBB(2,1))+...
-                            (detBB(1,2)-detBB(1,1))*(detBB(2,2)-detBB(2,1))-unionArea);
-                        
-                        if modeComplete
-                            overlap(j)=max(overlap(j),tmpOverlap);
-                        elseif maxOverlap<tmpOverlap
-                            maxOverlap=tmpOverlap;
-                            maxIndex=j;
-                        end
-                    end
-                end
-                if ~modeComplete
-                    if maxIndex>0
-                        overlap(maxIndex)=maxOverlap;
-                    end
-                end
-            end
-        end
-    end
-    
 end
 

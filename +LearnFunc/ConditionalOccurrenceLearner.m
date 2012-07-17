@@ -1,6 +1,5 @@
-classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
+classdef ConditionalOccurrenceLearner<LearnFunc.Learner
     properties(SetAccess='protected')
-        evidenceGenerator
         smallClasses
         valueMatrix % valueMatrix=[trueNegativ falseNegativ;falsePositiv truePositiv]
     end
@@ -12,14 +11,18 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
     
     methods
         function obj=ConditionalOccurrenceLearner(evidenceGenerator,smallClasses,valueMatrix)
-            obj.evidenceGenerator=evidenceGenerator;
+            obj=obj@LearnFunc.Learner(evidenceGenerator);
             
             obj.smallClasses=smallClasses;
             
             obj.valueMatrix=valueMatrix;
         end
         
-        function dependencies=learnStructure(obj,data)
+        function prob=getProbabilityFromEvidence(obj,evidence,fromClass,toClass)
+            error('Learner:notImplemented','This method is not implemented yet');
+        end
+        
+        function learn(obj,data)
             % get classes and indices of small indices
             classes=data.getClassNames();
             smallIndex=data.className2Index(obj.smallClasses);
@@ -56,17 +59,17 @@ classdef ConditionalOccurrenceLearner<LearnFunc.StructureLearner
                     end
                 end
                 if ~isempty(goodIndices)
-                    dependencies.(classes{cs}).parents=classes(goodIndices(2:end));
+                    obj.model.(classes{cs}).parents=classes(goodIndices(2:end));
                     
                     [booleanCPComplete,~]=obj.computeESS(data,goodIndices,1:length(data),'single');
                     [booleanMargP,~]=obj.computeESS(data,cs,1:length(data),'single');
-                    dependencies.(classes{cs}).margP=booleanMargP;
-                    dependencies.(classes{cs}).condProb=obj.cleanBooleanCP(booleanCPComplete,booleanMargP);
+                    obj.model.(classes{cs}).margP=booleanMargP;
+                    obj.model.(classes{cs}).condProb=obj.cleanBooleanCP(booleanCPComplete,booleanMargP);
                                         
-                    tmpSize=size(dependencies.(classes{cs}).condProb);
-                    dependencies.(classes{cs}).optimalDecision=zeros([1 tmpSize(2:end)]);
-                    dependencies.(classes{cs}).optimalDecision(:)=...
-                        obj.computeCostOptimalDecisions(dependencies.(classes{cs}).condProb(:,:));
+                    tmpSize=size(obj.model.(classes{cs}).condProb);
+                    obj.model.(classes{cs}).optimalDecision=zeros([1 tmpSize(2:end)]);
+                    obj.model.(classes{cs}).optimalDecision(:)=...
+                        obj.computeCostOptimalDecisions(obj.model.(classes{cs}).condProb(:,:));
                 end
             end
         end

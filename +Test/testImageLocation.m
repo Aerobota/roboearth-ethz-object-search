@@ -44,6 +44,7 @@ end
 probVec=probVec(goodObjects,:);
 
 probMat=zeros(data.getImagesize(imageNr).nrows,data.getImagesize(imageNr).ncols);
+tmpProbMat=probMat;
 probMat(:)=prod(probVec,1);
 
 gtLocation=false(size(probMat));
@@ -68,3 +69,12 @@ title(['probability of finding a ' targetClass])
 subplot(2,2,4)
 imshow(data.getColourImage(imageNr).*uint8(gtLocation(:,:,[1 1 1])))
 title(['groundtruth location for all ' targetClass])
+
+figure()
+for f=size(probVec,1):-1:1
+    tmpProbMat(:)=probVec(f,:);
+    imshow(tmpProbMat,[min(min(tmpProbMat)) max(max(tmpProbMat))])
+    text(4,4,evidence.names{f},'BackgroundColor','w','VerticalAlignment','top','margin',3)
+    m(f)=getframe;
+end
+movie(m,3,1)

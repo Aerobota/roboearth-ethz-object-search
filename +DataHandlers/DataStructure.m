@@ -10,6 +10,8 @@ classdef DataStructure<handle
         classesLarge
         classesSmall
         class2ind
+        
+%         position3DBuffer
     end
     
     properties(SetAccess='protected')
@@ -118,6 +120,29 @@ classdef DataStructure<handle
                 obj.removeObject(i);
             end
             obj.data=obj.data(indexer);
+        end
+        
+        %% Utility Functions
+        
+        function pos=get3DPositionForImage(obj,index)
+%             if length(obj.position3DBuffer)>=index && ~isempty(obj.position3DBuffer{index})
+%                 pos=obj.position3DBuffer{index};
+%             else
+            depthImage=obj.getDepthImage(index);
+
+            [tmpX,tmpY]=meshgrid(1:size(depthImage,1),1:size(depthImage,2));
+            tmpX=tmpX';
+            tmpY=tmpY';
+
+            pos=[tmpX(:)';tmpY(:)';ones(1,numel(tmpX))];
+            pos=obj.getCalib(index)\pos;
+
+            for d=1:3
+                pos(d,:)=pos(d,:).*depthImage(tmpX(:)'+(tmpY(:)'-1)*size(tmpX,1));
+            end
+                
+%                 obj.position3DBuffer{index}=pos;
+%             end
         end
         
         %% Get Functions

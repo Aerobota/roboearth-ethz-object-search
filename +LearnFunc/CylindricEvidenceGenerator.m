@@ -20,18 +20,19 @@ classdef CylindricEvidenceGenerator<LearnFunc.LocationEvidenceGenerator
             pos=[images.getObject(index).pos];
         end
         function pos=getPositionForImage(images,index)
-            depthImage=images.getDepthImage(index);
-
-            [tmpX,tmpY]=meshgrid(1:size(depthImage,1),1:size(depthImage,2));
-            tmpX=tmpX';
-            tmpY=tmpY';
-
-            pos=[tmpX(:)';tmpY(:)';ones(1,numel(tmpX))];
-            pos=images.getCalib(index)\pos;
-            
-            for d=1:3
-                pos(d,:)=pos(d,:).*depthImage(tmpX(:)'+(tmpY(:)'-1)*size(tmpX,1));
-            end
+            pos=images.get3DPositionForImage(index);
+%             depthImage=images.getDepthImage(index);
+% 
+%             [tmpX,tmpY]=meshgrid(1:size(depthImage,1),1:size(depthImage,2));
+%             tmpX=tmpX';
+%             tmpY=tmpY';
+% 
+%             pos=[tmpX(:)';tmpY(:)';ones(1,numel(tmpX))];
+%             pos=images.getCalib(index)\pos;
+%             
+%             for d=1:3
+%                 pos(d,:)=pos(d,:).*depthImage(tmpX(:)'+(tmpY(:)'-1)*size(tmpX,1));
+%             end
         end
     end
     methods(Static)

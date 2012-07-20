@@ -1,7 +1,7 @@
 %% Parameters
 
-imageNr=1;
-targetClass='bottle';
+% imageNr=1;
+% targetClass='bottle';
 doAnimation=false;
 
 %% Init

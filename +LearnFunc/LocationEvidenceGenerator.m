@@ -22,12 +22,12 @@ classdef LocationEvidenceGenerator<LearnFunc.EvidenceGenerator
             baseIndices=ismember(allNames,data.getLargeClassNames());
             evidence.names=allNames(baseIndices);
             
-            objectPos=obj.getPositionEvidence(data,index);
-            objectPos=objectPos(:,baseIndices);
+            evidence.objectPos=obj.getPositionEvidence(data,index);
+            evidence.objectPos=evidence.objectPos(:,baseIndices);
             
             evidence.absEvi=obj.getPositionForImage(data,index);
             
-            evidence.relEvi=obj.getRelativeEvidence(objectPos,evidence.absEvi);
+            evidence.relEvi=obj.getRelativeEvidence(evidence.objectPos,evidence.absEvi);
         end
     end
     

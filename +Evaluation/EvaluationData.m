@@ -37,7 +37,7 @@ classdef EvaluationData
                 obj.baseline.fpRate,obj.baseline.tpRate,'g-',...
                 obj.precisionFPR,obj.precisionTPR,'k--')
 
-            axis([0 1 0 1])
+%             axis([0 1 0 1])
             legend(obj.dataLegend{obj.issummed},'baseline','precision=0.5','location','southeast')
             xlabel('false positive rate')
             ylabel('true positive rate')
@@ -54,7 +54,7 @@ classdef EvaluationData
             plot(obj.tpRate,obj.precision,obj.dataStyle{obj.issummed},...
                 obj.baseline.tpRate,obj.baseline.precision,'g-')
 
-            axis([0 1 0 1])
+%             axis([0 1 0 1])
             legend(obj.dataLegend{obj.issummed},'baseline','location','southeast')
             xlabel('recall')
             ylabel('precision')

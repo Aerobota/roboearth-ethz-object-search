@@ -32,7 +32,8 @@ classdef LocationLearner<LearnFunc.Learner
                         [buffer.probVec,buffer.locVec]=obj.probabilityVector(testData,i,classesSmall(goodClasses));
                     end
                     
-                    str=['save(' fullfile(obj.bufferFolder,['bufferSave_index' num2str(i,obj.formatString) '.mat']) 'buffer'];
+                    str=['save(''' fullfile(obj.bufferFolder,['bufferSave_index' num2str(i,obj.formatString) '.mat']) ''',''buffer'')'];
+                    disp(str)
                     evalin('caller',str);
                 end
                 obj.bufferedTestData=buffer;

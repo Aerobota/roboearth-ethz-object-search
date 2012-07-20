@@ -1,7 +1,7 @@
-classdef ContinuousGaussianLearner<LearnFunc.Learner    
+classdef ContinuousGaussianLearner<LearnFunc.LocationLearner    
     methods
         function obj=ContinuousGaussianLearner(evidenceGenerator)
-            obj=obj@LearnFunc.Learner(evidenceGenerator);
+            obj=obj@LearnFunc.LocationLearner(evidenceGenerator);
         end
         
         function prob=getProbabilityFromEvidence(obj,evidence,fromClass,toClass)

@@ -10,8 +10,11 @@ learnFunction='gmm';
 
 %% load data
 disp('loading data')
-im=DataHandlers.NYUDataStructure(datasetPath,'train');
-im.load();
+trainData=DataHandlers.NYUDataStructure(datasetPath,'train');
+trainData.load();
+
+testData=DataHandlers.NYUDataStructure(datasetPath,'test');
+testData.load();
 
 %% learn location parameters
 if strcmpi(learnFunction,'gmm')
@@ -20,5 +23,11 @@ else
 	ll=LearnFunc.ContinuousGaussianLearner(evidenceGenerator);
 end
 tic
-ll.learn(im);
-learnTime=toc
+ll.learn(trainData);
+learnTime=toc;
+
+%% buffer the evaluation data for the test data
+
+tic
+ll.bufferTestData(testData)
+bufferTime=toc;

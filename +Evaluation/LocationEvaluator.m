@@ -73,29 +73,29 @@ classdef LocationEvaluator<Evaluation.Evaluator
     end
     
     methods(Access='protected')
-        function [probVec,evidence]=probabilityVector(~,data,index,locationLearner,targetClasses)
-            evidence=locationLearner.evidenceGenerator.getEvidenceForImage(data,index);
-
-%             probVec=zeros(size(evidence.relEvi,1),size(evidence.relEvi,2));
-            goodObjects=true(size(evidence.relEvi,1),1);
-
-            for c=1:length(targetClasses)
-                for o=size(evidence.relEvi,1):-1:1
-                    try
-                        probVec.(targetClasses{c})(o,:)=locationLearner.getProbabilityFromEvidence(squeeze(evidence.relEvi(o,:,:)),evidence.names{o},targetClasses{c});
-                    catch tmpError
-                        if strcmpi(tmpError.identifier,'MATLAB:nonExistentField')
-                            goodObjects(o)=false;
-                        else
-                            disp(tmpError.identifier)
-                            tmpError.rethrow();
-                        end
-                    end
-                end
-                probVec.(targetClasses{c})=prod(probVec.(targetClasses{c})(goodObjects,:),1);
-            end
-
-        end
+%         function [probVec,evidence]=probabilityVector(~,data,index,locationLearner,targetClasses)
+%             evidence=locationLearner.evidenceGenerator.getEvidenceForImage(data,index);
+% 
+% %             probVec=zeros(size(evidence.relEvi,1),size(evidence.relEvi,2));
+%             goodObjects=true(size(evidence.relEvi,1),1);
+% 
+%             for c=1:length(targetClasses)
+%                 for o=size(evidence.relEvi,1):-1:1
+%                     try
+%                         probVec.(targetClasses{c})(o,:)=locationLearner.getProbabilityFromEvidence(squeeze(evidence.relEvi(o,:,:)),evidence.names{o},targetClasses{c});
+%                     catch tmpError
+%                         if strcmpi(tmpError.identifier,'MATLAB:nonExistentField')
+%                             goodObjects(o)=false;
+%                         else
+%                             disp(tmpError.identifier)
+%                             tmpError.rethrow();
+%                         end
+%                     end
+%                 end
+%                 probVec.(targetClasses{c})=prod(probVec.(targetClasses{c})(goodObjects,:),1);
+%             end
+% 
+%         end
         
         
         
@@ -125,33 +125,33 @@ classdef LocationEvaluator<Evaluation.Evaluator
             end
         end
         
-        function [goodClasses,goodObjects]=getGoodClassesAndObjects(~,data,index)
-            tmpClasses=data.getSmallClassNames();
-            tmpObjects=data.getObject(index);
-            
-            goodObjects=cell(1,length(tmpObjects));
-            goodClasses=1:length(tmpClasses);
-            goodClassChooser=true(size(goodClasses));
-            for c=goodClasses
-                goodObjects{c}=tmpObjects(ismember({tmpObjects.name},tmpClasses{c}));
-                if isempty(goodObjects{c})
-                    goodClassChooser(c)=false;
-                end
-            end
-            
-            goodClasses=goodClasses(goodClassChooser);
-            
-%             dataIndices=1:length(data);
-%             for i=length(data):-1:1
-%                 goodObjects{i}=data.getObject(index);
-%                 goodObjects{i}=goodObjects{i}(ismember({goodObjects{i}.name},targetClass));
-%                 goodData(i)=~isempty(goodObjects{i});
+%         function [goodClasses,goodObjects]=getGoodClassesAndObjects(~,data,index)
+%             tmpClasses=data.getSmallClassNames();
+%             tmpObjects=data.getObject(index);
+%             
+%             goodObjects=cell(1,length(tmpObjects));
+%             goodClasses=1:length(tmpClasses);
+%             goodClassChooser=true(size(goodClasses));
+%             for c=goodClasses
+%                 goodObjects{c}=tmpObjects(ismember({tmpObjects.name},tmpClasses{c}));
+%                 if isempty(goodObjects{c})
+%                     goodClassChooser(c)=false;
+%                 end
 %             end
 %             
-%             if ~obj.allImages
-%                 dataIndices=dataIndices(goodData);
-%             end   
-        end
+%             goodClasses=goodClasses(goodClassChooser);
+%             
+% %             dataIndices=1:length(data);
+% %             for i=length(data):-1:1
+% %                 goodObjects{i}=data.getObject(index);
+% %                 goodObjects{i}=goodObjects{i}(ismember({goodObjects{i}.name},targetClass));
+% %                 goodData(i)=~isempty(goodObjects{i});
+% %             end
+% %             
+% %             if ~obj.allImages
+% %                 dataIndices=dataIndices(goodData);
+% %             end   
+%         end
     end
 end
 

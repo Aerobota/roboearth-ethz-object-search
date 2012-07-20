@@ -13,7 +13,7 @@ classdef FROCLocationEvaluator<Evaluation.LocationEvaluator
     end
     
     methods(Access='protected')
-        function [tp,fp,pos,neg]=scoreClass(obj,data,locationLearner,targetClass)
+        function [tp,prob,pos,neg]=scoreClass(obj,data,locationLearner,targetClass)
             disp(['running for class ' targetClass])
             
             dataIndices=1:length(data);
@@ -27,22 +27,17 @@ classdef FROCLocationEvaluator<Evaluation.LocationEvaluator
                 dataIndices=dataIndices(goodData);
             end            
             
-            nThresh=length(obj.thresholds);
-            tp=zeros(nThresh,1);
-            fp=zeros(nThresh,1);
+            tp=false(1,0);
+            pointProb=[];
             pos=0;
             neg=0;
             
-            disp(['counting for ' targetClass])
-            
             for i=dataIndices
-                disp(['running image ' num2str(i)])
                 probVec=obj.probabilityVector(data,i,locationLearner,targetClass);
                 locVec=data.get3DPositionForImage(i);
                 [probVec,permIndex]=sort(probVec,'descend');
                 locVec=locVec(:,permIndex);
                 
-%                 available=true(size(probVec));
                 candidatePoints=[];
                 candidateProb=[];
                 while ~isempty(locVec)
@@ -61,17 +56,34 @@ classdef FROCLocationEvaluator<Evaluation.LocationEvaluator
                     truePoints=permute(truePoints,[2 3 1]);
                     inRange=sum((truePoints(:,ones(1,size(candidatePoints,2)),:)-...
                         candidatePoints(ones(1,size(truePoints,1)),:,:)).^2,3)<obj.maxDistance^2;
+                    inRange=inRange&(cumsum(inRange,2)==1|inRange==0);
                 end
                 
-                for t=1:nThresh
-                    tmpInRange=inRange(:,candidateProb>obj.thresholds(t));
-                    tp(t)=tp(t)+sum(any(tmpInRange,2),1);
-                    fp(t)=fp(t)+sum(~any(tmpInRange,1),2);
-                end
-                
-                pos=pos+length(goodObjects{1});
+                tp=[tp any(inRange,1)];
+                pointProb=[pointProb candidateProb];
+
+                pos=pos+length(goodObjects{i});
                 neg=neg+1;
             end
+            
+            [prob,permIndex]=sort(pointProb,'descend');
+            
+            tp=tp(permIndex)';
+            prob=prob';
+%             tpSum=cumsum(tpSort);
+%             fpSum=cumsum(~tpSort);
+%             
+%             selector=[true (tpSort(2:end-1) & ~tpSort(3:end)) true];
+%             
+%             tp=tpSum(selector);
+%             fp=fpSum(selector);
+%             prob=prob(selector);
+% 
+%             tp=tp(round(linspace(1,length(tp),obj.nThresh)));
+%             fp=fp(round(linspace(1,length(fp),obj.nThresh)));
+%             prob=prob(round(linspace(1,length(fp),obj.nThresh)));
+            
+            disp(['finished for ' targetClass])
         end
     end
     

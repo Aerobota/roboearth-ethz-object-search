@@ -6,6 +6,10 @@ classdef OccurrenceEvaluator<Evaluation.Evaluator
         evidenceGenerator
     end
     
+    properties(Constant)
+        thresholds=linspace(0,1,Evaluation.Evaluator.nThresh)';
+    end
+    
     methods
         function result=evaluate(obj,testData,occurrenceLearner)
             [tpFull,fpFull,posFull,negFull]=obj.calculateStatistics(testData,occurrenceLearner,'full');

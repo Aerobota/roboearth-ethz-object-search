@@ -3,7 +3,7 @@ classdef Evaluator
     %   Detailed explanation goes here
     
     properties(Constant)
-        thresholds=linspace(0,1,200)';
+        nThresh=100
     end
     
     methods(Abstract)

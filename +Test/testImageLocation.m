@@ -80,5 +80,6 @@ data.load();
 
 %% Run evaluator
 
-eval=Evaluation.FROCLocationEvaluator(false);
+% eval=Evaluation.FROCLocationEvaluator(false);
+eval=Evaluation.FirstNLocationEvaluator(false);
 result=eval.evaluate(data,ll);

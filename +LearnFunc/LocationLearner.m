@@ -6,10 +6,13 @@ classdef LocationLearner<LearnFunc.Learner
 %         bufferedTestData
         bufferFolder
         formatString
+        nDataPoints
+        classesSmall
     end
     
     properties(Constant)
         bufferPathRoot=fullfile(tempdir,'LocationLearner')
+        bufferFileName='index'
     end
     
     methods
@@ -18,41 +21,35 @@ classdef LocationLearner<LearnFunc.Learner
         end
         
         function bufferTestData(obj,testData)
-            obj.bufferFolder=[];
-            if isempty(obj.bufferFolder)
-                obj.setupBuffer(length(testData));
+            obj.setupBuffer(length(testData));
+            obj.classesSmall=testData.getSmallClassNames();
+            
+            obj.nDataPoints=length(testData);
+%             obj.nClasses=length(classesSmall);
 
-                classesSmall=testData.getSmallClassNames();
-
-    %             buffer=cell(1,length(testData));
-    %             parfor i=1:length(testData)
-                for i=1:4%length(testData)
-                    disp(['collecting data for image ' num2str(i)])
-                    [goodClasses,buffer.goodObjects]=obj.getGoodClassesAndObjects(testData,i);
-                    if ~isempty(goodClasses)
-                        [buffer.probVec,buffer.locVec]=obj.probabilityVector(testData,i,classesSmall(goodClasses));
-                    end
-                    try
-                        warning('something about saving is not working')
-                    save(fullfile(obj.bufferFolder,['index' num2str(i,obj.formatString) '.mat']),'-struct','buffer');
-                    catch
-                    end
+%             warning('only computing the first 20 images')
+            for i=1:length(testData)
+                disp(['collecting data for image ' num2str(i)])
+                buffer=struct;
+                [goodClasses,buffer.goodObjects]=obj.getGoodClassesAndObjects(testData,i);
+                if ~isempty(goodClasses)
+                    [buffer.probVec,buffer.locVec]=obj.probabilityVector(testData,i,obj.classesSmall(goodClasses));
                 end
-%                 obj.bufferedTestData=buffer;
+                save(fullfile(obj.bufferFolder,[obj.bufferFileName num2str(i,obj.formatString) '.mat']),'buffer');
             end
         end
         
         function [probVec,locVec,goodObjects]=getBufferedTestData(obj,index)
-            warning('need a new loading version')
-            probVec=obj.bufferedTestData(index).probVec;
-            locVec=obj.bufferedTestData(index).locVec;
-            goodObjects=obj.bufferedTestData(index).goodObjects;
+            assert(~isempty(obj.bufferFolder),'LocationLearner:notBuffered',...
+                'No data buffered yet, run bufferTestData to buffer data.')
+            load(fullfile(obj.bufferFolder,[obj.bufferFileName num2str(index,obj.formatString) '.mat']),'buffer');
+            probVec=buffer.probVec;
+            locVec=buffer.locVec;
+            goodObjects=buffer.goodObjects;
         end
         
         function delete(obj)
-            disp('mein name ist hase und ich weiss von nichts')
-%             disp(obj.bufferFolder)
-%             [~,~,~]=rmdir(obj.bufferFolder,'s');
+            [~,~,~]=rmdir(obj.bufferFolder,'s');
         end
     end
     
@@ -69,10 +66,10 @@ classdef LocationLearner<LearnFunc.Learner
                     try
                         tmpProbVec{c}(o,:)=obj.getProbabilityFromEvidence(squeeze(evidence.relEvi(o,:,:)),evidence.names{o},targetClasses{c});
                     catch tmpError
-                        if strcmpi(tmpError.identifier,'MATLAB:nonExistentField')
+                        if any(strcmpi(tmpError.identifier,{'MATLAB:nonExistentField','MATLAB:nonStrucReference'}))
                             goodObjects(o)=false;
                         else
-                            disp(tmpError.identifier)
+%                             disp(tmpError.identifier)
                             tmpError.rethrow();
                         end
                     end
@@ -88,17 +85,17 @@ classdef LocationLearner<LearnFunc.Learner
             locVec=evidence.absEvi;
         end
         
-        function [goodClasses,goodObjects]=getGoodClassesAndObjects(~,data,index)
-            tmpClasses=data.getSmallClassNames();
+        function [goodClasses,goodObjects]=getGoodClassesAndObjects(obj,data,index)
+%             tmpClasses=data.getSmallClassNames();
             tmpObjects=data.getObject(index);
             
             goodObjects=struct;
-            goodClasses=1:length(tmpClasses);
+            goodClasses=1:length(obj.classesSmall);
             goodClassChooser=true(size(goodClasses));
             for c=goodClasses
-                tmpChooser=ismember({tmpObjects.name},tmpClasses{c});
+                tmpChooser=ismember({tmpObjects.name},obj.classesSmall{c});
                 if any(tmpChooser)
-                    goodObjects.(tmpClasses{c})=tmpObjects(tmpChooser);
+                    goodObjects.(obj.classesSmall{c})=tmpObjects(tmpChooser);
                 else
                     goodClassChooser(c)=false;
                 end

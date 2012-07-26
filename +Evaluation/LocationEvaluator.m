@@ -21,27 +21,30 @@ classdef LocationEvaluator<Evaluation.Evaluator
             obj.allImages=analyseAllImages;
         end
         
-        function result=evaluate(obj,testData,locationLearner)
-            classesSmall=testData.getSmallClassNames();
+        function result=evaluate(obj,locationLearner)
+%             classesSmall=testData.getSmallClassNames();
             
-            resultCollector=cell(length(testData),length(classesSmall));
-            parfor i=1:length(testData)
-%             for i=1:4%length(testData)
+            resultCollector=cell(locationLearner.nDataPoints,length(locationLearner.classesSmall));
+%             warning('only computing the first 20 images')
+            parfor i=1:locationLearner.nDataPoints
                 disp(['collecting data for image ' num2str(i)])
-                [goodClasses,goodObjects]=obj.getGoodClassesAndObjects(testData,i);
+                [probVec,locVec,goodObjects]=locationLearner.getBufferedTestData(i);
+                goodClasses=1:length(locationLearner.classesSmall);
+                goodClasses=goodClasses(ismember(locationLearner.classesSmall,fieldnames(probVec)));
+%                 [goodClasses,goodObjects]=obj.getGoodClassesAndObjects(testData,i);
                 if ~isempty(goodClasses)
-                    [probVecCollection,tmpEvidence]=obj.probabilityVector(testData,i,locationLearner,classesSmall(goodClasses));
-                    tmpResult=cell(1,length(classesSmall));
+%                     [probVecCollection,tmpEvidence]=obj.probabilityVector(testData,i,locationLearner,classesSmall(goodClasses));
+                    tmpResult=cell(1,length(locationLearner.classesSmall));
                     for c=goodClasses
                         [inRange,candidateProb]=obj.getCandidatePoints(...
-                            probVecCollection.(classesSmall{c}),tmpEvidence.absEvi,[goodObjects{c}.pos]);
+                            probVec.(locationLearner.classesSmall{c}),locVec,[goodObjects.(locationLearner.classesSmall{c}).pos]);
                         tmpResult{1,c}=obj.scoreClass(inRange,candidateProb);
                     end
                     resultCollector(i,:)=tmpResult;
                 end
             end
             
-            result=obj.combineResults(resultCollector,classesSmall);
+            result=obj.combineResults(resultCollector,locationLearner.classesSmall);
 %             classesSmall=testData.getSmallClassNames();
 %             
 %             truePos=cell(1,length(classesSmall));

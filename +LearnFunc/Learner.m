@@ -8,7 +8,7 @@ classdef Learner<handle
     end
     
     properties(Constant)
-        minSamples=2%20
+        minSamples=20
     end
     
     methods(Abstract)

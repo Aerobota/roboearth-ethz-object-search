@@ -16,9 +16,9 @@ trainData.load();
 testData=DataHandlers.NYUDataStructure(datasetPath,'test');
 testData.load();
 
-warning('only working on the first 20 images')
-trainData.reduceDataStructure(1:20);
-testData.reduceDataStructure(1:20);
+% warning('only working on the first 20 images')
+% trainData.reduceDataStructure(1:20);
+% testData.reduceDataStructure(1:20);
 
 %% learn location parameters
 if strcmpi(learnFunction,'gmm')

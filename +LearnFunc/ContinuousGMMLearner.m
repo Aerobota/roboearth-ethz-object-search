@@ -9,9 +9,6 @@ classdef ContinuousGMMLearner<LearnFunc.LocationLearner
         end
         
         function prob=getProbabilityFromEvidence(obj,evidence,fromClass,toClass)
-%             assert(isfield(obj.model.(fromClass),toClass),...
-%                 'Learner:missingConnectionData',...
-%                 'The requested classes have too few cooccurences to generate a probability');
             if isvector(evidence)
                 if size(evidence,1)==1
                     evidence=evidence';

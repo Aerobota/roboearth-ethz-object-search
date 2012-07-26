@@ -3,7 +3,6 @@ classdef LocationLearner<LearnFunc.Learner
     %   Detailed explanation goes here
     
     properties(SetAccess='protected')
-%         bufferedTestData
         bufferFolder
         formatString
         nDataPoints
@@ -21,21 +20,21 @@ classdef LocationLearner<LearnFunc.Learner
         end
         
         function bufferTestData(obj,testData)
-            obj.setupBuffer(length(testData));
-            obj.classesSmall=testData.getSmallClassNames();
-            
-            obj.nDataPoints=length(testData);
-%             obj.nClasses=length(classesSmall);
-
-%             warning('only computing the first 20 images')
-            for i=1:length(testData)
-                disp(['collecting data for image ' num2str(i)])
-                buffer=struct;
-                [goodClasses,buffer.goodObjects]=obj.getGoodClassesAndObjects(testData,i);
-                if ~isempty(goodClasses)
-                    [buffer.probVec,buffer.locVec]=obj.probabilityVector(testData,i,obj.classesSmall(goodClasses));
+            if isempty(obj.bufferFolder)
+                obj.setupBuffer(length(testData));
+                
+                obj.classesSmall=testData.getSmallClassNames();
+                obj.nDataPoints=length(testData);
+                
+                for i=1:length(testData)
+                    disp(['collecting data for image ' num2str(i)])
+                    buffer=struct;
+                    [goodClasses,buffer.goodObjects]=obj.getGoodClassesAndObjects(testData,i);
+                    if ~isempty(goodClasses)
+                        [buffer.probVec,buffer.locVec]=obj.probabilityVector(testData,i,obj.classesSmall(goodClasses));
+                    end
+                    save(fullfile(obj.bufferFolder,[obj.bufferFileName num2str(i,obj.formatString) '.mat']),'buffer');
                 end
-                save(fullfile(obj.bufferFolder,[obj.bufferFileName num2str(i,obj.formatString) '.mat']),'buffer');
             end
         end
         
@@ -57,8 +56,6 @@ classdef LocationLearner<LearnFunc.Learner
         function [probVec,locVec]=probabilityVector(obj,data,index,targetClasses)
             evidence=obj.evidenceGenerator.getEvidenceForImage(data,index);
 
-%             goodObjects=true(size(evidence.relEvi,1),1);
-
             tmpProbVec=cell(1,length(targetClasses));
             parfor c=1:length(targetClasses)
                 goodObjects=true(size(evidence.relEvi,1),1);
@@ -69,7 +66,6 @@ classdef LocationLearner<LearnFunc.Learner
                         if any(strcmpi(tmpError.identifier,{'MATLAB:nonExistentField','MATLAB:nonStrucReference'}))
                             goodObjects(o)=false;
                         else
-%                             disp(tmpError.identifier)
                             tmpError.rethrow();
                         end
                     end
@@ -86,7 +82,6 @@ classdef LocationLearner<LearnFunc.Learner
         end
         
         function [goodClasses,goodObjects]=getGoodClassesAndObjects(obj,data,index)
-%             tmpClasses=data.getSmallClassNames();
             tmpObjects=data.getObject(index);
             
             goodObjects=struct;

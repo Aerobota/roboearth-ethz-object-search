@@ -9,12 +9,18 @@ classdef ContinuousGMMLearner<LearnFunc.LocationLearner
         end
         
         function prob=getProbabilityFromEvidence(obj,evidence,fromClass,toClass)
-            if isvector(evidence)
-                if size(evidence,1)==1
-                    evidence=evidence';
-                end
-            end
-            prob=obj.model.(fromClass).(toClass).gmm.pdf(evidence);
+%             if isfield(obj.model,fromClass)
+%                 if isfield(obj.model.(fromClass),toClass)
+                    if isvector(evidence)
+                        if size(evidence,1)==1
+                            evidence=evidence';
+                        end
+                    end
+                    prob=obj.model.(fromClass).(toClass).gmm.pdf(evidence);
+%                     return
+%                 end
+%             end
+%             prob=[];         
         end
         
         function learn(obj,data)
@@ -30,11 +36,13 @@ classdef ContinuousGMMLearner<LearnFunc.LocationLearner
                 for j=1:length(classes)
                     if size(slicedSamples{i}{j},1)>=obj.minSamples;
                         [tmpMean,tmpCov,tmpCoeff,tmpGMM]=LearnFunc.ContinuousGMMLearner.doGMM(slicedSamples{i}{j});
-                        slicedOutput{i}.(classes{j}).mean=tmpMean;
-                        slicedOutput{i}.(classes{j}).cov=tmpCov;
-                        slicedOutput{i}.(classes{j}).mixCoeff=tmpCoeff;
-                        slicedOutput{i}.(classes{j}).gmm=tmpGMM;
-                        slicedOutput{i}.(classes{j}).nrSamples=size(slicedSamples{i}{j},1);
+                        if ~isempty(tmpMean)
+                            slicedOutput{i}.(classes{j}).mean=tmpMean;
+                            slicedOutput{i}.(classes{j}).cov=tmpCov;
+                            slicedOutput{i}.(classes{j}).mixCoeff=tmpCoeff;
+                            slicedOutput{i}.(classes{j}).gmm=tmpGMM;
+                            slicedOutput{i}.(classes{j}).nrSamples=size(slicedSamples{i}{j},1);
+                        end
                     end
                 end
                 disp(['finished with class ' classes{i}])

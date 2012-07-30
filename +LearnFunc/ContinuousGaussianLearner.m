@@ -5,10 +5,16 @@ classdef ContinuousGaussianLearner<LearnFunc.LocationLearner
         end
         
         function prob=getProbabilityFromEvidence(obj,evidence,fromClass,toClass)
-            assert(isfield(obj.data.(fromClass),toClass),... %~isempty(obj.data.(fromClass).(toClass).mean)
-                'Learner:missingConnectionData',...
-                'The requested classes have too few cooccurences to generate a probability');
-            prob=mvnpdf(evidence,obj.data.(fromClass).(toClass).mean,obj.data.(fromClass).(toClass).cov);
+%             if isfield(obj.model,fromClass)
+%                 if isfield(obj.model.(fromClass),toClass)
+%             assert(isfield(obj.data.(fromClass),toClass),... %~isempty(obj.data.(fromClass).(toClass).mean)
+%                 'Learner:missingConnectionData',...
+%                 'The requested classes have too few cooccurences to generate a probability');
+                    prob=mvnpdf(evidence,obj.data.(fromClass).(toClass).mean,obj.data.(fromClass).(toClass).cov);
+%                     return
+%                 end
+%             end
+%             prob=[];
         end
         
         function learn(obj,data)

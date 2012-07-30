@@ -9,18 +9,12 @@ classdef ContinuousGMMLearner<LearnFunc.LocationLearner
         end
         
         function prob=getProbabilityFromEvidence(obj,evidence,fromClass,toClass)
-%             if isfield(obj.model,fromClass)
-%                 if isfield(obj.model.(fromClass),toClass)
-                    if isvector(evidence)
-                        if size(evidence,1)==1
-                            evidence=evidence';
-                        end
-                    end
-                    prob=obj.model.(fromClass).(toClass).gmm.pdf(evidence);
-%                     return
-%                 end
-%             end
-%             prob=[];         
+            if isvector(evidence)
+                if size(evidence,1)==1
+                    evidence=evidence';
+                end
+            end
+            prob=obj.model.(fromClass).(toClass).gmm.pdf(evidence);
         end
         
         function learn(obj,data)

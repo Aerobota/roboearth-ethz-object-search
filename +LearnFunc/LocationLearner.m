@@ -4,6 +4,7 @@ classdef LocationLearner<LearnFunc.Learner
     
     properties(SetAccess='protected')
         bufferFolder
+        bufferingComplete
         formatString
         nDataPoints
         classesSmall
@@ -17,10 +18,11 @@ classdef LocationLearner<LearnFunc.Learner
     methods
         function obj=LocationLearner(evidenceGenerator)
             obj=obj@LearnFunc.Learner(evidenceGenerator);
+            obj.bufferingComplete=false;
         end
         
         function bufferTestData(obj,testData)
-            if isempty(obj.bufferFolder)
+            if ~obj.bufferingComplete
                 obj.setupBuffer(length(testData));
                 
                 obj.classesSmall=testData.getSmallClassNames();
@@ -28,24 +30,21 @@ classdef LocationLearner<LearnFunc.Learner
                 
                 for i=1:length(testData)
                     disp(['collecting data for image ' num2str(i)])
-                    tmpBuffer=struct;
-%                     disp('created tmpBuffer')
-                    [goodClasses,tmpBuffer.goodObjects]=obj.getGoodClassesAndObjects(testData,i);
-%                     disp('got good classes')
+                    buffer=struct;
+                    [goodClasses,buffer.goodObjects]=obj.getGoodClassesAndObjects(testData,i);
                     if ~isempty(goodClasses)
-                        [tmpBuffer.probVec,tmpBuffer.locVec]=obj.probabilityVector(testData,i,obj.classesSmall(goodClasses));
-%                         disp('got probVec')
+                        [buffer.probVec,buffer.locVec]=obj.probabilityVector(testData,i,obj.classesSmall(goodClasses));
                     end
-%                     keyboard
-                    save(fullfile(obj.bufferFolder,[obj.bufferFileName num2str(i,obj.formatString) '.mat']),'tmpBuffer');
+                    save(fullfile(obj.bufferFolder,[obj.bufferFileName num2str(i,obj.formatString) '.mat']),'-struct','buffer');
                 end
+                obj.bufferingComplete=true;
             end
         end
         
         function [probVec,locVec,goodObjects]=getBufferedTestData(obj,index)
             assert(~isempty(obj.bufferFolder),'LocationLearner:notBuffered',...
                 'No data buffered yet, run bufferTestData to buffer data.')
-            load(fullfile(obj.bufferFolder,[obj.bufferFileName num2str(index,obj.formatString) '.mat']),'buffer');
+            buffer=load(fullfile(obj.bufferFolder,[obj.bufferFileName num2str(index,obj.formatString) '.mat']));
             probVec=buffer.probVec;
             locVec=buffer.locVec;
             goodObjects=buffer.goodObjects;
@@ -53,33 +52,21 @@ classdef LocationLearner<LearnFunc.Learner
         
         function delete(obj)
             if ~isempty(obj.bufferFolder)
-                disp('kill?')
-%                 [~,~,~]=rmdir(obj.bufferFolder,'s');
+                [~,~,~]=rmdir(obj.bufferFolder,'s');
             end
         end
     end
     
     methods(Access='protected')
         function [probVec,locVec]=probabilityVector(obj,data,index,targetClasses)
-%             disp('getting evidence')
             evidence=obj.evidenceGenerator.getEvidenceForImage(data,index);
-%             disp('got evidence')
             
             tmpProbVec=cell(1,length(targetClasses));
-%             parfor c=1:length(targetClasses)
             for c=1:length(targetClasses)
-%                 disp(['running class ' num2str(c)])
                 goodObjects=true(size(evidence.relEvi,1),1);
                 for o=size(evidence.relEvi,1):-1:1
-%                     singleVec=obj.getProbabilityFromEvidence(squeeze(evidence.relEvi(o,:,:)),evidence.names{o},targetClasses{c});
-%                     if ~isempty(singleVec)
-%                         tmpProbVec{c}(o,:)=singleVec;
-%                     else
-%                         goodObjects(o)=false;
-%                     end
-
                     try
-                        tmpProbVec{c}(o,:)=obj.getProbabilityFromEvidence(squeeze(evidence.relEvi(o,:,:)),evidence.names{o},targetClasses{c});
+                        probVec.(targetClasses{c})(o,:)=obj.getProbabilityFromEvidence(squeeze(evidence.relEvi(o,:,:)),evidence.names{o},targetClasses{c});
                     catch tmpError
                         if any(strcmpi(tmpError.identifier,{'MATLAB:nonExistentField','MATLAB:nonStrucReference'}))
                             goodObjects(o)=false;
@@ -88,8 +75,7 @@ classdef LocationLearner<LearnFunc.Learner
                         end
                     end
                 end
-%                 disp(['finished class ' num2str(c)])
-                tmpProbVec{c}=prod(tmpProbVec{c}(goodObjects,:),1);
+                probVec.(targetClasses{c})=prod(probVec.(targetClasses{c})(goodObjects,:),1);
             end
             
             for c=1:length(targetClasses)

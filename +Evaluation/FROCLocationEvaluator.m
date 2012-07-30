@@ -3,9 +3,9 @@ classdef FROCLocationEvaluator<Evaluation.LocationEvaluator
     %   Detailed explanation goes here
     
     methods
-        function obj=FROCLocationEvaluator(analyseAllImages)
-            obj=obj@Evaluation.LocationEvaluator(analyseAllImages);
-        end
+%         function obj=FROCLocationEvaluator(analyseAllImages)
+%             obj=obj@Evaluation.LocationEvaluator(analyseAllImages);
+%         end
     end
     
     methods(Access='protected')

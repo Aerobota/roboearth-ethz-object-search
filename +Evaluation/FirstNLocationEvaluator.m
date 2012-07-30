@@ -3,9 +3,9 @@ classdef FirstNLocationEvaluator<Evaluation.LocationEvaluator
     %   Detailed explanation goes here
     
     methods
-        function obj=FirstNLocationEvaluator(analyseAllImages)
-            obj=obj@Evaluation.LocationEvaluator(analyseAllImages);
-        end
+%         function obj=FirstNLocationEvaluator(analyseAllImages)
+%             obj=obj@Evaluation.LocationEvaluator(analyseAllImages);
+%         end
     end
     
     methods(Access='protected')

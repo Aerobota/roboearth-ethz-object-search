@@ -28,14 +28,22 @@ classdef LocationLearner<LearnFunc.Learner
                 obj.classesSmall=testData.getSmallClassNames();
                 obj.nDataPoints=length(testData);
                 
-                for i=1:length(testData)
-                    disp(['collecting data for image ' num2str(i)])
-                    buffer=struct;
-                    [goodClasses,buffer.goodObjects]=obj.getGoodClassesAndObjects(testData,i);
-                    if ~isempty(goodClasses)
-                        [buffer.probVec,buffer.locVec]=obj.probabilityVector(testData,i,obj.classesSmall(goodClasses));
+                startPoints=1:20:obj.nDataPoints;
+                endPoints=[startPoints(2:end)-1 obj.nDataPoints];
+                for part=1:length(startPoints)
+                    index=startPoints(part):endPoints(part);
+                    bufferCollection=cell(1,length(index));
+                    parfor i=1:length(index)
+                        disp(['collecting data for image ' num2str(index(i))])
+                        [goodClasses,bufferCollection{i}.goodObjects]=obj.getGoodClassesAndObjects(testData,index(i));
+                        if ~isempty(goodClasses)
+                            [bufferCollection{i}.probVec,bufferCollection{i}.locVec]=obj.probabilityVector(testData,index(i),obj.classesSmall(goodClasses));
+                        end
                     end
-                    save(fullfile(obj.bufferFolder,[obj.bufferFileName num2str(i,obj.formatString) '.mat']),'-struct','buffer');
+                    for c=1:length(bufferCollection)
+                        buffer=bufferCollection{c};
+                        save(fullfile(obj.bufferFolder,[obj.bufferFileName num2str(startPoints(part)+c-1,obj.formatString) '.mat']),'-struct','buffer');
+                    end
                 end
                 obj.bufferingComplete=true;
             end
@@ -59,12 +67,15 @@ classdef LocationLearner<LearnFunc.Learner
                 locVec=[];
             end
         end
-        
-        function delete(obj)
-            if ~isempty(obj.bufferFolder)
-                disp('kill?')
+    end
+    
+    methods(Static)
+        function clearBuffer()
+            [~,~,~]=rmdir(LearnFunc.LocationLearner.bufferPathRoot,'s');
+%             if ~isempty(obj.bufferFolder)
+%                 disp('kill?')
 %                 [~,~,~]=rmdir(obj.bufferFolder,'s');
-            end
+%             end
         end
     end
     
@@ -116,7 +127,7 @@ classdef LocationLearner<LearnFunc.Learner
         end
         
         function setupBuffer(obj,dataLength)
-            while isempty(obj.bufferFolder)
+            while isempty(obj.bufferFolder) || exist(obj.bufferFolder,'dir')~=7
                 tmpFolder=fullfile(obj.bufferPathRoot,char(randperm(6)+96));
                 if ~exist(tmpFolder,'dir')
                     obj.bufferFolder=tmpFolder;

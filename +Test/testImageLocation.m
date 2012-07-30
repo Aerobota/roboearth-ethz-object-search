@@ -6,8 +6,8 @@ end
 
 %% Run evaluator
 
-evalFROC=Evaluation.FROCLocationEvaluator(false);
-evalFirstN=Evaluation.FirstNLocationEvaluator(false);
+evalFROC=Evaluation.FROCLocationEvaluator;
+evalFirstN=Evaluation.FirstNLocationEvaluator;
 tic
 resultFROC=evalFROC.evaluate(ll);
 timeFROC=toc;

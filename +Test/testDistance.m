@@ -33,5 +33,6 @@ learnTime=toc;
 %% buffer the evaluation data for the test data
 
 tic
+ll.clearBuffer();
 ll.bufferTestData(testData)
 bufferTime=toc;

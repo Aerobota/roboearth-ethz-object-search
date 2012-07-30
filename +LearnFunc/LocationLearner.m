@@ -53,12 +53,7 @@ classdef LocationLearner<LearnFunc.Learner
             assert(obj.bufferingComplete,'LocationLearner:notBuffered',...
                 'No data buffered yet, run bufferTestData to buffer data.')
             buffer=load(fullfile(obj.bufferFolder,[obj.bufferFileName num2str(index,obj.formatString) '.mat']));
-%             disp(buffer.goodObjects)
-%             disp(fieldnames(buffer))
-%             disp(isstruct(buffer.goodObjects))
             goodObjects=buffer.goodObjects;
-%             tmpLength=length(fieldnames(goodObjects));
-%             disp(tmpLength)
             if ~isempty(fieldnames(goodObjects))
                 probVec=buffer.probVec;
                 locVec=buffer.locVec;
@@ -72,10 +67,6 @@ classdef LocationLearner<LearnFunc.Learner
     methods(Static)
         function clearBuffer()
             [~,~,~]=rmdir(LearnFunc.LocationLearner.bufferPathRoot,'s');
-%             if ~isempty(obj.bufferFolder)
-%                 disp('kill?')
-%                 [~,~,~]=rmdir(obj.bufferFolder,'s');
-%             end
         end
     end
     
@@ -127,12 +118,15 @@ classdef LocationLearner<LearnFunc.Learner
         end
         
         function setupBuffer(obj,dataLength)
+            tries=0;
             while isempty(obj.bufferFolder) || exist(obj.bufferFolder,'dir')~=7
                 tmpFolder=fullfile(obj.bufferPathRoot,char(randperm(6)+96));
                 if ~exist(tmpFolder,'dir')
                     obj.bufferFolder=tmpFolder;
                     [~,~,~]=mkdir(obj.bufferFolder);
                 end
+                tries=tries+1;
+                assert(tries<2000,'LocationLearner:bufferFull','No valid foldername found for buffer use clearBuffer to clear all buffered data')
             end
             obj.formatString=['%0' int2str(floor(log10(dataLength))+1) 'd'];
         end

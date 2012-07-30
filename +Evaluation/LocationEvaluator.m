@@ -6,25 +6,15 @@ classdef LocationEvaluator<Evaluation.Evaluator
         maxDistance=0.5;
     end
     
-%     properties(Access='protected')
-%         allImages
-%     end
-    
     methods(Abstract,Access='protected')
-%         [tp,prob,pos,neg]=scoreClass(obj,data,locationLearner,targetClass)
         result=scoreClass(obj,inRange,candidateProb)
         result=combineResults(obj,collectedResults,classesSmall)
     end
     
     methods
-%         function obj=LocationEvaluator(analyseAllImages)
-%             obj.allImages=analyseAllImages;
-%         end
-        
         function result=evaluate(obj,locationLearner)
             resultCollector=cell(locationLearner.nDataPoints,length(locationLearner.classesSmall));
             parfor i=1:locationLearner.nDataPoints
-%             for i=1:10
                 disp(['collecting data for image ' num2str(i)])
                 [probVec,locVec,goodObjects]=locationLearner.getBufferedTestData(i);
                 if isstruct(probVec)

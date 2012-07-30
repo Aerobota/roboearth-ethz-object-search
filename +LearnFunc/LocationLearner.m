@@ -42,17 +42,28 @@ classdef LocationLearner<LearnFunc.Learner
         end
         
         function [probVec,locVec,goodObjects]=getBufferedTestData(obj,index)
-            assert(~isempty(obj.bufferFolder),'LocationLearner:notBuffered',...
+            assert(obj.bufferingComplete,'LocationLearner:notBuffered',...
                 'No data buffered yet, run bufferTestData to buffer data.')
             buffer=load(fullfile(obj.bufferFolder,[obj.bufferFileName num2str(index,obj.formatString) '.mat']));
-            probVec=buffer.probVec;
-            locVec=buffer.locVec;
+%             disp(buffer.goodObjects)
+%             disp(fieldnames(buffer))
+%             disp(isstruct(buffer.goodObjects))
             goodObjects=buffer.goodObjects;
+%             tmpLength=length(fieldnames(goodObjects));
+%             disp(tmpLength)
+            if ~isempty(fieldnames(goodObjects))
+                probVec=buffer.probVec;
+                locVec=buffer.locVec;
+            else
+                probVec=[];
+                locVec=[];
+            end
         end
         
         function delete(obj)
             if ~isempty(obj.bufferFolder)
-                [~,~,~]=rmdir(obj.bufferFolder,'s');
+                disp('kill?')
+%                 [~,~,~]=rmdir(obj.bufferFolder,'s');
             end
         end
     end

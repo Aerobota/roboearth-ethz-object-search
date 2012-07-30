@@ -23,19 +23,22 @@ classdef LocationEvaluator<Evaluation.Evaluator
         
         function result=evaluate(obj,locationLearner)
             resultCollector=cell(locationLearner.nDataPoints,length(locationLearner.classesSmall));
-            parfor i=1:locationLearner.nDataPoints
+%             parfor i=1:locationLearner.nDataPoints
+            for i=1:10
                 disp(['collecting data for image ' num2str(i)])
                 [probVec,locVec,goodObjects]=locationLearner.getBufferedTestData(i);
-                goodClasses=1:length(locationLearner.classesSmall);
-                goodClasses=goodClasses(ismember(locationLearner.classesSmall,fieldnames(probVec)));
-                if ~isempty(goodClasses)
-                    tmpResult=cell(1,length(locationLearner.classesSmall));
-                    for c=goodClasses
-                        [inRange,candidateProb]=obj.getCandidatePoints(...
-                            probVec.(locationLearner.classesSmall{c}),locVec,[goodObjects.(locationLearner.classesSmall{c}).pos]);
-                        tmpResult{1,c}=obj.scoreClass(inRange,candidateProb);
+                if isstruct(probVec)
+                    goodClasses=1:length(locationLearner.classesSmall);
+                    goodClasses=goodClasses(ismember(locationLearner.classesSmall,fieldnames(probVec)));
+                    if ~isempty(goodClasses)
+                        tmpResult=cell(1,length(locationLearner.classesSmall));
+                        for c=goodClasses
+                            [inRange,candidateProb]=obj.getCandidatePoints(...
+                                probVec.(locationLearner.classesSmall{c}),locVec,[goodObjects.(locationLearner.classesSmall{c}).pos]);
+                            tmpResult{1,c}=obj.scoreClass(inRange,candidateProb);
+                        end
+                        resultCollector(i,:)=tmpResult;
                     end
-                    resultCollector(i,:)=tmpResult;
                 end
             end
             

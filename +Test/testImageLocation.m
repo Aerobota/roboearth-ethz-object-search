@@ -8,5 +8,9 @@ end
 
 evalFROC=Evaluation.FROCLocationEvaluator(false);
 evalFirstN=Evaluation.FirstNLocationEvaluator(false);
+tic
 resultFROC=evalFROC.evaluate(ll);
+timeFROC=toc;
+tic
 resultFirstN=evalFirstN.evaluate(ll);
+timeFirstN=toc;

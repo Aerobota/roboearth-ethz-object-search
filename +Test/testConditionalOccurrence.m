@@ -34,14 +34,26 @@ learner.learn(dataTrain);
 resultOpt=evaluatorOpt.evaluate(dataTest,learner);
 resultThresh=evaluatorThresh.evaluate(dataTest,learner);
 
-figure()
-resultOpt.perClass.drawROC('receiver operating characteristic for optimal value');
+roc=Evaluation.ROCEvaluationData;
+roc.addData(resultThresh.conditioned,'informed')
+roc.addData(resultThresh.baseline,'baseline')
+roc.setTitle('receiver operating characteristic')
+roc.draw()
 
-figure()
-resultThresh.cummulative.drawROC('receiver operating characteristic for optimal value');
+precRecall=Evaluation.PrecRecallEvaluationData;
+precRecall.addData(resultThresh.conditioned,'informed')
+precRecall.addData(resultThresh.baseline,'baseline')
+precRecall.setTitle('precision recall curve')
+precRecall.draw()
 
-figure()
-resultOpt.perClass.drawPrecisionRecall('precision recall for optimal value');
-
-figure()
-resultThresh.cummulative.drawPrecisionRecall('precision recall for optimal value');
+% figure()
+% resultOpt.perClass.drawROC('receiver operating characteristic for optimal value');
+% 
+% figure()
+% resultThresh.cummulative.drawROC('receiver operating characteristic for optimal value');
+% 
+% figure()
+% resultOpt.perClass.drawPrecisionRecall('precision recall for optimal value');
+% 
+% figure()
+% resultThresh.cummulative.drawPrecisionRecall('precision recall for optimal value');

@@ -12,18 +12,31 @@ classdef OccurrenceEvaluator<Evaluation.Evaluator
     
     methods
         function result=evaluate(obj,testData,occurrenceLearner)
-            [tpFull,fpFull,posFull,negFull]=obj.calculateStatistics(testData,occurrenceLearner,'full');
-            [tpBase,fpBase,posBase,negBase]=obj.calculateStatistics(testData,occurrenceLearner,'baseline');
+            [result.conditioned.tp,result.conditioned.fp,result.conditioned.pos,result.conditioned.neg]=...
+                obj.calculateStatistics(testData,occurrenceLearner,'full');
+            [result.baseline.tp,result.baseline.fp,result.baseline.pos,result.baseline.neg]=...
+                obj.calculateStatistics(testData,occurrenceLearner,'baseline');
             myNames=occurrenceLearner.getLearnedClasses();
 
-            tmpBaseline=Evaluation.EvaluationData(myNames,...
-                sum(tpBase,2),sum(fpBase,2),sum(posBase,2),sum(negBase,2));
+%             tmpBaseline=Evaluation.EvaluationData(myNames,...
+%                 sum(tpBase,2),sum(fpBase,2),sum(posBase,2),sum(negBase,2));
+%             
+%             result.perClass=Evaluation.EvaluationData(myNames,...
+%                 tpFull,fpFull,posFull,negFull,tmpBaseline);
+%             
+%             result.cummulative=Evaluation.EvaluationData(myNames,...
+%                 sum(tpFull,2),sum(fpFull,2),sum(posFull,2),sum(negFull,2),tmpBaseline);
+%             result.baseline.tp=tpBase;
+%             result.baseline.fp=fpBase;
+%             result.baseline.pos=posBase;
+%             result.baseline.neg=negBase;
+            result.baseline.names=myNames;
             
-            result.perClass=Evaluation.EvaluationData(myNames,...
-                tpFull,fpFull,posFull,negFull,tmpBaseline);
-            
-            result.cummulative=Evaluation.EvaluationData(myNames,...
-                sum(tpFull,2),sum(fpFull,2),sum(posFull,2),sum(negFull,2),tmpBaseline);
+%             result.conditioned.tp=tpFull;
+%             result.conditioned.fp=fpFull;
+%             result.conditioned.pos=posFull;
+%             result.conditioned.neg=negFull;
+            result.conditioned.names=myNames;
         end
     end
     

@@ -7,7 +7,6 @@ classdef LocationEvaluator<Evaluation.Evaluator
             classesSmall=testData.getSmallClassNames();
             resultCollector=cell(length(testData),length(classesSmall),length(evaluationMethods),length(maxDistances));
             parfor i=1:length(testData)
-%             for i=1:5
                 disp(['collecting data for image ' num2str(i)])
                 [goodClasses,goodObjects]=obj.getGoodClassesAndObjects(testData,i);
                 if ~isempty(goodClasses)

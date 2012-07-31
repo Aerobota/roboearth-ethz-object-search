@@ -1,6 +1,6 @@
 %% Parameters
 
-maxDistances=[0.25 0.5 1];
+maxDistances=[0.25 0.5 1 1.5];
 evalMethod{1}=Evaluation.FROCLocationEvaluator;
 evalMethod{2}=Evaluation.FirstNLocationEvaluator;
 

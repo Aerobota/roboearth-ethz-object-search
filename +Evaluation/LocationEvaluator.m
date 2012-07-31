@@ -3,7 +3,7 @@ classdef LocationEvaluator<Evaluation.Evaluator
     %   Detailed explanation goes here
     
     methods
-        function result=evaluate(obj,locationLearner,testData,evaluationMethods,maxDistances)
+        function result=evaluate(obj,testData,locationLearner,evaluationMethods,maxDistances)
             classesSmall=testData.getSmallClassNames();
             resultCollector=cell(length(testData),length(classesSmall),length(evaluationMethods),length(maxDistances));
             parfor i=1:length(testData)

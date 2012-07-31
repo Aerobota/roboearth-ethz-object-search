@@ -19,5 +19,5 @@ testData.load();
 
 evalBase=Evaluation.LocationEvaluator();
 tic
-result=evalBase.evaluate(ll,testData,evalMethod,maxDistances);
+result=evalBase.evaluate(testData,ll,evalMethod,maxDistances);
 timeEval=toc;

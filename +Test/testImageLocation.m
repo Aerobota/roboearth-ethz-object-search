@@ -1,16 +1,23 @@
+%% Parameters
+
+maxDistances=[0.25 0.5 1];
+evalMethod{1}=Evaluation.FROCLocationEvaluator;
+evalMethod{2}=Evaluation.FirstNLocationEvaluator;
+
 %% Init
 
 if exist('ll','var')~=1 || ~isa(ll,'LearnFunc.Learner')
     error('Need to run Test.testDistance first')
 end
 
+%% Load data
+
+testData=DataHandlers.NYUDataStructure(datasetPath,'test');
+testData.load();
+
 %% Run evaluator
 
-evalFROC=Evaluation.FROCLocationEvaluator;
-evalFirstN=Evaluation.FirstNLocationEvaluator;
+evalBase=Evaluation.LocationEvaluator();
 tic
-resultFROC=evalFROC.evaluate(ll);
-timeFROC=toc;
-tic
-resultFirstN=evalFirstN.evaluate(ll);
-timeFirstN=toc;
+result=evalBase.evaluate(ll,testData,evalMethod,maxDistances);
+timeEval=toc;

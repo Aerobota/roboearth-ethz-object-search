@@ -1,8 +1,12 @@
-classdef FirstNLocationEvaluator<Evaluation.LocationEvaluator
+classdef FirstNLocationEvaluator<Evaluation.LocationEvaluationMethod
     %CANDIDATELOCATIONEVALUATOR Summary of this class goes here
     %   Detailed explanation goes here
     
-    methods(Access='protected')
+    properties(Constant)
+        designation='FirstN'
+    end
+    
+    methods
         function result=scoreClass(~,inRange,~)
             result=find(any(inRange,1),1);
         end

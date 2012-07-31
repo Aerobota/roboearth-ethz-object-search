@@ -1,11 +1,11 @@
-classdef ContinuousGMMLearner<LearnFunc.LocationLearner
+classdef ContinuousGMMLearner<LearnFunc.Learner
     properties(Constant)
         maxComponents=3;
     end
     
     methods
         function obj=ContinuousGMMLearner(evidenceGenerator)
-            obj=obj@LearnFunc.LocationLearner(evidenceGenerator);
+            obj=obj@LearnFunc.Learner(evidenceGenerator);
         end
         
         function prob=getProbabilityFromEvidence(obj,evidence,fromClass,toClass)

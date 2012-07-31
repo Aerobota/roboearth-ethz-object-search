@@ -1,9 +1,12 @@
-classdef FROCLocationEvaluator<Evaluation.LocationEvaluator
+classdef FROCLocationEvaluator<Evaluation.LocationEvaluationMethod
     %CANDIDATELOCATIONEVALUATOR Summary of this class goes here
     %   Detailed explanation goes here
     
+    properties(Constant)
+        designation='FROC'
+    end
     
-    methods(Access='protected')
+    methods
         function result=scoreClass(~,inRange,candidateProb)
             inRange=inRange&(cumsum(inRange,2)==1|inRange==0);
             result.tp=sum(inRange,1);
@@ -38,7 +41,8 @@ classdef FROCLocationEvaluator<Evaluation.LocationEvaluator
             result.cummulative=Evaluation.EvaluationData(classesSmall,...
                 cumTP,cumFP,sum(positive,2),sum(negative,2),tmpBaseline);
         end
-        
+    end
+    methods(Access='protected')
         function [tpSmall,fpSmall]=reduceEvidence(obj,tp,prob)
             if ~isempty(tp)
                 [~,permIndex]=sort(prob,'descend');

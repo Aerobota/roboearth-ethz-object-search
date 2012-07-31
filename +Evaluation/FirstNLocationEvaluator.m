@@ -9,12 +9,16 @@ classdef FirstNLocationEvaluator<Evaluation.LocationEvaluationMethod
     methods
         function result=scoreClass(~,inRange,~)
             result=find(any(inRange,1),1);
+            if isempty(result)
+                result=inf;
+            end
         end
         
         function result=combineResults(~,collectedResults,~)
             data=cat(1,collectedResults{:});
-            result=histc(data,unique(data));
-            result=cumsum(result)/sum(result);
+            result.nCandidates=unique(data);
+            result.tpRate=histc(data,result.nCandidates);
+            result.tpRate=cumsum(result.tpRate)/sum(result.tpRate);
         end
     end
 end

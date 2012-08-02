@@ -27,19 +27,23 @@ classdef FROCLocationEvaluator<Evaluation.LocationEvaluationMethod
                 threshold{1,c}=vertcat(tmpThresh{:});
             end
             
-            tmpBaseline=Evaluation.EvaluationData(classesSmall,...
-                [0;sum(positive,2)],[0;sum(negative,2)],sum(positive,2),sum(negative,2));
+%             tmpBaseline=Evaluation.EvaluationData(classesSmall,...
+%                 [0;sum(positive,2)],[0;sum(negative,2)],sum(positive,2),sum(negative,2));
             
             for c=length(classesSmall):-1:1
-                [pcTP(:,c),pcFP(:,c)]=obj.reduceEvidence(truePos{c},threshold{c});
+                [result.tp(:,c),result.fp(:,c)]=obj.reduceEvidence(truePos{c},threshold{c});
             end
-            result.perClass=Evaluation.EvaluationData(classesSmall,...
-                pcTP,pcFP,positive,negative,tmpBaseline);
             
-            [cumTP,cumFP]=obj.reduceEvidence(vertcat(truePos{:}),vertcat(threshold{:}));
-            
-            result.cummulative=Evaluation.EvaluationData(classesSmall,...
-                cumTP,cumFP,sum(positive,2),sum(negative,2),tmpBaseline);
+            result.pos=positive;
+            result.neg=negative;
+            result.names=classesSmall;
+%             result.perClass=Evaluation.EvaluationData(classesSmall,...
+%                 pcTP,pcFP,positive,negative,tmpBaseline);
+%             
+%             [cumTP,cumFP]=obj.reduceEvidence(vertcat(truePos{:}),vertcat(threshold{:}));
+%             
+%             result.cummulative=Evaluation.EvaluationData(classesSmall,...
+%                 cumTP,cumFP,sum(positive,2),sum(negative,2),tmpBaseline);
         end
     end
     methods(Access='protected')

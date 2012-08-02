@@ -50,13 +50,15 @@ classdef ConditionalOccurrenceLearner<LearnFunc.Learner
                         currentIndices(end+1)=maxI;
                         EULast=EUNew(maxI);
                         goodIndices=currentIndices;
-                        disp([classes{cs} ' given ' classes{maxI} ' improvement: ' num2str(maxVal) ' total: ' num2str(EUNew(maxI))]);
+                        disp([classes{cs} ' given ' classes{maxI} ' improvement: ' num2str(maxVal) ' total: ' num2str(EULast)]);
                     else
                         break;
                     end
                 end
                 if ~isempty(goodIndices)
                     obj.model.(classes{cs}).parents=classes(goodIndices(2:end));
+                    
+                    obj.model.(classes{cs}).expectedUtility=EULast;
                     
                     [booleanCPComplete,~]=obj.computeESS(data,goodIndices,1:length(data),'single');
                     [booleanMargP,~]=obj.computeESS(data,cs,1:length(data),'single');

@@ -6,10 +6,21 @@ classdef EvaluationData<handle
         myHandle=[]
         myAxes=[]
         myTitle=[]
+        curves
+    end
+    
+    methods(Abstract)
+        addData(obj,varargin)
+    end
+    
+    methods(Abstract,Access='protected')
+        drawImpl(obj,varargin)
     end
     
     methods
         function draw(obj,varargin)
+            assert(~isempty(obj.curves),'EvaluationData:noData','No data has been added yet.')
+            
             if ishghandle(obj.myHandle,'figure')
                 close(obj.myHandle);
             end
@@ -36,14 +47,6 @@ classdef EvaluationData<handle
                 close(obj.myHandle);
             end
         end
-    end
-    
-    methods(Abstract)
-        addData(obj,varargin)
-    end
-    
-    methods(Abstract,Access='protected')
-        drawImpl(obj,varargin)
     end
 end
 

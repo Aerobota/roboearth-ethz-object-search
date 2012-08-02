@@ -1,29 +1,22 @@
 classdef ROCEvaluationData<Evaluation.EvaluationData
     
-    properties(SetAccess='protected')
-        curves
-    end
-    
     methods
-        function addData(obj,newData,dataName)
-            obj.curves(end+1).tp=newData.tp;
-            obj.curves(end).fp=newData.fp;
-            obj.curves(end).pos=newData.pos;
-            obj.curves(end).neg=newData.neg;
+        function addData(obj,newData,dataName,classSubset)
+            if nargin<4
+                classSubset=true(1,size(newData.tp,2));
+            end
+            obj.curves(end+1).tp=newData.tp(:,classSubset);
+            obj.curves(end).fp=newData.fp(:,classSubset);
+            obj.curves(end).pos=newData.pos(:,classSubset);
+            obj.curves(end).neg=newData.neg(:,classSubset);
             obj.curves(end).name=dataName;
         end
     end
     methods(Access='protected')
-        function drawImpl(obj,classSubset)
-            assert(~isempty(obj.curves),'EvaluationData:noData','No data has been added yet.')
-            
-            if nargin<2
-                classSubset=true(1,size(obj.curves(1).tp,2));
-            end
-            
+        function drawImpl(obj)
             for c=length(obj.curves):-1:1
-                tpRate(:,c)=sum(obj.curves(c).tp(:,classSubset),2)/sum(obj.curves(c).pos(1,classSubset));
-                fpRate(:,c)=sum(obj.curves(c).fp(:,classSubset),2)/sum(obj.curves(c).neg(1,classSubset));
+                tpRate(:,c)=sum(obj.curves(c).tp,2)/sum(obj.curves(c).pos);
+                fpRate(:,c)=sum(obj.curves(c).fp,2)/sum(obj.curves(c).neg);
             end
             
             plot(obj.myAxes,fpRate,tpRate,'-')

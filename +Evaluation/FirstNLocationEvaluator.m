@@ -15,10 +15,11 @@ classdef FirstNLocationEvaluator<Evaluation.LocationEvaluationMethod
         end
         
         function result=combineResults(~,collectedResults,~)
-            data=cat(1,collectedResults{:});
-            result.nCandidates=unique(data);
-            result.tpRate=histc(data,result.nCandidates);
-            result.tpRate=cumsum(result.tpRate)/sum(result.tpRate);
+            for c=size(collectedResults,2):-1:1
+                data=cat(1,collectedResults{:,c});
+                result.nCandidates{c}=unique(data);
+                result.tp{c}=histc(data,result.nCandidates{c});
+            end
         end
     end
 end

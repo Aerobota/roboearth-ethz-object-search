@@ -34,17 +34,36 @@ learner.learn(dataTrain);
 resultOpt=evaluatorOpt.evaluate(dataTest,learner);
 resultThresh=evaluatorThresh.evaluate(dataTest,learner);
 
+%% Generate graphs
+
+[~,bestClasses]=sort(resultThresh.conditioned.expectedUtility,'descend');
+[~,worstClasses]=sort(resultThresh.conditioned.expectedUtility,'ascend');
+bestClasses=bestClasses(1:min(5,end));
+worstClasses=worstClasses(1:min(5,end));
+bestText=['best ' num2str(length(bestClasses)) ' classes'];
+worstText=['worst ' num2str(length(bestClasses)) ' classes'];
+
 roc=Evaluation.ROCEvaluationData;
 roc.addData(resultThresh.conditioned,'informed')
+roc.addData(resultThresh.conditioned,bestText,bestClasses)
+roc.addData(resultThresh.conditioned,worstText,worstClasses)
 roc.addData(resultThresh.baseline,'baseline')
 roc.setTitle('receiver operating characteristic')
 roc.draw()
 
 precRecall=Evaluation.PrecRecallEvaluationData;
 precRecall.addData(resultThresh.conditioned,'informed')
+precRecall.addData(resultThresh.conditioned,bestText,bestClasses)
+precRecall.addData(resultThresh.conditioned,worstText,worstClasses)
 precRecall.addData(resultThresh.baseline,'baseline')
 precRecall.setTitle('precision recall curve')
 precRecall.draw()
+
+costOpt=Evaluation.CostOptimalEvaluationData;
+goodClasses=resultOpt.conditioned.tp~=0 & resultOpt.conditioned.fp~=0;
+costOpt.addData(resultOpt.conditioned,'individual',goodClasses)
+costOpt.setBaseline(resultOpt.baseline)
+costOpt.draw()
 
 % figure()
 % resultOpt.perClass.drawROC('receiver operating characteristic for optimal value');

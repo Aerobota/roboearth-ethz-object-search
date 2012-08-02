@@ -12,31 +12,12 @@ classdef OccurrenceEvaluator<Evaluation.Evaluator
     
     methods
         function result=evaluate(obj,testData,occurrenceLearner)
-            [result.conditioned.tp,result.conditioned.fp,result.conditioned.pos,result.conditioned.neg]=...
-                obj.calculateStatistics(testData,occurrenceLearner,'full');
-            [result.baseline.tp,result.baseline.fp,result.baseline.pos,result.baseline.neg]=...
-                obj.calculateStatistics(testData,occurrenceLearner,'baseline');
-            myNames=occurrenceLearner.getLearnedClasses();
-
-%             tmpBaseline=Evaluation.EvaluationData(myNames,...
-%                 sum(tpBase,2),sum(fpBase,2),sum(posBase,2),sum(negBase,2));
-%             
-%             result.perClass=Evaluation.EvaluationData(myNames,...
-%                 tpFull,fpFull,posFull,negFull,tmpBaseline);
-%             
-%             result.cummulative=Evaluation.EvaluationData(myNames,...
-%                 sum(tpFull,2),sum(fpFull,2),sum(posFull,2),sum(negFull,2),tmpBaseline);
-%             result.baseline.tp=tpBase;
-%             result.baseline.fp=fpBase;
-%             result.baseline.pos=posBase;
-%             result.baseline.neg=negBase;
-            result.baseline.names=myNames;
+            result.conditioned=obj.calculateStatistics(testData,occurrenceLearner,'full');
+            result.baseline=obj.calculateStatistics(testData,occurrenceLearner,'baseline');
             
-%             result.conditioned.tp=tpFull;
-%             result.conditioned.fp=fpFull;
-%             result.conditioned.pos=posFull;
-%             result.conditioned.neg=negFull;
+            myNames=occurrenceLearner.getLearnedClasses();
             result.conditioned.names=myNames;
+            result.baseline.names=myNames;
         end
     end
     
@@ -45,8 +26,7 @@ classdef OccurrenceEvaluator<Evaluation.Evaluator
     end
     
     methods(Access='protected')
-        function [truePositives,falsePositives,positives,negatives]=...
-                calculateStatistics(obj,testData,occLearner,mode)
+        function result=calculateStatistics(obj,testData,occLearner,mode)
             
             if strcmpi(mode,'baseline')
                 calcBaseline=true;
@@ -55,11 +35,6 @@ classdef OccurrenceEvaluator<Evaluation.Evaluator
             end
             
             myNames=occLearner.getLearnedClasses();
-            
-            truePositives=[];
-            falsePositives=[];
-            positives=[];
-            negatives=[];
             
             for i=length(myNames):-1:1
                 if calcBaseline
@@ -83,10 +58,12 @@ classdef OccurrenceEvaluator<Evaluation.Evaluator
                 neg=repmat(boolEvidence(1,:),[size(decisions,1) 1]);
                 pos=repmat(boolEvidence(2,:),[size(decisions,1) 1]);
                 
-                truePositives(:,i)=sum(pos.*(decisions(:,:)==2),2);
-                falsePositives(:,i)=sum(neg.*(decisions(:,:)==2),2);
-                positives(1,i)=sum(boolEvidence(2,:),2);
-                negatives(1,i)=sum(boolEvidence(1,:),2);
+                result.tp(:,i)=sum(pos.*(decisions(:,:)==2),2);
+                result.fp(:,i)=sum(neg.*(decisions(:,:)==2),2);
+                result.pos(1,i)=sum(boolEvidence(2,:),2);
+                result.neg(1,i)=sum(boolEvidence(1,:),2);
+                
+                result.expectedUtility(1,i)=occLearner.model.(myNames{i}).expectedUtility;
             end
         end
         

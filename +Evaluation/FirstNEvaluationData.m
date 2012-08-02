@@ -2,18 +2,16 @@ classdef FirstNEvaluationData<Evaluation.EvaluationData
     %FIRSTNEVALUATIONDATA Summary of this class goes here
     %   Detailed explanation goes here
     
-    methods
-        function addData(obj,newData,dataName,classSubset)
-            if nargin<4
+    methods(Access='protected')
+        function index=addDataImpl(obj,newData,classSubset)
+            if nargin<3
                 classSubset=true(1,length(newData.tp));
             end
-            obj.curves(end+1).tp=newData.tp(classSubset);
-            obj.curves(end).nCandidates=newData.nCandidates(classSubset);
-            obj.curves(end).name=dataName;
+            index=length(obj.curves)+1;
+            obj.curves(index).tp=newData.tp(classSubset);
+            obj.curves(index).nCandidates=newData.nCandidates(classSubset);
         end
-    end
-    
-    methods(Access='protected')
+        
         function drawImpl(obj,maxCandidates)
             candidates=1:maxCandidates;
             tpRate=zeros(length(candidates),length(obj.curves));
@@ -29,6 +27,7 @@ classdef FirstNEvaluationData<Evaluation.EvaluationData
                 tpRate(i,tpRate(i,:)==0)=tpRate(i-1,tpRate(i,:)==0);
             end
             
+            colormap(obj.myAxes,vertcat(obj.curves.colour))
             bar(obj.myAxes,candidates,tpRate)
 
             legend(obj.myAxes,{obj.curves.name},'location','southeast')

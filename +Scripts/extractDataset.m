@@ -1,6 +1,6 @@
-%% Parameters
-sourceFolder='../NYU';
-targetFolder='Dataset/NYU';
+%% Init
+
+Scripts.setPaths
 
 %% Extraction
-DataHandlers.convertFromNyuDataset(sourceFolder,targetFolder);
+DataHandlers.convertFromNyuDataset(sourceFolder,datasetPath);

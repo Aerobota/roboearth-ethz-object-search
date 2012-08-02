@@ -61,18 +61,6 @@ precRecall.draw()
 
 costOpt=Evaluation.CostOptimalEvaluationData;
 goodClasses=resultOpt.conditioned.tp~=0 & resultOpt.conditioned.fp~=0;
-costOpt.addData(resultOpt.conditioned,'individual',goodClasses)
-costOpt.setBaseline(resultOpt.baseline)
+costOpt.addData(resultOpt.conditioned,'individual','b',goodClasses)
+costOpt.setBaseline(resultOpt.baseline,'g')
 costOpt.draw()
-
-% figure()
-% resultOpt.perClass.drawROC('receiver operating characteristic for optimal value');
-% 
-% figure()
-% resultThresh.cummulative.drawROC('receiver operating characteristic for optimal value');
-% 
-% figure()
-% resultOpt.perClass.drawPrecisionRecall('precision recall for optimal value');
-% 
-% figure()
-% resultThresh.cummulative.drawPrecisionRecall('precision recall for optimal value');

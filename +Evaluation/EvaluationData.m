@@ -9,15 +9,24 @@ classdef EvaluationData<handle
         curves
     end
     
-    methods(Abstract)
-        addData(obj,varargin)
-    end
-    
     methods(Abstract,Access='protected')
+        currentIndex=addDataImpl(obj,newData,classSubset)
         drawImpl(obj,varargin)
     end
     
     methods
+        function addData(obj,newData,dataName,colour,linestyle,classSubset)
+            if nargin<6
+                currentIndex=obj.addDataImpl(newData);
+            else
+                currentIndex=obj.addDataImpl(newData,classSubset);
+            end
+            
+            obj.curves(currentIndex).name=dataName;
+            obj.curves(currentIndex).colour=colour;
+            obj.curves(currentIndex).style=linestyle;
+        end
+        
         function draw(obj,varargin)
             assert(~isempty(obj.curves),'EvaluationData:noData','No data has been added yet.')
             

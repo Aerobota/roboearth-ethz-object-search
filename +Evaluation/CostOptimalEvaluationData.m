@@ -7,8 +7,18 @@ classdef CostOptimalEvaluationData<Evaluation.EvaluationData
     end
     
     methods
-        function addData(obj,newData,dataName,classSubset)
-            if nargin<4
+        function setBaseline(obj,newData,colour)
+            obj.baseline.tp=newData.tp;
+            obj.baseline.fp=newData.fp;
+            obj.baseline.pos=newData.pos;
+            obj.baseline.neg=newData.neg;
+            obj.baseline.colour=colour;
+        end
+    end
+    
+    methods(Access='protected')
+        function index=addDataImpl(obj,newData,classSubset)
+            if nargin<3
                 classSubset=true(1,size(newData.tp,2));
             end
             
@@ -22,18 +32,9 @@ classdef CostOptimalEvaluationData<Evaluation.EvaluationData
             obj.curves.pos=newData.pos(:,classSubset);
             obj.curves.neg=newData.neg(:,classSubset);
             obj.curves.classNames=newData.names(classSubset);
-            obj.curves.name=dataName;
+            index=1;
         end
         
-        function setBaseline(obj,newData)
-            obj.baseline.tp=newData.tp;
-            obj.baseline.fp=newData.fp;
-            obj.baseline.pos=newData.pos;
-            obj.baseline.neg=newData.neg;
-        end
-    end
-    
-    methods(Access='protected')
         function drawImpl(obj)
             tpRateBase=sum(obj.baseline.tp,2)/sum(obj.baseline.pos);
             fpRateBase=sum(obj.baseline.fp,2)/sum(obj.baseline.neg);
@@ -41,9 +42,10 @@ classdef CostOptimalEvaluationData<Evaluation.EvaluationData
             tpRate=obj.curves.tp./obj.curves.pos;
             fpRate=obj.curves.fp./obj.curves.neg;
             
-            plot(obj.myAxes,fpRate',tpRate','b*',fpRateBase,tpRateBase,'g-')
+            plot(obj.myAxes,fpRate',tpRate','Marker','*','LineStyle','none','Color',obj.curves.colour)
             hold(obj.myAxes,'on')
-            text(fpRate+0.01,tpRate-0.01,obj.curves.classNames,'color','b','Parent', obj.myAxes)
+            plot(obj.myAxes,fpRateBase,tpRateBase,'LineStyle','-','Color',obj.baseline.colour)
+            text(fpRate+0.01,tpRate-0.01,obj.curves.classNames,'Color',obj.curves.colour,'Parent', obj.myAxes)
             hold(obj.myAxes,'off')
 
 %             axis(obj.myAxes,[0 max(1,max(max(fpRate))) 0 1])

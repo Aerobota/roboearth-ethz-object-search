@@ -23,11 +23,11 @@ for p=1:length(desiredPlots)
     o=desiredPlots(p,2);
     t=desiredPlots(p,3);
         
-    occStr=['{' occurrenceStates{o}{1}];
+    occStr=['\{' occurrenceStates{o}{1}];
     for i=2:length(occurrenceStates{o})
         occStr=[occStr ',' occurrenceStates{o}{i}];
     end
-    occStr=[occStr '}'];
+    occStr=[occStr '\}'];
 
     description={['occurrence states = ' occStr];['value matrix = ' mat2str(valueMatrix{m})]};
 

@@ -5,7 +5,7 @@ classdef ContinuousGaussianLearner<LearnFunc.Learner
         end
         
         function prob=getProbabilityFromEvidence(obj,evidence,fromClass,toClass)
-            prob=mvnpdf(evidence,obj.data.(fromClass).(toClass).mean,obj.data.(fromClass).(toClass).cov);
+            prob=mvnpdf(evidence,obj.model.(fromClass).(toClass).mean,obj.model.(fromClass).(toClass).cov);
         end
         
         function learn(obj,data)

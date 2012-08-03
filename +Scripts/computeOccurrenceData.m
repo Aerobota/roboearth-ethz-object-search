@@ -56,3 +56,7 @@ for l=1:numel(occLearner)
     resultOpt{l}=evaluatorOpt.evaluate(dataTest,occLearner{l});
     resultThresh{l}=evaluatorThresh.evaluate(dataTest,occLearner{l});
 end
+
+%% Clear temporaries
+
+clear('l','m','o','dataTrain','dataTest','occEvidenceGenerator','evaluatorOpt','evaluatorThresh','sourceFolder','datasetPath')

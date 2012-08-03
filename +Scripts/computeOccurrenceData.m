@@ -59,4 +59,10 @@ end
 
 %% Clear temporaries
 
-clear('l','m','o','dataTrain','dataTest','occEvidenceGenerator','evaluatorOpt','evaluatorThresh','sourceFolder','datasetPath')
+clear('l','m','o','dataTrain','dataTest','occEvidenceGenerator','evaluatorOpt',...
+    'evaluatorThresh','sourceFolder','datasetPath')
+
+%% Save results to file
+
+save('tmpOccurrenceData.mat','occurrenceStates','valueMatrix','occLearner',...
+    'resultOpt','resultThresh')

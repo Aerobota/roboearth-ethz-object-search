@@ -8,15 +8,6 @@ desiredPlots=[2 2 1;2 2 2;2 2 3;2 1 3;1 2 3];
 colours={'c','b','g','r'}; %{baseline,informed,good,bad}
 styles={'-','-.','--',':'};
 
-% colours{1}='c';
-% styles{1}='-';
-% colours{2}='b';
-% styles{2}='-';
-% colours{3}='g';
-% styles{3}='-';
-% colours{4}='r';
-% styles{4}='-';
-
 
 %% Initialise
 
@@ -75,5 +66,6 @@ end
 
 %% Clear temporaries
 
-clear('p','m','o','t','bestClasses','worstClasses','bestText','worstText',...
-    'goodClasses','desription','occStr')
+clear('p','m','o','t','i','bestClasses','worstClasses','bestText','worstText',...
+    'goodClasses','description','occStr','colours','styles','desiredPlots',...
+    'plotExtremeClasses','nOfExtremeClasses')

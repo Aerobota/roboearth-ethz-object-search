@@ -27,7 +27,7 @@ classdef FirstNEvaluationData<Evaluation.EvaluationData
                 tpRate(i,tpRate(i,:)==0)=tpRate(i-1,tpRate(i,:)==0);
             end
             
-            colormap(obj.myAxes,vertcat(obj.curves.colour))
+%             colormap(obj.myAxes,vertcat(obj.curves.colour))
             bar(obj.myAxes,candidates,tpRate)
 
             legend(obj.myAxes,{obj.curves.name},'location','southeast')

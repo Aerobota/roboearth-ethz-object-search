@@ -58,9 +58,9 @@ modelCompFirstN.addData(resultCylindricGMM.FirstN{standardMaxDistance},'mixture'
 modelCompFirstN.addData(resultCylindricGaussian.FirstN{i},'single',...
     colours{mod(1,length(colours))+1},styles{mod(1,length(styles))+1});
 
-modelCompFROC.setTitle({'free-response receiver operating characteristic',['max distance = ' num2str resultCylindricGMM.maxDistances(standardMaxDistance) ' m']})
-modelCompPrecRecall.setTitle({'precision recall curve',['max distance = ' num2str resultCylindricGMM.maxDistances(standardMaxDistance) ' m']})
-modelCompFirstN.setTitle({'search task',['max distance = ' num2str resultCylindricGMM.maxDistances(standardMaxDistance) ' m']})
+modelCompFROC.setTitle({'free-response receiver operating characteristic',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
+modelCompPrecRecall.setTitle({'precision recall curve',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
+modelCompFirstN.setTitle({'search task',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
 
 modelCompFROC.draw()
 modelCompPrecRecall.draw()

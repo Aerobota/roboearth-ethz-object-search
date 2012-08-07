@@ -49,4 +49,4 @@ clear('dataTrain','dataTest','locCylindricEviGen','evalBase','sourceFolder','dat
 %% Save results to file
 
 save('tmpLocationData.mat','locLearnCylindricGMM','locLearnCylindricGaussian',...
-    'resultCylindricGMM','resultCylindricGaussian','maxDistances','evalMethod')
+    'resultCylindricGMM','resultCylindricGaussian','evalMethod')

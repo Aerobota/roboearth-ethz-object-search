@@ -44,6 +44,7 @@ Similar as for the occurrence data there are two steps again. It has to be noted
 2. Plotting the results:
 
 		Scripts.plotLocationComparison
+		Scripts.plotLocationProbabilityContours
 
 ##Modifications
 ###Adapting other Dataset

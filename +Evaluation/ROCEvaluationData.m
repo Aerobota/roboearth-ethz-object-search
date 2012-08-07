@@ -24,7 +24,7 @@ classdef ROCEvaluationData<Evaluation.EvaluationData
             end
             hold(obj.myAxes,'off')
 
-            axis(obj.myAxes,[0 max(1,max(max(fpRate))) 0 1])
+            axis(obj.myAxes,[0 max(1,min(max(fpRate,[],1),[],2)) 0 1])
             legend(obj.myAxes,{obj.curves.name},'location','southeast')
             xlabel(obj.myAxes,'false positive rate')
             ylabel(obj.myAxes,'true positive rate')

@@ -6,6 +6,8 @@ maxCandidates=10;
 colours={'b','g','r','k'};
 styles={'-','-.','--',':'};
 
+goodClasses=[2 3 12];
+badClasses=[6 8 10];
 
 %% Initialise
 
@@ -66,6 +68,32 @@ modelCompFROC.draw()
 modelCompPrecRecall.draw()
 modelCompFirstN.draw(maxCandidates)
 
+%% Compare good and bad classes
+
+goodComp=Evaluation.FirstNEvaluationData;
+badComp=Evaluation.FirstNEvaluationData;
+
+goodComp.addData(resultCylindricGMM.FirstN{standardMaxDistance},'all classes',...
+    colours{mod(0,length(colours))+1},styles{mod(0,length(styles))+1});
+badComp.addData(resultCylindricGMM.FirstN{standardMaxDistance},'all classes',...
+    colours{mod(0,length(colours))+1},styles{mod(0,length(styles))+1});
+
+for i=goodClasses
+    goodComp.addData(resultCylindricGMM.FirstN{standardMaxDistance},resultCylindricGMM.classes{i},...
+        colours{mod(i-1,length(colours))+1},styles{mod(i-1,length(styles))+1},i);
+end
+
+for i=badClasses
+    badComp.addData(resultCylindricGMM.FirstN{standardMaxDistance},resultCylindricGMM.classes{i},...
+        colours{mod(i-1,length(colours))+1},styles{mod(i-1,length(styles))+1},i);
+end
+
+goodComp.setTitle({'search task for good classes',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
+badComp.setTitle({'search task for bad classes',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
+
+goodComp.draw(maxCandidates)
+badComp.draw(maxCandidates)
+
 %% Clear temporaries
 
-clear('i','colours','styles','standardMaxDistance','maxCandidates')
+clear('i','colours','styles','standardMaxDistance','maxCandidates','goodClasses','badClasses')

@@ -1,6 +1,6 @@
 classdef ContinuousGMMLearner<LearnFunc.Learner
     properties(Constant)
-        maxComponents=3;
+        maxComponents=5;
     end
     
     methods

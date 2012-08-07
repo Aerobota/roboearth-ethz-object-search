@@ -30,6 +30,7 @@ classdef LocationEvaluator<Evaluation.Evaluator
                 end
             end
             result.maxDistances=maxDistances;
+            result.classes=classesSmall;
         end
     end
     

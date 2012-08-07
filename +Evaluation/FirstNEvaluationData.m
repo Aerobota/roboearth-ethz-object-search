@@ -30,6 +30,7 @@ classdef FirstNEvaluationData<Evaluation.EvaluationData
 %             colormap(obj.myAxes,vertcat(obj.curves.colour))
             bar(obj.myAxes,candidates,tpRate)
 
+            axis(obj.myAxes,[0 maxCandidates+1 0 1])
             legend(obj.myAxes,{obj.curves.name},'location','southeast')
             xlabel(obj.myAxes,'number of candidate locations')
             ylabel(obj.myAxes,'probability of finding at least one item')

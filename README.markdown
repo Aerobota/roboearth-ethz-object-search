@@ -14,9 +14,9 @@ The variable `datasetPath` needs to point to the folder where the converted file
 ###Converting the Dataset
 When the paths are set correctly run following script in Matlab:
 
-	Scripts.computeOccurrenceData
+	Scripts.extractDataset
 
-This script takes some time to complete (~1 hour). The process is parallelised and can be speeded up by using the command `matlabpool open` before running the script.
+This script takes some time to complete (~15 minutes). The process is parallelised and can be speeded up by using the command `matlabpool open` before running the script.
 
 ##Computing
 ###Occurrence Data
@@ -35,7 +35,7 @@ To obtain the evaluation plots for the occurrence the following two steps are ne
 The first step generates the file `tmpOccurrenceData.mat` where all computed data is stored. This file can be loaded instead of recomputing the data.
 
 ###Location Data
-Similar as for the occurrence data there are two steps again. It has to be noted that the first step takes a very long time (>4 hours) to complete. The computation speed profits from multiple matlab workers obtained with `matlabpool open`, the computation speed scales almost linearly with the number of workers used.
+Similar as for the occurrence data there are two steps again. It has to be noted that the first step takes a very long time (>3 hours) to complete. The computation speed profits from multiple matlab workers obtained with `matlabpool open`, the computation speed scales almost linearly with the number of workers used.
 
 1. Learning and evaluating the data:
 

@@ -3,8 +3,8 @@
 standardMaxDistance=2;
 maxCandidates=10;
 
-colours={'b','g','r','k'};
-styles={'-','-.','--',':'};
+colours={'k','b',[0 0.6 0],[0.8 0 0]};
+styles={'-','--'};
 
 goodClasses=[2 3 12];
 badClasses=[6 8 10];
@@ -33,7 +33,7 @@ gmmDistancesFROC.setTitle('free-response receiver operating characteristic')
 gmmDistancesPrecRecall.setTitle('precision recall curve')
 gmmDistancesFirstN.setTitle('search task')
 
-gmmDistancesFROC.draw()
+% gmmDistancesFROC.draw()
 gmmDistancesPrecRecall.draw()
 gmmDistancesFirstN.draw(maxCandidates)
 
@@ -60,12 +60,16 @@ modelCompFirstN.addData(resultCylindricGMM.FirstN{standardMaxDistance},'mixture'
 modelCompFirstN.addData(resultCylindricGaussian.FirstN{i},'single',...
     colours{mod(1,length(colours))+1},styles{mod(1,length(styles))+1});
 
-modelCompFROC.setTitle({'free-response receiver operating characteristic',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
-modelCompPrecRecall.setTitle({'precision recall curve',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
-modelCompFirstN.setTitle({'search task',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
+% modelCompFROC.setTitle({'free-response receiver operating characteristic',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
+% modelCompPrecRecall.setTitle({'precision recall curve',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
+% modelCompFirstN.setTitle({'search task',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
 
-modelCompFROC.draw()
-modelCompPrecRecall.draw()
+modelCompFROC.setTitle('free-response receiver operating characteristic')
+modelCompPrecRecall.setTitle('precision recall curve')
+modelCompFirstN.setTitle('search task')
+
+% modelCompFROC.draw()
+% modelCompPrecRecall.draw()
 modelCompFirstN.draw(maxCandidates)
 
 %% Compare good and bad classes
@@ -88,8 +92,11 @@ for i=badClasses
         colours{mod(i-1,length(colours))+1},styles{mod(i-1,length(styles))+1},i);
 end
 
-goodComp.setTitle({'search task for good classes',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
-badComp.setTitle({'search task for bad classes',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
+% goodComp.setTitle({'search task for good classes',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
+% badComp.setTitle({'search task for bad classes',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
+
+goodComp.setTitle('search task for good classes')
+badComp.setTitle('search task for bad classes')
 
 goodComp.draw(maxCandidates)
 badComp.draw(maxCandidates)

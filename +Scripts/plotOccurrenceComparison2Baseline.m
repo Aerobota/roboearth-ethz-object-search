@@ -17,9 +17,9 @@ assert(exist('resultOpt','var')==1 && exist('resultThresh','var')==1,...
 
 %% Compare to baseline
 
-cond2Base=cell(1,length(desiredPlots));
+cond2Base=cell(1,size(desiredPlots,1));
 
-for p=1:length(desiredPlots)
+for p=1:size(desiredPlots,1)
     m=desiredPlots(p,1);
     o=desiredPlots(p,2);
     t=desiredPlots(p,3);

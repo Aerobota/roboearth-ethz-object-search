@@ -3,10 +3,11 @@
 plotExtremeClasses=true;
 nOfExtremeClasses=5;
 
-desiredPlots=[2 2 1;2 2 2;2 2 3;2 1 3;1 2 3];
+%desiredPlots=[2 2 1;2 2 2;2 2 3;2 1 3;1 2 3];
+desiredPlots=[2 1 1;2 1 2];
 
-colours={'c','b','g','r'}; %{baseline,informed,good,bad}
-styles={'-','-.','--',':'};
+colours={'k','b',[0 0.6 0],[0.8 0 0]}; %{baseline,informed,good,bad}
+styles={'-','-.','--','--'};
 
 
 %% Initialise
@@ -29,24 +30,27 @@ for p=1:length(desiredPlots)
     end
     occStr=[occStr '\}'];
 
-    description={['occurrence states = ' occStr];['value matrix = ' mat2str(valueMatrix{m})]};
+    %description={['occurrence states = ' occStr];['value matrix = ' mat2str(valueMatrix{m})]};
 
     if t==1
         cond2Base{p}=Evaluation.ROCEvaluationData;
         cond2Base{p}.addData(resultThresh{m,o}.conditioned,'informed',colours{2},styles{2})
         cond2Base{p}.addData(resultThresh{m,o}.baseline,'baseline',colours{1},styles{1})
-        cond2Base{p}.setTitle([{'receiver operating characteristic'};description])
+        %cond2Base{p}.setTitle([{'receiver operating characteristic'};description])
+        cond2Base{p}.setTitle('receiver operating characteristic')
     elseif t==2
         cond2Base{p}=Evaluation.PrecRecallEvaluationData;
         cond2Base{p}.addData(resultThresh{m,o}.conditioned,'informed',colours{2},styles{2})
         cond2Base{p}.addData(resultThresh{m,o}.baseline,'baseline',colours{1},styles{1})
-        cond2Base{p}.setTitle([{'precision recall curve'};description])
+        %cond2Base{p}.setTitle([{'precision recall curve'};description])
+        cond2Base{p}.setTitle('precision recall curve')
     elseif t==3
         cond2Base{p}=Evaluation.CostOptimalEvaluationData;
         goodClasses=resultOpt{m,o}.conditioned.tp~=0 & resultOpt{m,o}.conditioned.fp~=0;
         cond2Base{p}.addData(resultOpt{m,o}.conditioned,'individual',colours{2},styles{2},goodClasses)
         cond2Base{p}.setBaseline(resultOpt{m,o}.baseline,colours{1})
-        cond2Base{p}.setTitle([{'cost optimal decision'};description])
+        %cond2Base{p}.setTitle([{'cost optimal decision'};description])
+        cond2Base{p}.setTitle('cost optimal decision')
     end
     
     if plotExtremeClasses && t<3

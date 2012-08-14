@@ -8,9 +8,9 @@ function convertNyu(inPath,outPath)
     tmp_imageFolder=fullfile(outPath,DataHandlers.NYUDataStructure.imageFolder);
     tmp_depthFolder=fullfile(outPath,DataHandlers.NYUDataStructure.depthFolder);
 
-    disp('extracting images')
-    [imageNames,depthNames]=extractImages...
-        (inFile,tmp_imageFolder,tmp_depthFolder);
+%     disp('extracting images')
+%     [imageNames,depthNames]=extractImages...
+%         (inFile,tmp_imageFolder,tmp_depthFolder);
 
     disp('loading other data')
     tmp_data=load(inFile,'labels','names');
@@ -64,7 +64,9 @@ function tmp_names=extractGoodClasses(labels,tmp_names,outPath)
     for i=1:size(labels,3)
         counts=counts+ismember(numbers,labels(:,:,i));
     end
+    save(fullfile(outPath,'tmp.mat'),'counts','tmp_names');
     tmp_names=tmp_names(counts>100)';
+    error('stop')
     tmpSave.names=tmp_names;
     tmpSave.smallNames=DataHandlers.extractSmallClasses(tmp_names);
     tmpSave.largeNames=setdiff(tmp_names,tmpSave.smallNames);

@@ -3,8 +3,8 @@
 standardValueMatrix=2;
 nOfBestClasses=5;
 
-colours={'c','b','g','r'};
-styles={'-','-.','--',':'};
+colours={'b',[0.8 0 0]};
+styles={'-','--'};
 
 
 %% Initialise
@@ -46,7 +46,8 @@ end
 
 
 
-compStatesROC.setTitle({'receiver operating characteristic';['value matrix = ' mat2str(valueMatrix{m})]})
+% compStatesROC.setTitle({'receiver operating characteristic';['value matrix = ' mat2str(valueMatrix{m})]})
+compStatesROC.setTitle('receiver operating characteristic')
 compStatesPrecRecall.setTitle({'precision recall curve';['value matrix = ' mat2str(valueMatrix{m})]})
 
 compStatesROCBest.setTitle({['receiver operating characteristic for best '...
@@ -55,10 +56,10 @@ compStatesPrecRecallBest.setTitle({['precision recall curve for best '...
     num2str(nOfBestClasses) ' classes'];['value matrix = ' mat2str(valueMatrix{m})]})
 
 compStatesROC.draw()
-compStatesPrecRecall.draw()
+% compStatesPrecRecall.draw()
 
-compStatesROCBest.draw()
-compStatesPrecRecallBest.draw()
+% compStatesROCBest.draw()
+% compStatesPrecRecallBest.draw()
 
 %% Clear temporaries
 

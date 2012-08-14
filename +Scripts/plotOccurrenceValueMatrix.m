@@ -3,8 +3,8 @@
 standardOccurrenceState=1;
 nOfBestClasses=5;
 
-colours={'c','b','g','r'};
-styles={'-','-.','--',':'};
+colours={'k','b',[0 0.6 0],[0.8 0 0]};
+styles={'-','-.','--','-'};
 
 
 %% Initialise
@@ -42,9 +42,10 @@ for i=2:length(occurrenceStates{o})
 end
 occStr=[occStr '\}'];
 
-description=['occurrence states = ' occStr];
+description=['occurrence states = ' occStr]
 
-compMatricesROC.setTitle({'receiver operating characteristic';description})
+% compMatricesROC.setTitle({'receiver operating characteristic';description})
+compMatricesROC.setTitle('receiver operating characteristic')
 compMatricesPrecRecall.setTitle({'precision recall curve';description})
 
 compMatricesROCBest.setTitle({['receiver operating characteristic for best '...
@@ -53,10 +54,10 @@ compMatricesPrecRecallBest.setTitle({['precision recall curve for best '...
     num2str(nOfBestClasses) ' classes'];description})
 
 compMatricesROC.draw()
-compMatricesPrecRecall.draw()
-
-compMatricesROCBest.draw()
-compMatricesPrecRecallBest.draw()
+% compMatricesPrecRecall.draw()
+% 
+% compMatricesROCBest.draw()
+% compMatricesPrecRecallBest.draw()
 
 %% Clear temporaries
 

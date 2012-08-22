@@ -45,6 +45,7 @@ classdef FirstNEvaluationData<Evaluation.EvaluationData
             end
 
             axis(obj.myAxes,[0 maxCandidates+1 0 1])
+            set(obj.myAxes,'XTick',1:maxCandidates)
             legend(obj.myAxes,{obj.curves.name},'location','southeast')
             xlabel(obj.myAxes,'number of candidate locations')
             ylabel(obj.myAxes,'probability of finding at least one item')

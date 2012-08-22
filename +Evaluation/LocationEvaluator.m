@@ -34,7 +34,7 @@ classdef LocationEvaluator<Evaluation.Evaluator
         end
     end
     
-    methods(Access='protected',Static)
+    methods(Static)
         function [probVec,locVec]=probabilityVector(data,index,locationLearner,targetClasses)
             evidence=locationLearner.evidenceGenerator.getEvidenceForImage(data,index);
             
@@ -82,7 +82,7 @@ classdef LocationEvaluator<Evaluation.Evaluator
             goodClasses=goodClasses(goodClassChooser);
         end
         
-        function [inRange,candidateProb]=getCandidatePoints(probVec,locVec,truePos,maxDistance)
+        function [inRange,candidateProb,candidatePoints]=getCandidatePoints(probVec,locVec,truePos,maxDistance)
             [probVec,permIndex]=sort(probVec,'descend');
             locVec=locVec(:,permIndex);
 

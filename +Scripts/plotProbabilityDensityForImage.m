@@ -38,6 +38,7 @@ cImg=data.getColourImage(imageNumber);
 tmpH=figure();
 imshow(cImg)
 for i=1:maxCandidatePoints
+    % font sizing doesn't work under unix but it does under windows
     text(candPoints2D(2,i),candPoints2D(1,i),num2str(i),'Color','r','FontName','times','FontSize',20)
 end
 

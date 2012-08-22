@@ -10,7 +10,7 @@ goodClasses=[3 12];
 badClasses=[8 10];
 
 firstNPlotType='line';
-firstNPlotStyle='-*';
+firstNPlotStyle={':*',':s',':+',':o',':x'};
 
 %% Initialise
 
@@ -29,7 +29,7 @@ for i=1:length(resultCylindricGMM.FROC)
     gmmDistancesPrecRecall.addData(resultCylindricGMM.FROC{i},['max distance = ' num2str(resultCylindricGMM.maxDistances(i)) ' m'],...
         colours{mod(i-1,length(colours))+1},styles{mod(i-1,length(styles))+1});
     gmmDistancesFirstN.addData(resultCylindricGMM.FirstN{i},['max distance = ' num2str(resultCylindricGMM.maxDistances(i)) ' m'],...
-        colours{mod(i-1,length(colours))+1},firstNPlotStyle);
+        colours{mod(i-1,length(colours))+1},firstNPlotStyle{mod(i-1,length(firstNPlotStyle))+1});
 end
 
 gmmDistancesFROC.setTitle('free-response receiver operating characteristic')
@@ -59,9 +59,9 @@ modelCompPrecRecall.addData(resultCylindricGaussian.FROC{i},'single',...
     colours{mod(1,length(colours))+1},styles{mod(1,length(styles))+1});
 
 modelCompFirstN.addData(resultCylindricGMM.FirstN{standardMaxDistance},'mixture',...
-    colours{mod(0,length(colours))+1},firstNPlotStyle);
+    colours{mod(0,length(colours))+1},firstNPlotStyle{mod(0,length(firstNPlotStyle))+1});
 modelCompFirstN.addData(resultCylindricGaussian.FirstN{i},'single',...
-    colours{mod(1,length(colours))+1},firstNPlotStyle);
+    colours{mod(1,length(colours))+1},firstNPlotStyle{mod(1,length(firstNPlotStyle))+1});
 
 % modelCompFROC.setTitle({'free-response receiver operating characteristic',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
 % modelCompPrecRecall.setTitle({'precision recall curve',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
@@ -86,7 +86,7 @@ indiComp=Evaluation.FirstNEvaluationData;
 % badComp.addData(resultCylindricGMM.FirstN{standardMaxDistance},'all classes',...
 %     colours{mod(0,length(colours))+1},styles{mod(0,length(styles))+1});
 indiComp.addData(resultCylindricGMM.FirstN{standardMaxDistance},'all classes',...
-    colours{mod(0,length(colours))+1},firstNPlotStyle);
+    colours{mod(0,length(colours))+1},firstNPlotStyle{mod(0,length(firstNPlotStyle))+1});
 
 % for i=goodClasses
 %     goodComp.addData(resultCylindricGMM.FirstN{standardMaxDistance},resultCylindricGMM.classes{i},...
@@ -102,7 +102,7 @@ indiComp.addData(resultCylindricGMM.FirstN{standardMaxDistance},'all classes',..
 indiClasses=[goodClasses badClasses];
 for i=1:numel(indiClasses)
     indiComp.addData(resultCylindricGMM.FirstN{standardMaxDistance},resultCylindricGMM.classes{indiClasses(i)},...
-        colours{mod(i,length(colours))+1},firstNPlotStyle,indiClasses(i));
+        colours{mod(i,length(colours))+1},firstNPlotStyle{mod(i,length(firstNPlotStyle))+1},indiClasses(i));
 end
 
 % goodComp.setTitle({'search task for good classes',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})

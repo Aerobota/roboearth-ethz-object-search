@@ -58,3 +58,8 @@ imshow(F.cdata)
 
 subplot(1,2,2)
 imshow(probDensity,[min(probDensity(:)) max(probDensity(:))])
+
+%% Clear temporaries
+
+clear('F','cImg','candPoints','candPoints2D','candProb','data','dataset','datasetPath','i','imageNumber','loc','maxCandidatePoints',...
+    'maxDistance','outputFileProb','outputFileRGB','prob','probDensity','sourceFolder','targetClass','tmpH')

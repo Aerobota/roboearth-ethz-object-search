@@ -3,14 +3,14 @@ classdef LocationEvaluator<Evaluation.Evaluator
     %   Detailed explanation goes here
     
     methods
-        function result=evaluate(obj,testData,locationLearner,evaluationMethods,maxDistances)
+        function result=evaluate(obj,testData,locationLearner,evaluationMethods,maxDistances,combinationMethod)
             classesSmall=testData.getSmallClassNames();
             resultCollector=cell(length(testData),length(classesSmall),length(evaluationMethods),length(maxDistances));
             parfor i=1:length(testData)
                 disp(['collecting data for image ' num2str(i)])
                 [goodClasses,goodObjects]=obj.getGoodClassesAndObjects(testData,i);
                 if ~isempty(goodClasses)
-                    [probVec,locVec]=obj.probabilityVector(testData,i,locationLearner,classesSmall(goodClasses));
+                    [probVec,locVec]=obj.probabilityVector(testData,i,locationLearner,classesSmall(goodClasses),combinationMethod);
                     tmpResult=cell(1,length(classesSmall),length(evaluationMethods),length(maxDistances));
                     for c=goodClasses
                         for d=1:length(maxDistances)
@@ -35,7 +35,7 @@ classdef LocationEvaluator<Evaluation.Evaluator
     end
     
     methods(Static)
-        function [probVec,locVec]=probabilityVector(data,index,locationLearner,targetClasses)
+        function [probVec,locVec]=probabilityVector(data,index,locationLearner,targetClasses,combinationMethod)
             evidence=locationLearner.evidenceGenerator.getEvidenceForImage(data,index);
             
             tmpProbVec=cell(1,length(targetClasses));
@@ -52,7 +52,11 @@ classdef LocationEvaluator<Evaluation.Evaluator
                         end
                     end
                 end
-                probVec.(targetClasses{c})=prod(probVec.(targetClasses{c})(goodObjects,:),1);
+                if strcmpi(combinationMethod,'prod')==1
+                    probVec.(targetClasses{c})=prod(probVec.(targetClasses{c})(goodObjects,:),1);
+                else
+                    probVec.(targetClasses{c})=mean(probVec.(targetClasses{c})(goodObjects,:),1);
+                end
             end
             
             for c=1:length(targetClasses)

@@ -2,7 +2,7 @@ classdef ThresholdOccurrenceEvaluator<Evaluation.OccurrenceEvaluator
     %THRESHOLDOCCURRENCEEVALUATOR Summary of this class goes here
     %   Detailed explanation goes here
     
-    methods(Access='protected')
+    methods
         function decisions=decisionImpl(obj,myDependencies)
             tmpSize=size(myDependencies.condProb);
             decisions=ones([length(obj.thresholds),tmpSize(2:end)]);

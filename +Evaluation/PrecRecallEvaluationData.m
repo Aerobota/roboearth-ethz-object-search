@@ -18,7 +18,7 @@ classdef PrecRecallEvaluationData<Evaluation.EvaluationData
                 tmpTp=sum(obj.curves(c).tp,2);
                 tmpFp=sum(obj.curves(c).fp,2);
                 tpRate(:,c)=tmpTp/sum(obj.curves(c).pos);
-                precision(:,c)=tmpTp./(tmpTp+tmpFp);
+                precision(:,c)=tmpTp./(tmpTp+tmpFp+eps);
             end
             
             hold(obj.myAxes,'on')

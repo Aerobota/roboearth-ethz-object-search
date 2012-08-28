@@ -13,7 +13,6 @@ classdef Learner<handle
     
     methods(Abstract)
         learn(obj,data)
-        prob=getProbabilityFromEvidence(obj,evidence,fromClass,toClass);
     end
     
     methods

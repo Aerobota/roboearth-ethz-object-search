@@ -1,12 +1,7 @@
 classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
-    properties(SetAccess='protected')
-        dataBuffer
-    end
-    
     methods
         function obj=CooccurrenceEvidenceGenerator(states)
             obj=obj@LearnFunc.OccurrenceEvidenceGenerator(states);
-            obj.dataBuffer=struct('dataHandle',{},'cBins',{});
         end
         
         function cop=getEvidence(obj,data,targetClasses,subsetIndices,mode)
@@ -17,6 +12,9 @@ classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
             else
                 error('EvidenceGenerator:badInput','The mode argument has to be ''all'' or ''single''.');
             end
+            
+            % get state bin indices
+            allCBins=obj.getCBins(data);
             
             if getAllClasses
                 nClasses=length(data.getClassNames());
@@ -32,50 +30,20 @@ classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
                     s=size(cop);
                 end
             end
-            
+
             k=cumprod([1 s(1:end-1)])';
-            
-            bufferIndex=0;
-            for i=1:length(obj.dataBuffer)
-                if obj.dataBuffer(i).dataHandle==data
-                    bufferIndex=i;
-                end
-            end
-            
-            if bufferIndex==0
-                obj.dataBuffer(end+1).cBins=obj.bufferCBins(data);
-                obj.dataBuffer(end).dataHandle=data;
-                bufferIndex=length(obj.dataBuffer);
-            end
 
             for s=subsetIndices
                 if getAllClasses
-                    cBins=obj.dataBuffer(bufferIndex).cBins(:,s);
+                    cBins=allCBins(:,s);
 
                     cBinsTarget=cBins(targetClasses);
                     v=[cBinsTarget(extender) cBins (0:nClasses-1)'];
                 else
-                    v=obj.dataBuffer(bufferIndex).cBins(targetClasses,s)';
+                    v=allCBins(targetClasses,s)';
                 end
                 linInd=1+v*k;
                 cop(linInd)=cop(linInd)+1;
-            end
-        end
-    end
-    methods(Access='protected')
-        function cBins=bufferCBins(obj,data)
-            nClasses=length(data.getClassNames());
-            cBins=zeros(nClasses,length(data));
-            for s=1:length(data)
-                objects={data.getObject(s).name}';
-                counts=zeros(1,nClasses);
-                for o=1:length(objects)
-                    id=data.className2Index(objects{o});
-                    counts(id)=counts(id)+1;
-                end
-                tmpCBins=obj.getStateIndices(counts)-1;
-
-                cBins(:,s)=tmpCBins;
             end
         end
     end

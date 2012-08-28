@@ -1,4 +1,7 @@
 classdef OccurrenceEvidenceGenerator<LearnFunc.EvidenceGenerator
+    properties(SetAccess='protected')
+        dataBuffer
+    end
     
     properties(SetAccess='protected')
         states;
@@ -9,6 +12,7 @@ classdef OccurrenceEvidenceGenerator<LearnFunc.EvidenceGenerator
         function obj=OccurrenceEvidenceGenerator(states)
             obj.states=states;
             obj.comparer=obj.generateComparer(obj.states);
+            obj.dataBuffer=struct('dataHandle',{},'cBins',{});
         end    
         
         function indices=getStateIndices(obj,counts)
@@ -23,7 +27,45 @@ classdef OccurrenceEvidenceGenerator<LearnFunc.EvidenceGenerator
             assert(length(indices)==length(counts),'Pairwise:Probability:getStateIndices:badComparer',...
                 'The states of the pairwise probability comparer are not complete.');
         end
+        
+        function cBins=getCBins(obj,data)
+            % find the buffer belonging to the queried dataset
+            bufferIndex=0;
+            for i=1:length(obj.dataBuffer)
+                if obj.dataBuffer(i).dataHandle==data
+                    bufferIndex=i;
+                end
+            end
+            
+            % if the datset hasn't been found yet, buffer the state bins
+            % indices
+            if bufferIndex==0
+                obj.dataBuffer(end+1).cBins=obj.bufferCBins(data);
+                obj.dataBuffer(end).dataHandle=data;
+                bufferIndex=length(obj.dataBuffer);
+            end
+            
+            cBins=obj.dataBuffer(bufferIndex).cBins;
+        end
     end
+    methods(Access='protected')
+        function cBins=bufferCBins(obj,data)
+            nClasses=length(data.getClassNames());
+            cBins=zeros(nClasses,length(data));
+            for s=1:length(data)
+                objects={data.getObject(s).name}';
+                counts=zeros(1,nClasses);
+                for o=1:length(objects)
+                    id=data.className2Index(objects{o});
+                    counts(id)=counts(id)+1;
+                end
+                tmpCBins=obj.getStateIndices(counts)-1;
+
+                cBins(:,s)=tmpCBins;
+            end
+        end
+    end
+    
     methods(Access='protected',Static)
         function comparer=generateComparer(states)
             comparer=cell(length(states),1);

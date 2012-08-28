@@ -1,18 +1,24 @@
 classdef ConditionalOccurrenceLearner<LearnFunc.OccurrenceLearner
     properties(SetAccess='protected')
         valueMatrix % valueMatrix=[trueNegativ falseNegativ;falsePositiv truePositiv]
+        maxParents
     end
     
     properties(Constant) 
         nrSplits=10
-        maxParents=10
+        defaultMaxParents=10
     end
     
     methods
-        function obj=ConditionalOccurrenceLearner(evidenceGenerator,valueMatrix)
+        function obj=ConditionalOccurrenceLearner(evidenceGenerator,valueMatrix,maxParents)
             obj=obj@LearnFunc.OccurrenceLearner(evidenceGenerator);
             
             obj.valueMatrix=valueMatrix;
+            if nargin>=3
+                obj.maxParents=maxParents;
+            else
+                obj.maxParents=obj.defaultMaxParents;
+            end
         end
         
         function learn(obj,data)

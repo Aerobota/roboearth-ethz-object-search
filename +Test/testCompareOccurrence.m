@@ -22,6 +22,7 @@ dataTest.load();
 evidenceGenerator=LearnFunc.CooccurrenceEvidenceGenerator(occurrenceStates);
 
 learnerCond=LearnFunc.ConditionalOccurrenceLearner(evidenceGenerator,valueMatrix);
+learnerCondSimple=LearnFunc.ConditionalOccurrenceLearner(evidenceGenerator,valueMatrix,1);
 learnerNaive=LearnFunc.NaiveOccurrenceLearner(evidenceGenerator);
 
 evaluatorThresh=Evaluation.ThresholdOccurrenceEvaluator();
@@ -29,11 +30,13 @@ evaluatorThresh=Evaluation.ThresholdOccurrenceEvaluator();
 %% Learn probabilities
 
 learnerCond.learn(dataTrain);
+learnerCondSimple.learn(dataTrain);
 learnerNaive.learn(dataTrain);
 
 %% Evaluate Test Images
 
 resultThreshCond=evaluatorThresh.evaluate(dataTest,learnerCond);
+resultThreshCondSimple=evaluatorThresh.evaluate(dataTest,learnerCondSimple);
 resultThreshNaive=evaluatorThresh.evaluate(dataTest,learnerNaive);
 
 %% Generate graphs
@@ -47,6 +50,7 @@ worstText=['worst ' num2str(length(bestClasses)) ' classes'];
 
 precRecallAll=Evaluation.PrecRecallEvaluationData;
 precRecallAll.addData(resultThreshCond.conditioned,'informed',colours{2},styles{2})
+precRecallAll.addData(resultThreshCondSimple.conditioned,'simple',colours{3},styles{3})
 % precRecall.addData(resultThresh.conditioned,bestText,colours{3},styles{3},bestClasses)
 precRecallAll.addData(resultThreshNaive.conditioned,'naive',colours{4},styles{4})
 precRecallAll.addData(resultThreshCond.baseline,'baseline',colours{1},styles{1})
@@ -55,6 +59,7 @@ precRecallAll.draw()
 
 precRecallBest=Evaluation.PrecRecallEvaluationData;
 precRecallBest.addData(resultThreshCond.conditioned,'informed',colours{2},styles{2},bestClasses)
+precRecallBest.addData(resultThreshCondSimple.conditioned,'simple',colours{3},styles{3},bestClasses)
 % precRecall.addData(resultThresh.conditioned,bestText,colours{3},styles{3},bestClasses)
 precRecallBest.addData(resultThreshNaive.conditioned,'naive',colours{4},styles{4},bestClasses)
 precRecallBest.addData(resultThreshCond.baseline,'baseline',colours{1},styles{1},bestClasses)
@@ -63,6 +68,7 @@ precRecallBest.draw()
 
 precRecallWorst=Evaluation.PrecRecallEvaluationData;
 precRecallWorst.addData(resultThreshCond.conditioned,'informed',colours{2},styles{2},worstClasses)
+precRecallWorst.addData(resultThreshCondSimple.conditioned,'simple',colours{3},styles{3},worstClasses)
 % precRecall.addData(resultThresh.conditioned,bestText,colours{3},styles{3},bestClasses)
 precRecallWorst.addData(resultThreshNaive.conditioned,'naive',colours{4},styles{4},worstClasses)
 precRecallWorst.addData(resultThreshCond.baseline,'baseline',colours{1},styles{1},worstClasses)

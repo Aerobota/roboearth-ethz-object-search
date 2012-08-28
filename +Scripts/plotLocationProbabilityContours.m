@@ -2,13 +2,13 @@
 
 classPairs={...
     'sink','faucet';...
-    'sink','bottle';...
+    'cabinet','bottle';...
     'bookshelf','book';...
     'cabinet','faucet'};
 
 nPoints=200;
 
-doContours=false;
+doContours=true;
 
 nContours=20;
 
@@ -29,7 +29,7 @@ end
 for c=1:size(classPairs,1)
     myMeans=locLearnCylindricGMM.model.(classPairs{c,1}).(classPairs{c,2}).mean;
     rmax=round(2*max(myMeans(1,:))+1)/2;
-    zmin=round(2*min(myMeans(2,:))+1)/2;
+    zmin=round(2*min(myMeans(2,:))-1)/2;
     zmax=round(2*max(myMeans(2,:))+1)/2;
     
     delta=rmax-zmax+zmin;

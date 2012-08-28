@@ -17,7 +17,7 @@ firstNPlotStyle={':*',':s',':+',':o',':x'};
 gmmDistancesPrecRecall=Evaluation.PrecRecallEvaluationData;
 gmmDistancesFirstN=Evaluation.FirstNEvaluationData;
 
-results={resultCylindricGMM,resultCylindricGMMAvg};
+results={resultCylindricGMMProd,resultCylindricGMM};
 legendTexts={'orig','avg'};
 
 for i=1:length(results)

@@ -4,8 +4,14 @@ classdef OccurrenceEvidenceGenerator<LearnFunc.EvidenceGenerator
         comparer;
     end
     
+    properties(Constant)
+        minSamples=10
+    end
+    
     methods(Abstract)
         result=calculateStatistics(obj,testData,occLearner,occEval)
+        eu=calculateExpectedUtility(obj,data,targetClasses,decisionSubset,testSubset,valueMatrix)
+        [margP,condP]=calculateModelStatistics(obj,data,targetClasses)
     end
     
     methods
@@ -76,6 +82,13 @@ classdef OccurrenceEvidenceGenerator<LearnFunc.EvidenceGenerator
     end
     
     methods(Access='protected',Static)
+        function bool=reduceToBool(in)
+            tmpSize=size(in);
+            bool=zeros([2 tmpSize(2:end)]);
+            bool(1,:)=in(1,:);
+            bool(2,:)=sum(in(2:end,:),1);
+        end
+        
         function comparer=generateComparer(states)
             comparer=cell(length(states),1);
             lastMax=-1;
@@ -114,6 +127,10 @@ classdef OccurrenceEvidenceGenerator<LearnFunc.EvidenceGenerator
                         'The first state has to be ''0''');
                 end
             end
+        end
+        
+        function out=selectVal(in,i,j)
+            out=in((j-1)*size(in,1)+i);
         end
     end
 end

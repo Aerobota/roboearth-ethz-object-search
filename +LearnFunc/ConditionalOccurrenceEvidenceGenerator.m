@@ -72,5 +72,38 @@ classdef ConditionalOccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGene
                 result.expectedUtility(1,i)=occLearner.model.(myNames{i}).expectedUtility;
             end
         end
+        
+        function eu=calculateExpectedUtility(obj,data,targetClasses,decisionSubset,testSubset,valueMatrix)
+            copDec=obj.reduceToBool(obj.getEvidence(data,targetClasses,decisionSubset,'all'));
+            optDec=obj.computeCostOptimalDecisions(copDec(:,:),valueMatrix);
+            copTest=obj.reduceToBool(obj.getEvidence(data,targetClasses,testSubset,'all'));
+            euCond=obj.computeExpectedUtilityConditional(copTest(:,:),optDec,valueMatrix);
+            eu=sum(reshape(euCond/(sum(copTest(:))/size(copTest,ndims(copTest))),...
+                [numel(euCond)/size(copTest,ndims(copTest)) size(copTest,ndims(copTest))]),1);
+        end
+        
+        function [margP,condP]=calculateModelStatistics(obj,data,targetClasses)
+            margP=obj.reduceToBool(obj.getEvidence(data,targetClasses(1),1:length(data),'single'));
+            margP=margP/sum(margP);
+            condP=obj.reduceToBool(obj.getEvidence(data,targetClasses,1:length(data),'single'));
+            badIndices=sum(condP(:,:),1)<obj.minSamples;
+            condP=condP./repmat(sum(condP,1)+eps,[2 1]);
+            condP(:,badIndices)=repmat(margP,[1 sum(badIndices)]);
+        end
+    end
+    methods(Access='protected')        
+        function euCond=computeExpectedUtilityConditional(obj,booleanCP,decisionVec,valueMatrix)
+            decisionVecOpp=3-decisionVec;
+            euCond=booleanCP(decisionVec+ones(size(decisionVec,1),1)*(0:size(booleanCP,2)-1)*size(booleanCP,1)).*...
+                obj.selectVal(valueMatrix,decisionVec,decisionVec)+...
+                booleanCP(decisionVecOpp+ones(size(decisionVec,1),1)*(0:size(booleanCP,2)-1)*size(booleanCP,1)).*...
+                obj.selectVal(valueMatrix,decisionVec,decisionVecOpp);
+        end
+        
+        function dec=computeCostOptimalDecisions(obj,booleanCP,valueMatrix)
+            tmpDecision=[1;2]*ones(1,size(booleanCP,2));
+            tmpEU=obj.computeExpectedUtilityConditional(booleanCP,tmpDecision,valueMatrix);
+            [~,dec]=max(tmpEU,[],1);
+        end
     end
 end

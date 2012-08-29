@@ -19,11 +19,12 @@ dataTrain.load();
 dataTest=DataHandlers.NYUDataStructure(datasetPath,'test');
 dataTest.load();
 
-evidenceGenerator=LearnFunc.CooccurrenceEvidenceGenerator(occurrenceStates);
+evidenceGeneratorCond=LearnFunc.ConditionalOccurrenceEvidenceGenerator(occurrenceStates);
+evidenceGeneratorNaive=LearnFunc.NaiveOccurrenceEvidenceGenerator(occurrenceStates);
 
-learnerCond=LearnFunc.ConditionalOccurrenceLearner(evidenceGenerator,valueMatrix);
-learnerCondSimple=LearnFunc.ConditionalOccurrenceLearner(evidenceGenerator,valueMatrix,1);
-learnerNaive=LearnFunc.NaiveOccurrenceLearner(evidenceGenerator);
+learnerCond=LearnFunc.ExpectedUtilityOccurrenceLearner(evidenceGeneratorCond,valueMatrix);
+learnerCondSimple=LearnFunc.ExpectedUtilityOccurrenceLearner(evidenceGeneratorCond,valueMatrix,1);
+learnerNaive=LearnFunc.NaiveOccurrenceLearner(evidenceGeneratorNaive);
 
 evaluatorThresh=Evaluation.ThresholdOccurrenceEvaluator();
 

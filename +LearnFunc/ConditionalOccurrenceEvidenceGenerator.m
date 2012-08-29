@@ -1,6 +1,6 @@
-classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
+classdef ConditionalOccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
     methods
-        function obj=CooccurrenceEvidenceGenerator(states)
+        function obj=ConditionalOccurrenceEvidenceGenerator(states)
             obj=obj@LearnFunc.OccurrenceEvidenceGenerator(states);
         end
         
@@ -14,7 +14,7 @@ classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
             end
             
             % get state bin indices
-            allCBins=obj.getCBins(data);
+            allCBins=DataHandlers.stateBinsBuffer.getCBins(data,obj);
             
             if getAllClasses
                 nClasses=length(data.getClassNames());
@@ -44,6 +44,32 @@ classdef CooccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
                 end
                 linInd=1+v*k;
                 cop(linInd)=cop(linInd)+1;
+            end
+        end
+        
+        function result=calculateStatistics(obj,testData,occLearner,occEval)
+            myNames=occLearner.getLearnedClasses();
+            
+            for i=length(myNames):-1:1
+                searchIndices=testData.className2Index([myNames(i) occLearner.model.(myNames{i}).parents]);
+                
+                evidence=obj.getEvidence(testData,searchIndices,1:length(testData),'single');
+                tmpSize=size(evidence);
+                boolEvidence=zeros([2 tmpSize(2:end)]);
+                boolEvidence(1,:)=evidence(1,:);
+                boolEvidence(2,:)=sum(evidence(2:end,:),1);
+                
+                decisions=occEval.decisionImpl(occLearner.model.(myNames{i}));
+                
+                neg=repmat(boolEvidence(1,:),[size(decisions,1) 1]);
+                pos=repmat(boolEvidence(2,:),[size(decisions,1) 1]);
+                
+                result.tp(:,i)=sum(pos.*(decisions(:,:)==2),2);
+                result.fp(:,i)=sum(neg.*(decisions(:,:)==2),2);
+                result.pos(1,i)=sum(boolEvidence(2,:),2);
+                result.neg(1,i)=sum(boolEvidence(1,:),2);
+                
+                result.expectedUtility(1,i)=occLearner.model.(myNames{i}).expectedUtility;
             end
         end
     end

@@ -18,12 +18,12 @@ dataTrain=DataHandlers.NYUDataStructure(datasetPath,'train');
 dataTest=DataHandlers.NYUDataStructure(datasetPath,'test');
 
 for o=length(occurrenceStates):-1:1
-    occEvidenceGenerator{o}=LearnFunc.CooccurrenceEvidenceGenerator(occurrenceStates{o});
+    occEvidenceGenerator{o}=LearnFunc.ConditionalOccurrenceEvidenceGenerator(occurrenceStates{o});
 end
 
 for o=length(occEvidenceGenerator):-1:1
     for m=length(valueMatrix):-1:1
-        occLearner{m,o}=LearnFunc.ConditionalOccurrenceLearner(occEvidenceGenerator{o},valueMatrix{m});
+        occLearner{m,o}=LearnFunc.ExpectedUtilityOccurrenceLearner(occEvidenceGenerator{o},valueMatrix{m});
     end
 end
 

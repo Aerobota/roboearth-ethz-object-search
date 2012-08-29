@@ -19,9 +19,9 @@ dataTrain.load();
 dataTest=DataHandlers.NYUDataStructure(datasetPath,'test');
 dataTest.load();
 
-evidenceGenerator=LearnFunc.CooccurrenceEvidenceGenerator(occurrenceStates);
+evidenceGenerator=LearnFunc.ConditionalOccurrenceEvidenceGenerator(occurrenceStates);
 
-learner=LearnFunc.ConditionalOccurrenceLearner(evidenceGenerator,valueMatrix);
+learner=LearnFunc.ExpectedUtilityOccurrenceLearner(evidenceGenerator,valueMatrix);
 
 evaluatorThresh=Evaluation.ThresholdOccurrenceEvaluator();
 

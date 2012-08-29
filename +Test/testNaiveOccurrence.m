@@ -15,7 +15,7 @@ dataTrain.load();
 dataTest=DataHandlers.NYUDataStructure(datasetPath,'test');
 dataTest.load();
 
-evidenceGenerator=LearnFunc.CooccurrenceEvidenceGenerator(occurrenceStates);
+evidenceGenerator=LearnFunc.NaiveOccurrenceEvidenceGenerator(occurrenceStates);
 
 learner=LearnFunc.NaiveOccurrenceLearner(evidenceGenerator);
 

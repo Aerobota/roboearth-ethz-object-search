@@ -1,4 +1,4 @@
-classdef ConditionalOccurrenceLearner<LearnFunc.OccurrenceLearner
+classdef ExpectedUtilityOccurrenceLearner<LearnFunc.OccurrenceLearner
     properties(SetAccess='protected')
         valueMatrix % valueMatrix=[trueNegativ falseNegativ;falsePositiv truePositiv]
         maxParents
@@ -10,7 +10,7 @@ classdef ConditionalOccurrenceLearner<LearnFunc.OccurrenceLearner
     end
     
     methods
-        function obj=ConditionalOccurrenceLearner(evidenceGenerator,valueMatrix,maxParents)
+        function obj=ExpectedUtilityOccurrenceLearner(evidenceGenerator,valueMatrix,maxParents)
             obj=obj@LearnFunc.OccurrenceLearner(evidenceGenerator);
             
             obj.valueMatrix=valueMatrix;
@@ -72,32 +72,6 @@ classdef ConditionalOccurrenceLearner<LearnFunc.OccurrenceLearner
                     obj.model.(classes{cs}).optimalDecision(:)=...
                         obj.computeCostOptimalDecisions(obj.model.(classes{cs}).condProb(:,:));
                 end
-            end
-        end
-        
-        function result=calculateStatistics(obj,testData,occEval)
-            myNames=obj.getLearnedClasses();
-            
-            for i=length(myNames):-1:1
-                searchIndices=testData.className2Index([myNames(i) obj.model.(myNames{i}).parents]);
-                
-                evidence=obj.evidenceGenerator.getEvidence(testData,searchIndices,1:length(testData),'single');
-                tmpSize=size(evidence);
-                boolEvidence=zeros([2 tmpSize(2:end)]);
-                boolEvidence(1,:)=evidence(1,:);
-                boolEvidence(2,:)=sum(evidence(2:end,:),1);
-                
-                decisions=occEval.decisionImpl(obj.model.(myNames{i}));
-                
-                neg=repmat(boolEvidence(1,:),[size(decisions,1) 1]);
-                pos=repmat(boolEvidence(2,:),[size(decisions,1) 1]);
-                
-                result.tp(:,i)=sum(pos.*(decisions(:,:)==2),2);
-                result.fp(:,i)=sum(neg.*(decisions(:,:)==2),2);
-                result.pos(1,i)=sum(boolEvidence(2,:),2);
-                result.neg(1,i)=sum(boolEvidence(1,:),2);
-                
-                result.expectedUtility(1,i)=obj.model.(myNames{i}).expectedUtility;
             end
         end
     end

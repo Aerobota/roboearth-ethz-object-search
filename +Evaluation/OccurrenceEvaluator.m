@@ -12,7 +12,7 @@ classdef OccurrenceEvaluator<Evaluation.Evaluator
     
     methods
         function result=evaluate(obj,testData,occurrenceLearner)
-            result.conditioned=occurrenceLearner.calculateStatistics(testData,obj);
+            result.conditioned=occurrenceLearner.evidenceGenerator.calculateStatistics(testData,occurrenceLearner,obj);
             result.baseline=obj.calculateStatisticsBaseline(testData,occurrenceLearner);
             
             myNames=occurrenceLearner.getLearnedClasses();
@@ -32,11 +32,8 @@ classdef OccurrenceEvaluator<Evaluation.Evaluator
             for i=length(myNames):-1:1
                 searchIndices=testData.className2Index(myNames{i});
                 
-                evidence=occLearner.evidenceGenerator.getEvidence(testData,searchIndices,1:length(testData),'single');
-                tmpSize=size(evidence);
-                boolEvidence=zeros([2 tmpSize(2:end)]);
-                boolEvidence(1,:)=evidence(1,:);
-                boolEvidence(2,:)=sum(evidence(2:end,:),1);
+                tmpEvidenceGenerator=LearnFunc.ConditionalOccurrenceEvidenceGenerator({'0','1+'});
+                boolEvidence=tmpEvidenceGenerator.getEvidence(testData,searchIndices,1:length(testData),'single');
                 
                 decisions=obj.decisionBaseline(occLearner.model.(myNames{i}).margP);
 

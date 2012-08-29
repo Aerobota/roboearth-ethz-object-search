@@ -12,12 +12,12 @@ classdef NaiveOccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
         
         function out=getEvidence(obj,data,targetClasses,subsetIndices,mode)
             if strcmpi(mode,'perImage')
-                out=DataHandlers.StateBinsBuffer.getCBins(data,obj);
+                out=obj.getCBins(data);
                 out=out(targetClasses,subsetIndices);
             elseif strcmpi(mode,'all') 
                 assert(length(targetClasses)==1,'EvidenceGenerator:badInput',...
                     'In mode ''all'' the targetClasses argument must be a scalar')
-                cBins=DataHandlers.StateBinsBuffer.getCBins(data,obj);
+                cBins=obj.getCBins(data);
                 out=zeros(length(obj.states),length(obj.states),length(data.getClassNames()));
                 
                 k=[1;size(out,1);size(out,1)*size(out,2)];

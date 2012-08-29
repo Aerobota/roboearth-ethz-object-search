@@ -26,8 +26,54 @@ classdef OccurrenceEvidenceGenerator<LearnFunc.EvidenceGenerator
             assert(length(indices)==length(counts),'Pairwise:Probability:getStateIndices:badComparer',...
                 'The states of the pairwise probability comparer are not complete.');
         end
+        
+        function cBins=getCBins(obj,data)
+            persistent dataBuffer
+            
+            if isempty(dataBuffer)
+                dataBuffer=struct('dataHandle',{},'states',{},'cBins',{});
+            end
+            
+            % find the buffer belonging to the queried dataset
+            bufferIndex=0;
+            for i=1:length(dataBuffer)
+                if dataBuffer(i).dataHandle==data &&...
+                        length(dataBuffer(i).states)==length(obj.states) &&...
+                        all(strcmpi(dataBuffer(i).states,obj.states))
+                    bufferIndex=i;
+                end
+            end
+            
+            % if the datset hasn't been found yet, buffer the state bins
+            % indices
+            if bufferIndex==0
+                dataBuffer(end+1).cBins=obj.bufferCBins(data);
+                dataBuffer(end).dataHandle=data;
+                dataBuffer(end).states=obj.states;
+                bufferIndex=length(dataBuffer);
+            end
+            
+            cBins=dataBuffer(bufferIndex).cBins;
+        end
     end
     
+    methods(Access='protected')
+        function cBins=bufferCBins(obj,data)
+            nClasses=length(data.getClassNames());
+            cBins=zeros(nClasses,length(data));
+            for s=1:length(data)
+                objects={data.getObject(s).name}';
+                counts=zeros(1,nClasses);
+                for o=1:length(objects)
+                    id=data.className2Index(objects{o});
+                    counts(id)=counts(id)+1;
+                end
+                tmpCBins=obj.getStateIndices(counts)-1;
+
+                cBins(:,s)=tmpCBins;
+            end
+        end
+    end
     
     methods(Access='protected',Static)
         function comparer=generateComparer(states)

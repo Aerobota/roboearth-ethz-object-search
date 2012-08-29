@@ -14,7 +14,7 @@ classdef ConditionalOccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGene
             end
             
             % get state bin indices
-            allCBins=DataHandlers.stateBinsBuffer.getCBins(data,obj);
+            allCBins=DataHandlers.StateBinsBuffer.getCBins(data,obj);
             
             if getAllClasses
                 nClasses=length(data.getClassNames());

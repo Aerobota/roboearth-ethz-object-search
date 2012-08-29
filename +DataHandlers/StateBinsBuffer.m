@@ -1,4 +1,4 @@
-classdef stateBinsBuffer<handle
+classdef StateBinsBuffer<handle
     %STATEBINSBUFFER Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -11,13 +11,15 @@ classdef stateBinsBuffer<handle
             persistent myInstance
             
             if isempty(myInstance)
-                myInstance=DataHandlers.stateBinsBuffer();
+                myInstance=DataHandlers.StateBinsBuffer();
             end
             
             % find the buffer belonging to the queried dataset
             bufferIndex=0;
             for i=1:length(myInstance.dataBuffer)
-                if myInstance.dataBuffer(i).dataHandle==data
+                if myInstance.dataBuffer(i).dataHandle==data &&...
+                        length(myInstance.dataBuffer(i).states)==length(evidenceGenerator.states) &&...
+                        all(strcmpi(myInstance.dataBuffer(i).states,evidenceGenerator.states))
                     bufferIndex=i;
                 end
             end
@@ -27,6 +29,7 @@ classdef stateBinsBuffer<handle
             if bufferIndex==0
                 myInstance.dataBuffer(end+1).cBins=myInstance.bufferCBins(data,evidenceGenerator);
                 myInstance.dataBuffer(end).dataHandle=data;
+                myInstance.dataBuffer(end).states=evidenceGenerator.states;
                 bufferIndex=length(myInstance.dataBuffer);
             end
             
@@ -35,8 +38,8 @@ classdef stateBinsBuffer<handle
     end
     
     methods(Static,Access='protected')
-        function obj=stateBinsBuffer()
-            obj.dataBuffer=struct('dataHandle',{},'cBins',{});
+        function obj=StateBinsBuffer()
+            obj.dataBuffer=struct('dataHandle',{},'states',{},'cBins',{});
         end
         function cBins=bufferCBins(data,evidenceGenerator)
             nClasses=length(data.getClassNames());

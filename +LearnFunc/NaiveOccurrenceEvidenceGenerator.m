@@ -62,6 +62,44 @@ classdef NaiveOccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
                 result.neg(1,i)=length(evidenceSmall)-result.pos(1,i);
             end
         end
+        
+        function eu=calculateExpectedUtility(obj,data,targetClasses,decisionSubset,testSubset,valueMatrix)
+            nClasses=length(data.getClassNames());
+            if isempty(targetClasses)
+                decMargP=obj.reduceToBool(obj.getMarginalProbabilities(data,1:nClasses,decisionSubset));
+            else
+                [decMargP,decCondP]=obj.calculateModelStatistics(data,targetClasses(1),decisionSubset);
+            end
+            
+            statesTest=obj.getEvidence(data,1:nClasses,testSubset,'perImage');
+            
+            for i=1:nClasses
+                if ~ismember(i,targetClasses)
+                    if isempty(targetClasses)
+                        tmpCondProb=decMargP(:,i);
+                    else
+                        currentClasses=[targetClasses(2:end) i];
+                        for c=length(currentClasses):-1:1
+                            factorCollection(:,c,:)=permute(decCondP(:,statesTest(currentClasses(c),:)+1,c),[1 3 2]);
+                        end
+                        tmpCondProb=squeeze(prod(factorCollection,2)).*...
+                        decMargP(:,ones(length(evidenceSmall),1));
+                        tmpCondProb=tmpCondProb./repmat(sum(tmpCondProb,1),[2 1]);
+                        keyboard
+                    end
+                    $$$$$$$$$$$$$$$$$
+                    use tmpCondProb to calculate the cost optimal decision and the eu
+                end
+            end
+        end
+        
+        function [margP,condP]=calculateModelStatistics(obj,data,targetClasses,subset)
+            margP=obj.reduceToBool(obj.getMarginalProbabilities(data,targetClasses(1),subset));
+            condP=obj.reduceToBool(obj.getEvidence(data,targetClasses(1),subset,'all'));
+            condP=condP(:,:,targetClasses(2:end));
+            condP=condP./repmat(sum(condP,1)+eps,[2 1]);
+            keyboard
+        end
     end
 end
 

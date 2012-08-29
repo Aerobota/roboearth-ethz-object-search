@@ -82,10 +82,9 @@ classdef ConditionalOccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGene
                 [numel(euCond)/size(copTest,ndims(copTest)) size(copTest,ndims(copTest))]),1);
         end
         
-        function [margP,condP]=calculateModelStatistics(obj,data,targetClasses)
-            margP=obj.reduceToBool(obj.getEvidence(data,targetClasses(1),1:length(data),'single'));
-            margP=margP/sum(margP);
-            condP=obj.reduceToBool(obj.getEvidence(data,targetClasses,1:length(data),'single'));
+        function [margP,condP]=calculateModelStatistics(obj,data,targetClasses,subset)
+            margP=obj.reduceToBool(obj.getMarginalProbabilities(data,targetClasses(1),subset));
+            condP=obj.reduceToBool(obj.getEvidence(data,targetClasses,subset,'single'));
             badIndices=sum(condP(:,:),1)<obj.minSamples;
             condP=condP./repmat(sum(condP,1)+eps,[2 1]);
             condP(:,badIndices)=repmat(margP,[1 sum(badIndices)]);

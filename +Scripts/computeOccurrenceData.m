@@ -27,7 +27,6 @@ for o=length(occEvidenceGenerator):-1:1
     end
 end
 
-evaluatorOpt=Evaluation.CostOptimalOccurrenceEvaluator();
 evaluatorThresh=Evaluation.ThresholdOccurrenceEvaluator();
 
 %% Load data
@@ -49,20 +48,17 @@ end
 
 disp('evaluating')
 
-resultOpt=cell(size(occLearner,1),size(occLearner,2));
 resultThresh=cell(size(occLearner,1),size(occLearner,2));
 
 for l=1:numel(occLearner)
-    resultOpt{l}=evaluatorOpt.evaluate(dataTest,occLearner{l});
     resultThresh{l}=evaluatorThresh.evaluate(dataTest,occLearner{l});
 end
 
 %% Clear temporaries
 
-clear('l','m','o','dataTrain','dataTest','occEvidenceGenerator','evaluatorOpt',...
+clear('l','m','o','dataTrain','dataTest','occEvidenceGenerator',...
     'evaluatorThresh','sourceFolder','datasetPath')
 
 %% Save results to file
 
-save('tmpOccurrenceData.mat','occurrenceStates','valueMatrix','occLearner',...
-    'resultOpt','resultThresh')
+save('tmpOccurrenceData.mat','occurrenceStates','valueMatrix','occLearner','resultThresh')

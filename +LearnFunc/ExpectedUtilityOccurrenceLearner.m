@@ -68,7 +68,7 @@ classdef ExpectedUtilityOccurrenceLearner<LearnFunc.OccurrenceLearner
 %                     obj.model.(classes{cs}).condProb=obj.cleanBooleanCP(booleanCPComplete,booleanMargP);
 
                     [obj.model.(classes{cs}).margP,obj.model.(classes{cs}).condProb]=...
-                        obj.evidenceGenerator.calculateModelStatistics(data,goodIndices);
+                        obj.evidenceGenerator.calculateModelStatistics(data,goodIndices,1:length(data));
                                         
 %                     tmpSize=size(obj.model.(classes{cs}).condProb);
 %                     obj.model.(classes{cs}).optimalDecision=zeros([1 tmpSize(2:end)]);

@@ -23,8 +23,8 @@ classdef NaiveOccurrenceLearner<LearnFunc.OccurrenceLearner
                 boolCP(2,:)=sum(cp(2:end,:),1);
                 obj.model.(classes{cs}).parents=largeClassNames;
                 obj.model.(classes{cs}).condProb=boolCP./repmat(sum(boolCP,2),[1 size(boolCP,2) 1]);
-                obj.model.(classes{cs}).margP=sum(boolCP(:,:,1),2);
-                obj.model.(classes{cs}).margP=obj.model.(classes{cs}).margP/sum(obj.model.(classes{cs}).margP);
+                obj.model.(classes{cs}).margP=obj.evidenceGenerator.reduceToBool(...
+                    obj.evidenceGenerator.getMarginalProbabilities(data,cs,1:length(data)));
             end
         end
     end

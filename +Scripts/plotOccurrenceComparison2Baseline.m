@@ -3,7 +3,6 @@
 plotExtremeClasses=true;
 nOfExtremeClasses=5;
 
-%desiredPlots=[2 2 1;2 2 2;2 2 3;2 1 3;1 2 3];
 desiredPlots=[2 1 1;2 1 2];
 
 colours={'k','b',[0 0.6 0],[0.8 0 0]}; %{baseline,informed,good,bad}
@@ -12,7 +11,7 @@ styles={'-','-.','--','--'};
 
 %% Initialise
 
-assert(exist('resultOpt','var')==1 && exist('resultThresh','var')==1,...
+assert(exist('resultThresh','var')==1,...
     'Scripts.computeOccurrenceData needs to be run before this script.')
 
 %% Compare to baseline
@@ -30,30 +29,19 @@ for p=1:size(desiredPlots,1)
     end
     occStr=[occStr '\}'];
 
-    %description={['occurrence states = ' occStr];['value matrix = ' mat2str(valueMatrix{m})]};
-
     if t==1
         cond2Base{p}=Evaluation.ROCEvaluationData;
         cond2Base{p}.addData(resultThresh{m,o}.conditioned,'informed',colours{2},styles{2})
         cond2Base{p}.addData(resultThresh{m,o}.baseline,'baseline',colours{1},styles{1})
-        %cond2Base{p}.setTitle([{'receiver operating characteristic'};description])
         cond2Base{p}.setTitle('receiver operating characteristic')
     elseif t==2
         cond2Base{p}=Evaluation.PrecRecallEvaluationData;
         cond2Base{p}.addData(resultThresh{m,o}.conditioned,'informed',colours{2},styles{2})
         cond2Base{p}.addData(resultThresh{m,o}.baseline,'baseline',colours{1},styles{1})
-        %cond2Base{p}.setTitle([{'precision recall curve'};description])
         cond2Base{p}.setTitle('precision recall curve')
-    elseif t==3
-        cond2Base{p}=Evaluation.CostOptimalEvaluationData;
-        goodClasses=resultOpt{m,o}.conditioned.tp~=0 & resultOpt{m,o}.conditioned.fp~=0;
-        cond2Base{p}.addData(resultOpt{m,o}.conditioned,'individual',colours{2},styles{2},goodClasses)
-        cond2Base{p}.setBaseline(resultOpt{m,o}.baseline,colours{1})
-        %cond2Base{p}.setTitle([{'cost optimal decision'};description])
-        cond2Base{p}.setTitle('cost optimal decision')
     end
     
-    if plotExtremeClasses && t<3
+    if plotExtremeClasses
         [~,bestClasses]=sort(resultThresh{m,o}.conditioned.expectedUtility,'descend');
         [~,worstClasses]=sort(resultThresh{m,o}.conditioned.expectedUtility,'ascend');
         bestClasses=bestClasses(1:min(5,end));

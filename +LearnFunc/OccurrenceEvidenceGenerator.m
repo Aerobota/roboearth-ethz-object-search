@@ -11,7 +11,7 @@ classdef OccurrenceEvidenceGenerator<LearnFunc.EvidenceGenerator
     methods(Abstract)
         result=calculateStatistics(obj,testData,occLearner,occEval)
         eu=calculateExpectedUtility(obj,data,targetClasses,decisionSubset,testSubset,valueMatrix)
-        [margP,condP]=calculateModelStatistics(obj,data,targetClasses)
+        [margP,condP]=calculateModelStatistics(obj,data,targetClasses,subset)
     end
     
     methods
@@ -61,6 +61,22 @@ classdef OccurrenceEvidenceGenerator<LearnFunc.EvidenceGenerator
             
             cBins=dataBuffer(bufferIndex).cBins;
         end
+        
+        function margP=getMarginalProbabilities(obj,data,targetClasses,subset)
+            cBins=obj.getCBins(data);
+            cBins=permute(cBins(targetClasses,subset),[3,1,2]);
+            margP=sum(repmat((0:length(obj.states)-1)',size(cBins))==repmat(cBins,[length(obj.states),1]),3);
+            margP=margP./repmat(sum(margP,1),[size(margP,1),1]);
+        end
+    end
+    
+    methods(Static)
+        function bool=reduceToBool(in)
+            tmpSize=size(in);
+            bool=zeros([2 tmpSize(2:end)]);
+            bool(1,:)=in(1,:);
+            bool(2,:)=sum(in(2:end,:),1);
+        end
     end
     
     methods(Access='protected')
@@ -82,13 +98,6 @@ classdef OccurrenceEvidenceGenerator<LearnFunc.EvidenceGenerator
     end
     
     methods(Access='protected',Static)
-        function bool=reduceToBool(in)
-            tmpSize=size(in);
-            bool=zeros([2 tmpSize(2:end)]);
-            bool(1,:)=in(1,:);
-            bool(2,:)=sum(in(2:end,:),1);
-        end
-        
         function comparer=generateComparer(states)
             comparer=cell(length(states),1);
             lastMax=-1;

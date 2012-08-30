@@ -46,15 +46,15 @@ description=['occurrence states = ' occStr]
 
 % compMatricesROC.setTitle({'receiver operating characteristic';description})
 compMatricesROC.setTitle('receiver operating characteristic')
-compMatricesPrecRecall.setTitle({'precision recall curve';description})
+compMatricesPrecRecall.setTitle('precision recall curve')
 
 compMatricesROCBest.setTitle({['receiver operating characteristic for best '...
     num2str(nOfBestClasses) ' classes'];description})
 compMatricesPrecRecallBest.setTitle({['precision recall curve for best '...
     num2str(nOfBestClasses) ' classes'];description})
 
-compMatricesROC.draw()
-% compMatricesPrecRecall.draw()
+% compMatricesROC.draw()
+compMatricesPrecRecall.draw()
 % 
 % compMatricesROCBest.draw()
 % compMatricesPrecRecallBest.draw()

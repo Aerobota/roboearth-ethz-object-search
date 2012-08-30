@@ -5,7 +5,7 @@ occurrenceStates{2}={'0','1','2+'};
 valueMatrix{1}=[1 -1;-1 1];
 valueMatrix{2}=[0 -1;-0.5 1];
 valueMatrix{3}=[0 -0.5;-1 1];
-valueMatrix{4}=[0 -1;-0.3 1];
+% valueMatrix{4}=[0 -1;-0.3 1];
 
 %% Initialise
 

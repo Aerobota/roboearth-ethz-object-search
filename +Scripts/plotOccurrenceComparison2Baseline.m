@@ -3,7 +3,7 @@
 plotExtremeClasses=true;
 nOfExtremeClasses=5;
 
-desiredPlots=[2 1 1;2 1 2];
+desiredPlots=[2 1 2];
 
 colours={'k','b',[0 0.6 0],[0.8 0 0]}; %{baseline,informed,good,bad}
 styles={'-','-.','--','--'};

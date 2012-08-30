@@ -76,7 +76,7 @@ classdef NaiveOccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
             decMargP=obj.reduceToBool(obj.getMarginalProbabilities(data,1:nClasses,decisionSubset));
             if ~isempty(targetClasses)
                 decCondP=obj.reduceToBool(obj.getEvidence(data,targetClasses(1),decisionSubset,'all'));
-                decCondP=decCondP./repmat(sum(decCondP,2)+eps,[1 2]);
+                decCondP=decCondP./repmat(sum(decCondP,2)+eps,[1 size(decCondP,2)]);
             end
             
             threshold=(valueMatrix(1,1)-valueMatrix(2,1))/(valueMatrix(1,1)+valueMatrix(2,2)-valueMatrix(2,1)-valueMatrix(1,2));
@@ -110,7 +110,7 @@ classdef NaiveOccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
             margP=obj.reduceToBool(obj.getMarginalProbabilities(data,targetClasses(1),subset));
             condP=obj.reduceToBool(obj.getEvidence(data,targetClasses(1),subset,'all'));
             condP=condP(:,:,targetClasses(2:end));
-            condP=condP./repmat(sum(condP,2)+eps,[1 2]);
+            condP=condP./repmat(sum(condP,2)+eps,[1 size(condP,2)]);
         end
     end
     

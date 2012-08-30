@@ -29,6 +29,7 @@ To obtain the evaluation plots for the occurrence the following two steps are ne
 2. Plotting the result:
 
 		Scripts.plotOccurrenceComparison2Baseline
+		Scripts.plotOccurrenceComparisonModels
 		Scripts.plotOccurrenceStates
 		Scripts.plotOccurrenceValueMatrix
 

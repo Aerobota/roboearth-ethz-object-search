@@ -14,44 +14,44 @@ assert(exist('resultThresh','var')==1,...
 
 %% Compare value matrices
 
-compMatricesROC=Evaluation.ROCEvaluationData;
+% compMatricesROC=Evaluation.ROCEvaluationData;
 compMatricesPrecRecall=Evaluation.PrecRecallEvaluationData;
-compMatricesROCBest=Evaluation.ROCEvaluationData;
-compMatricesPrecRecallBest=Evaluation.PrecRecallEvaluationData;
+% compMatricesROCBest=Evaluation.ROCEvaluationData;
+% compMatricesPrecRecallBest=Evaluation.PrecRecallEvaluationData;
 
 o=standardOccurrenceState;
 
 for m=1:size(resultThresh,1)
-    compMatricesROC.addData(resultThresh{m,o}.conditioned,['value matrix = ' mat2str(valueMatrix{m})],...
-        colours{mod(m-1,length(colours))+1},styles{mod(m-1,length(styles))+1})
+%     compMatricesROC.addData(resultThresh{m,o}.conditioned,['value matrix = ' mat2str(valueMatrix{m})],...
+%         colours{mod(m-1,length(colours))+1},styles{mod(m-1,length(styles))+1})
     compMatricesPrecRecall.addData(resultThresh{m,o}.conditioned,['value matrix = ' mat2str(valueMatrix{m})],...
         colours{mod(m-1,length(colours))+1},styles{mod(m-1,length(styles))+1})
-    
-    [~,bestClasses]=sort(resultThresh{m,o}.conditioned.expectedUtility,'descend');
-    bestClasses=bestClasses(1:min(5,end));
-    
-    compMatricesROCBest.addData(resultThresh{m,o}.conditioned,['value matrix = ' mat2str(valueMatrix{m})],...
-        colours{mod(m-1,length(colours))+1},styles{mod(m-1,length(styles))+1},bestClasses)
-    compMatricesPrecRecallBest.addData(resultThresh{m,o}.conditioned,['value matrix = ' mat2str(valueMatrix{m})],...
-        colours{mod(m-1,length(colours))+1},styles{mod(m-1,length(styles))+1},bestClasses)
+%     
+%     [~,bestClasses]=sort(resultThresh{m,o}.conditioned.expectedUtility,'descend');
+%     bestClasses=bestClasses(1:min(5,end));
+%     
+%     compMatricesROCBest.addData(resultThresh{m,o}.conditioned,['value matrix = ' mat2str(valueMatrix{m})],...
+%         colours{mod(m-1,length(colours))+1},styles{mod(m-1,length(styles))+1},bestClasses)
+%     compMatricesPrecRecallBest.addData(resultThresh{m,o}.conditioned,['value matrix = ' mat2str(valueMatrix{m})],...
+%         colours{mod(m-1,length(colours))+1},styles{mod(m-1,length(styles))+1},bestClasses)
 end
-
-occStr=['\{' occurrenceStates{o}{1}];
-for i=2:length(occurrenceStates{o})
-    occStr=[occStr ',' occurrenceStates{o}{i}];
-end
-occStr=[occStr '\}'];
-
-description=['occurrence states = ' occStr]
+% 
+% occStr=['\{' occurrenceStates{o}{1}];
+% for i=2:length(occurrenceStates{o})
+%     occStr=[occStr ',' occurrenceStates{o}{i}];
+% end
+% occStr=[occStr '\}'];
+% 
+% description=['occurrence states = ' occStr]
 
 % compMatricesROC.setTitle({'receiver operating characteristic';description})
-compMatricesROC.setTitle('receiver operating characteristic')
+% compMatricesROC.setTitle('receiver operating characteristic')
 compMatricesPrecRecall.setTitle('precision recall curve')
-
-compMatricesROCBest.setTitle({['receiver operating characteristic for best '...
-    num2str(nOfBestClasses) ' classes'];description})
-compMatricesPrecRecallBest.setTitle({['precision recall curve for best '...
-    num2str(nOfBestClasses) ' classes'];description})
+% 
+% compMatricesROCBest.setTitle({['receiver operating characteristic for best '...
+%     num2str(nOfBestClasses) ' classes'];description})
+% compMatricesPrecRecallBest.setTitle({['precision recall curve for best '...
+%     num2str(nOfBestClasses) ' classes'];description})
 
 % compMatricesROC.draw()
 compMatricesPrecRecall.draw()
@@ -61,4 +61,4 @@ compMatricesPrecRecall.draw()
 
 %% Clear temporaries
 
-clear('i','m','o','occStr','description','standardOccurrenceState','colours','styles')
+clear('i','m','o','occStr','description','standardOccurrenceState','colours','styles','nOfBestClasses','bestClasses')

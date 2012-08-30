@@ -14,10 +14,10 @@ assert(exist('resultThresh','var')==1,...
 
 %% Compare value matrices
 
-compStatesROC=Evaluation.ROCEvaluationData;
+% compStatesROC=Evaluation.ROCEvaluationData;
 compStatesPrecRecall=Evaluation.PrecRecallEvaluationData;
-compStatesROCBest=Evaluation.ROCEvaluationData;
-compStatesPrecRecallBest=Evaluation.PrecRecallEvaluationData;
+% compStatesROCBest=Evaluation.ROCEvaluationData;
+% compStatesPrecRecallBest=Evaluation.PrecRecallEvaluationData;
 
 m=standardValueMatrix;
 
@@ -30,30 +30,30 @@ for o=1:size(resultThresh,2)
 
     description=['occurrence states = ' occStr];
     
-    compStatesROC.addData(resultThresh{m,o}.conditioned,description,...
-        colours{mod(o-1,length(colours))+1},styles{mod(o-1,length(styles))+1})
+%     compStatesROC.addData(resultThresh{m,o}.conditioned,description,...
+%         colours{mod(o-1,length(colours))+1},styles{mod(o-1,length(styles))+1})
     compStatesPrecRecall.addData(resultThresh{m,o}.conditioned,description,...
         colours{mod(o-1,length(colours))+1},styles{mod(o-1,length(styles))+1})
     
-    [~,bestClasses]=sort(resultThresh{m,o}.conditioned.expectedUtility,'descend');
-    bestClasses=bestClasses(1:min(5,end));
-    
-    compStatesROCBest.addData(resultThresh{m,o}.conditioned,description,...
-        colours{mod(o-1,length(colours))+1},styles{mod(o-1,length(styles))+1},bestClasses)
-    compStatesPrecRecallBest.addData(resultThresh{m,o}.conditioned,description,...
-        colours{mod(o-1,length(colours))+1},styles{mod(o-1,length(styles))+1},bestClasses)
+%     [~,bestClasses]=sort(resultThresh{m,o}.conditioned.expectedUtility,'descend');
+%     bestClasses=bestClasses(1:min(5,end));
+%     
+%     compStatesROCBest.addData(resultThresh{m,o}.conditioned,description,...
+%         colours{mod(o-1,length(colours))+1},styles{mod(o-1,length(styles))+1},bestClasses)
+%     compStatesPrecRecallBest.addData(resultThresh{m,o}.conditioned,description,...
+%         colours{mod(o-1,length(colours))+1},styles{mod(o-1,length(styles))+1},bestClasses)
 end
 
 
 
 % compStatesROC.setTitle({'receiver operating characteristic';['value matrix = ' mat2str(valueMatrix{m})]})
-compStatesROC.setTitle('receiver operating characteristic')
+% compStatesROC.setTitle('receiver operating characteristic')
 compStatesPrecRecall.setTitle('precision recall curve')
 
-compStatesROCBest.setTitle({['receiver operating characteristic for best '...
-    num2str(nOfBestClasses) ' classes'];['value matrix = ' mat2str(valueMatrix{m})]})
-compStatesPrecRecallBest.setTitle({['precision recall curve for best '...
-    num2str(nOfBestClasses) ' classes'];['value matrix = ' mat2str(valueMatrix{m})]})
+% compStatesROCBest.setTitle({['receiver operating characteristic for best '...
+%     num2str(nOfBestClasses) ' classes'];['value matrix = ' mat2str(valueMatrix{m})]})
+% compStatesPrecRecallBest.setTitle({['precision recall curve for best '...
+%     num2str(nOfBestClasses) ' classes'];['value matrix = ' mat2str(valueMatrix{m})]})
 
 % compStatesROC.draw()
 compStatesPrecRecall.draw()
@@ -63,4 +63,4 @@ compStatesPrecRecall.draw()
 
 %% Clear temporaries
 
-clear('i','m','o','occStr','description','standardValueMatrix','colours','styles')
+clear('i','m','o','occStr','description','standardValueMatrix','colours','styles','nOfBestClasses','bestClasses')

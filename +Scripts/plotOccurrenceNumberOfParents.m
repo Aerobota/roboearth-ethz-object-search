@@ -12,10 +12,14 @@ assert(exist('occLearner','var')==1,...
 
 for p=size(occLearner,3):-1:1
     tmpNames=occLearner{standardValueMatrix,standardOccurrenceState,p}.getLearnedClasses();
+    parentSet{p}=cell(0,1);
     for i=length(tmpNames):-1:1
         nParents(i,p)=length(occLearner{standardValueMatrix,standardOccurrenceState,p}.model...
             .(tmpNames{i}).parents);
+        parentSet{p}=[parentSet{p} occLearner{standardValueMatrix,standardOccurrenceState,p}.model...
+            .(tmpNames{i}).parents];
     end
+    setSize(p)=length(unique(parentSet{p}));
 end
 
 %% Plot
@@ -27,4 +31,4 @@ title('number of parents')
 
 %% Clear temporaries
 
-clear('p','i','nParents','tmpNames','standardValueMatrix','standardOccurrenceState')
+clear('p','i','nParents','parentSet','tmpNames','standardValueMatrix','standardOccurrenceState')

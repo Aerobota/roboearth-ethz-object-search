@@ -3,8 +3,8 @@
 standardOccurrenceState=1;
 nOfBestClasses=5;
 
-colours={'k','b',[0 0.6 0],[0.8 0 0]};
-styles={'-','-.','--','-'};
+colours={'b',[0.8 0 0]};
+styles={'-','--'};
 
 
 %% Initialise

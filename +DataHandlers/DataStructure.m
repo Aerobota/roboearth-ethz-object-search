@@ -104,7 +104,9 @@ classdef DataStructure<handle
                 obj.loadClasses();
             end
             
-            if iscellstr(name)
+            if isempty(name)
+                index=[];
+            elseif iscellstr(name)
                 for i=length(name):-1:1
                     index(1,i)=obj.class2ind.(name{i});
                 end

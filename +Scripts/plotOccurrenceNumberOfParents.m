@@ -25,7 +25,9 @@ end
 %% Plot
 
 figure()
-boxplot(nParents,1:2,'labels',{'dependent','naive'})
+boxplot(nParents,1:size(nParents,2),'labels',{'dependent','naive'})
+axis([0 size(nParents,2) -1 max(nParents(:))]+0.5)
+set(gca,'YTick',0:max(nParents(:)))
 
 title('number of parents')
 

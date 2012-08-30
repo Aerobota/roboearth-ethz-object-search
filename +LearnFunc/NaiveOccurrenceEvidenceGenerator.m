@@ -2,9 +2,6 @@ classdef NaiveOccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
     %NAIVEOCCURRENCEEVIDENCEGENERATOR Summary of this class goes here
     %   Detailed explanation goes here
     
-    properties
-    end
-    
     methods
         function obj=NaiveOccurrenceEvidenceGenerator(states)
             obj=obj@LearnFunc.OccurrenceEvidenceGenerator(states);

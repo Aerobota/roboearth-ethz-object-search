@@ -61,19 +61,9 @@ classdef ExpectedUtilityOccurrenceLearner<LearnFunc.OccurrenceLearner
                     obj.model.(classes{cs}).parents=classes(goodIndices(2:end));
                     
                     obj.model.(classes{cs}).expectedUtility=EULast;
-                    
-%                     [booleanCPComplete,~]=obj.computeESS(data,goodIndices,1:length(data),'single');
-%                     [booleanMargP,~]=obj.computeESS(data,cs,1:length(data),'single');
-%                     obj.model.(classes{cs}).margP=booleanMargP;
-%                     obj.model.(classes{cs}).condProb=obj.cleanBooleanCP(booleanCPComplete,booleanMargP);
 
                     [obj.model.(classes{cs}).margP,obj.model.(classes{cs}).condProb]=...
                         obj.evidenceGenerator.calculateModelStatistics(data,goodIndices,1:length(data));
-                                        
-%                     tmpSize=size(obj.model.(classes{cs}).condProb);
-%                     obj.model.(classes{cs}).optimalDecision=zeros([1 tmpSize(2:end)]);
-%                     obj.model.(classes{cs}).optimalDecision(:)=...
-%                         obj.computeCostOptimalDecisions(obj.model.(classes{cs}).condProb(:,:));
                 end
             end
         end
@@ -89,46 +79,8 @@ classdef ExpectedUtilityOccurrenceLearner<LearnFunc.OccurrenceLearner
             end
             EUNew=median(EUNew,1);
         end
-%         function [boolCP,margP]=computeESS(obj,data,currentIndices,subsetIndices,mode)
-%             cp=obj.evidenceGenerator.getEvidence(data,currentIndices,subsetIndices,mode);
-%             margP=sum(cp,1)/(sum(cp(:))/size(cp,ndims(cp)));
-%             cp=cp./(repmat(sum(cp,1),[size(cp,1) ones(1,ndims(cp)-1)])+eps);
-%             tmpSize=size(cp);
-%             boolCP=zeros([2 tmpSize(2:end)]);
-%             boolCP(1,:)=cp(1,:);
-%             boolCP(2,:)=sum(cp(2:end,:),1);
-%         end
-%         
-%         function eu=computeExpectedUtility(obj,booleanCP,margP,booleanDecisionCP)
-%             eu=zeros(1,size(booleanCP,ndims(booleanCP)));
-%             tmpCP=booleanCP(:,:);
-%             tmpDecisionCP=booleanDecisionCP(:,:);
-%             tmpMargP=margP(1,:);
-%             tmpCoeff=size(tmpCP,2)/length(eu);
-%             optDec=obj.computeCostOptimalDecisions(tmpDecisionCP);
-%             euCond=obj.computeExpectedUtilityConditional(tmpCP,optDec);
-%             eu=sum(reshape(euCond.*tmpMargP,[tmpCoeff length(eu)]),1);
-%         end
-%         
-%         function euCond=computeExpectedUtilityConditional(obj,booleanCP,decisionVec)
-%             decisionVecOpp=3-decisionVec;
-%             euCond=booleanCP(decisionVec+ones(size(decisionVec,1),1)*(0:size(booleanCP,2)-1)*size(booleanCP,1)).*...
-%                 obj.selectVal(obj.valueMatrix,decisionVec,decisionVec)+...
-%                 booleanCP(decisionVecOpp+ones(size(decisionVec,1),1)*(0:size(booleanCP,2)-1)*size(booleanCP,1)).*...
-%                 obj.selectVal(obj.valueMatrix,decisionVec,decisionVecOpp);
-%         end
-%         
-%         function dec=computeCostOptimalDecisions(obj,booleanCP)
-%             tmpDecision=(1:2)'*ones(1,size(booleanCP,2));
-%             tmpEU=obj.computeExpectedUtilityConditional(booleanCP,tmpDecision);
-%             [~,dec]=max(tmpEU,[],1);
-%         end
     end
-    methods(Static)
-%         function out=selectVal(in,i,j)
-%             out=in((j-1)*size(in,1)+i);
-%         end
-        
+    methods(Static)        
         function out=cleanBooleanCP(boolCP,boolMargP)
             out=boolCP;
             zeroIndexes=sum(out(:,:),1)==0;

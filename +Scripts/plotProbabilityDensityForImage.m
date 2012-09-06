@@ -14,6 +14,8 @@ outputFileRGB='tmpImg.png';
 maxDistance=0.5;
 maxCandidatePoints=5;
 
+probAlpha=0.9;
+
 %% Initialisation
 
 Scripts.setPaths
@@ -24,7 +26,7 @@ data.load()
 %% Calculate probability density
 
 probDensity=zeros(data.getImagesize(imageNumber).nrows,data.getImagesize(imageNumber).ncols);
-[prob,loc]=Evaluation.LocationEvaluator.probabilityVector(data,imageNumber,locLearnCylindricGMM,{targetClass});
+[prob,loc]=Evaluation.LocationEvaluator.probabilityVector(data,imageNumber,locLearnCylindricGMM,{targetClass},'mean');
 probDensity(:)=prob.(targetClass);
 probDensity=(probDensity-min(probDensity(:)))/(max(probDensity(:)-min(probDensity(:))));
 
@@ -39,11 +41,16 @@ tmpH=figure();
 imshow(cImg)
 for i=1:maxCandidatePoints
     % font sizing doesn't work under unix but it does under windows
-    text(candPoints2D(2,i),candPoints2D(1,i),num2str(i),'Color','r','FontName','times','FontSize',20)
+    text(candPoints2D(2,i),candPoints2D(1,i),num2str(i),'Color','r','FontName','times','FontSize',20,...
+        'HorizontalAlignment','Center','BackgroundColor','w','EdgeColor','r')
 end
 
 F=getframe();
 close(tmpH)
+
+%% Blend probability image
+intensityImage=im2double(rgb2gray(cImg));
+probDensity=probAlpha*probDensity+(1-probAlpha)*intensityImage;
 
 %% Save images
 

@@ -91,7 +91,7 @@ classdef NaiveOccurrenceEvidenceGenerator<LearnFunc.OccurrenceEvidenceGenerator
                             factorCollection(:,c,:)=permute(decCondP(:,statesTest(currentClasses(c),:)+1,currentClasses(c)),[1 3 2]);
                         end
                         tmpCondProb=squeeze(prod(factorCollection,2)).*...
-                        decMargP(:,ones(size(statesTest,2),1));
+                        decMargP(:,targetClasses(1)*ones(size(statesTest,2),1));
                         tmpCondProb=tmpCondProb./repmat(sum(tmpCondProb,1),[2 1]);
                         tmpTargetState=statesTest(targetClasses(1),:);
                     end

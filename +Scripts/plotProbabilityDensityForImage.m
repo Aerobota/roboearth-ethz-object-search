@@ -4,9 +4,8 @@ assert(isa(locLearnCylindricGMM,'LearnFunc.ContinuousGMMLearner'),'Run script co
 
 %% Parameters
 
-dataset='test';
-imageNumber=2;
-targetClass='bottle';
+imageName='img_00878.jpg';
+targetClass='faucet';
 
 outputFileProb='tmpProbImg.png';
 outputFileRGB='tmpImg.png';
@@ -14,14 +13,28 @@ outputFileRGB='tmpImg.png';
 maxDistance=0.5;
 maxCandidatePoints=5;
 
-probAlpha=0.9;
+probAlpha=0.7;
 
 %% Initialisation
 
 Scripts.setPaths
 
-data=DataHandlers.NYUDataStructure(datasetPath,dataset);
-data.load()
+dataCol{1}=DataHandlers.NYUDataStructure(datasetPath,'train');
+dataCol{1}.load()
+
+dataCol{2}=DataHandlers.NYUDataStructure(datasetPath,'test');
+dataCol{2}.load()
+
+%% Find image
+
+for d=1:length(dataCol)
+    for i=1:length(dataCol{d})
+        if strcmpi(dataCol{d}.getFilename(i),imageName)==1
+            data=dataCol{d};
+            imageNumber=i;
+        end
+    end
+end
 
 %% Calculate probability density
 
@@ -50,6 +63,7 @@ close(tmpH)
 
 %% Blend probability image
 intensityImage=im2double(rgb2gray(cImg));
+intensityImage=(intensityImage-min(intensityImage(:)))/(max(intensityImage(:))-min(intensityImage(:)));
 probDensity=probAlpha*probDensity+(1-probAlpha)*intensityImage;
 
 %% Save images
@@ -68,5 +82,7 @@ imshow(probDensity,[min(probDensity(:)) max(probDensity(:))])
 
 %% Clear temporaries
 
-clear('F','cImg','candPoints','candPoints2D','candProb','data','dataset','datasetPath','i','imageNumber','loc','maxCandidatePoints',...
-    'maxDistance','outputFileProb','outputFileRGB','prob','probDensity','sourceFolder','targetClass','tmpH')
+clear('F','cImg','candPoints','candPoints2D','candProb','data','dataset',...
+    'datasetPath','i','imageNumber','loc','maxCandidatePoints','maxDistance',...
+    'outputFileProb','outputFileRGB','prob','probDensity','sourceFolder',...
+    'targetClass','tmpH','probAlpha','intensityImage','dataCol','d','imageName')

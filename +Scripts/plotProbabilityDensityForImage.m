@@ -4,8 +4,8 @@ assert(isa(locLearnCylindricGMM,'LearnFunc.ContinuousGMMLearner'),'Run script co
 
 %% Parameters
 
-imageName='img_00878.jpg';
-targetClass='faucet';
+imageName='img_00084.jpg';
+targetClass='book';
 
 outputFileProb='tmpProbImg.png';
 outputFileRGB='tmpImg.png';
@@ -13,6 +13,8 @@ outputFileRGB='tmpImg.png';
 maxDistance=0.5;
 maxCandidatePoints=5;
 
+useGray=false;
+colorRes=256;
 probAlpha=0.7;
 
 %% Initialisation
@@ -64,11 +66,20 @@ close(tmpH)
 %% Blend probability image
 intensityImage=im2double(rgb2gray(cImg));
 intensityImage=(intensityImage-min(intensityImage(:)))/(max(intensityImage(:))-min(intensityImage(:)));
-probDensity=probAlpha*probDensity+(1-probAlpha)*intensityImage;
+
+if useGray
+    probDensity=probAlpha*probDensity+(1-probAlpha)*intensityImage;
+else
+    probDensity=ind2rgb(round((colorRes-1)*probDensity)+1,jet(colorRes));
+    probDensity=probDensity.*(probAlpha*intensityImage(:,:,ones(size(probDensity,3),1))+1-probAlpha);
+end
+
+probDensity=(probDensity-min(probDensity(:)))/(max(probDensity(:)-min(probDensity(:))));
+
 
 %% Save images
 
-imwrite(F.cdata,outputFileRGB)
+imwrite(F.cdata(1:end-1,1:end-1,:),outputFileRGB)
 imwrite(probDensity,outputFileProb)
 
 %% Display image

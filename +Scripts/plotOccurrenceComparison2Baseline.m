@@ -38,7 +38,7 @@ for p=1:size(desiredPlots,1)
         cond2Base{p}=Evaluation.PrecRecallEvaluationData;
         cond2Base{p}.addData(resultThresh{m,o}.conditioned,'informed',colours{2},styles{2})
         cond2Base{p}.addData(resultThresh{m,o}.baseline,'baseline',colours{1},styles{1})
-        cond2Base{p}.setTitle('precision recall curve')
+        cond2Base{p}.setTitle('precision-recall curve')
     end
     
     if plotExtremeClasses

@@ -28,7 +28,7 @@ for o=1:size(resultThresh,2)
     end
     occStr=[occStr '\}'];
 
-    description=['occurrence states = ' occStr];
+    description=['prob. space = ' occStr];
     
 %     compStatesROC.addData(resultThresh{m,o}.conditioned,description,...
 %         colours{mod(o-1,length(colours))+1},styles{mod(o-1,length(styles))+1})
@@ -48,7 +48,7 @@ end
 
 % compStatesROC.setTitle({'receiver operating characteristic';['value matrix = ' mat2str(valueMatrix{m})]})
 % compStatesROC.setTitle('receiver operating characteristic')
-compStatesPrecRecall.setTitle('precision recall curve')
+compStatesPrecRecall.setTitle('precision-recall curve')
 
 % compStatesROCBest.setTitle({['receiver operating characteristic for best '...
 %     num2str(nOfBestClasses) ' classes'];['value matrix = ' mat2str(valueMatrix{m})]})

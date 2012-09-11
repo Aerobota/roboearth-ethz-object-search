@@ -23,7 +23,7 @@ for p=1:size(desiredPlots,1)
     compModel{p}.addData(resultThreshNaive{o}.conditioned,'naive',colours{4},styles{4})
     compModel{p}.addData(resultThresh{m,o,2}.conditioned,'naive reduced',colours{3},styles{3})
     compModel{p}.addData(resultThresh{m,o}.baseline,'baseline',colours{1},styles{1})
-    compModel{p}.setTitle('precision recall curve')
+    compModel{p}.setTitle('precision-recall curve')
 
     compModel{p}.draw()
 end

@@ -46,7 +46,7 @@ end
 
 % compMatricesROC.setTitle({'receiver operating characteristic';description})
 % compMatricesROC.setTitle('receiver operating characteristic')
-compMatricesPrecRecall.setTitle('precision recall curve')
+compMatricesPrecRecall.setTitle('precision-recall curve')
 % 
 % compMatricesROCBest.setTitle({['receiver operating characteristic for best '...
 %     num2str(nOfBestClasses) ' classes'];description})

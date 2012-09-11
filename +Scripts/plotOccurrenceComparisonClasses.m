@@ -16,29 +16,21 @@ assert(exist('resultThresh','var')==1,...
 
 %% Compare to baseline
 
-cond2Base=cell(1,size(desiredPlots,1));
+compClass=cell(1,size(desiredPlots,1));
 
 for p=1:size(desiredPlots,1)
     m=desiredPlots(p,1);
     o=desiredPlots(p,2);
     t=desiredPlots(p,3);
-        
-    occStr=['\{' occurrenceStates{o}{1}];
-    for i=2:length(occurrenceStates{o})
-        occStr=[occStr ',' occurrenceStates{o}{i}];
-    end
-    occStr=[occStr '\}'];
 
     if t==1
-        cond2Base{p}=Evaluation.ROCEvaluationData;
-        cond2Base{p}.addData(resultThresh{m,o}.conditioned,'informed',colours{2},styles{2})
-        cond2Base{p}.addData(resultThresh{m,o}.baseline,'baseline',colours{1},styles{1})
-        cond2Base{p}.setTitle('receiver operating characteristic')
+        compClass{p}=Evaluation.ROCEvaluationData;
+        compClass{p}.addData(resultThresh{m,o}.conditioned,'informed',colours{2},styles{2})
+        compClass{p}.setTitle('receiver operating characteristic')
     elseif t==2
-        cond2Base{p}=Evaluation.PrecRecallEvaluationData;
-        cond2Base{p}.addData(resultThresh{m,o}.conditioned,'informed',colours{2},styles{2})
-        cond2Base{p}.addData(resultThresh{m,o}.baseline,'baseline',colours{1},styles{1})
-        cond2Base{p}.setTitle('precision-recall curve')
+        compClass{p}=Evaluation.PrecRecallEvaluationData;
+        compClass{p}.addData(resultThresh{m,o}.conditioned,'informed',colours{2},styles{2})
+        compClass{p}.setTitle('precision-recall curve')
     end
     
     if plotExtremeClasses
@@ -49,11 +41,11 @@ for p=1:size(desiredPlots,1)
         bestText=['best ' num2str(length(bestClasses)) ' classes'];
         worstText=['worst ' num2str(length(bestClasses)) ' classes'];
         
-        cond2Base{p}.addData(resultThresh{m,o}.conditioned,bestText,colours{3},styles{3},bestClasses)
-        cond2Base{p}.addData(resultThresh{m,o}.conditioned,worstText,colours{4},styles{4},worstClasses)
+        compClass{p}.addData(resultThresh{m,o}.conditioned,bestText,colours{3},styles{3},bestClasses)
+        compClass{p}.addData(resultThresh{m,o}.conditioned,worstText,colours{4},styles{4},worstClasses)
     end
 
-    cond2Base{p}.draw()
+    compClass{p}.draw()
 end
 
 %% Clear temporaries

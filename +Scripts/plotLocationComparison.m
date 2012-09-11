@@ -33,7 +33,7 @@ for i=1:length(resultCylindricGMM.FROC)
 end
 
 gmmDistancesFROC.setTitle('free-response receiver operating characteristic')
-gmmDistancesPrecRecall.setTitle('precision recall curve')
+gmmDistancesPrecRecall.setTitle('precision-recall curve')
 gmmDistancesFirstN.setTitle('search task')
 
 % gmmDistancesFROC.draw()

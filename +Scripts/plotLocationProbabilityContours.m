@@ -62,8 +62,8 @@ for c=1:size(classPairs,1)
     hold('off')
     colorbar()
     axis('equal')
-    xlabel('radius')
-    ylabel('height')
+    xlabel('radius [m]')
+    ylabel('height [m]')
     title(['probability distribution for relative position from ' classPairs{c,1} ' to ' classPairs{c,2}])
 end
 

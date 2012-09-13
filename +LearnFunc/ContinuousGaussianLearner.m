@@ -10,7 +10,6 @@ classdef ContinuousGaussianLearner<LearnFunc.LocationLearner
         
         function learn(obj,data)
             samples=obj.evidenceGenerator.getEvidence(data,'relative');
-            obj.model.samples=samples;
             classes=data.getClassNames();
             for i=1:length(classes)
                 for j=1:length(classes)

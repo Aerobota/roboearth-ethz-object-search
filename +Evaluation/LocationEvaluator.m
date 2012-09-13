@@ -3,14 +3,14 @@ classdef LocationEvaluator<Evaluation.Evaluator
     %   Detailed explanation goes here
     
     methods
-        function result=evaluate(obj,testData,locationLearner,evaluationMethods,maxDistances,combinationMethod)
+        function result=evaluate(obj,testData,locationLearner,evaluationMethods,maxDistances)
             classesSmall=testData.getSmallClassNames();
             resultCollector=cell(length(testData),length(classesSmall),length(evaluationMethods),length(maxDistances));
             parfor i=1:length(testData)
                 disp(['collecting data for image ' num2str(i)])
                 [goodClasses,goodObjects]=obj.getGoodClassesAndObjects(testData,i);
                 if ~isempty(goodClasses)
-                    [probVec,locVec]=obj.probabilityVector(testData,i,locationLearner,classesSmall(goodClasses),combinationMethod);
+                    [probVec,locVec]=obj.probabilityVector(testData,i,locationLearner,classesSmall(goodClasses));
                     tmpResult=cell(1,length(classesSmall),length(evaluationMethods),length(maxDistances));
                     for c=goodClasses
                         for d=1:length(maxDistances)
@@ -35,10 +35,11 @@ classdef LocationEvaluator<Evaluation.Evaluator
     end
     
     methods(Static)
-        function [probVec,locVec]=probabilityVector(data,index,locationLearner,targetClasses,combinationMethod)
+        function [probVec,locVec]=probabilityVector(data,index,locationLearner,targetClasses)
             evidence=locationLearner.evidenceGenerator.getEvidenceForImage(data,index);
             
             tmpProbVec=cell(1,length(targetClasses));
+            probVec=struct;
             for c=1:length(targetClasses)
                 goodObjects=true(size(evidence.relEvi,1),1);
                 for o=size(evidence.relEvi,1):-1:1
@@ -52,10 +53,10 @@ classdef LocationEvaluator<Evaluation.Evaluator
                         end
                     end
                 end
-                if strcmpi(combinationMethod,'prod')==1
-                    probVec.(targetClasses{c})=prod(probVec.(targetClasses{c})(goodObjects,:),1);
-                else
+                if isfield(probVec,targetClasses{c})
                     probVec.(targetClasses{c})=mean(probVec.(targetClasses{c})(goodObjects,:),1);
+                else
+                    probVec.(targetClasses{c})=1/size(evidence.absEvi,2)*ones(1,size(evidence.absEvi,2));
                 end
             end
             

@@ -13,5 +13,9 @@ classdef LocationLearner<LearnFunc.Learner
         function obj=LocationLearner(evidenceGenerator)
             obj=obj@LearnFunc.Learner(evidenceGenerator);
         end
+        
+        function removeParents(obj,childClass,toRemove)
+            obj.model.(childClass)=rmfield(obj.model.(childClass),toRemove);
+        end
     end
 end

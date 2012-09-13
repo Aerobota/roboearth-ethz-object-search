@@ -39,10 +39,8 @@ locLearnCylindricGaussian.learn(dataTrain)
 
 disp('evaluating')
 
-warning('remove product information combination')
-resultCylindricGMMProd=evalBase.evaluate(dataTest,locLearnCylindricGMM,evalMethod,maxDistances,'prod');
-resultCylindricGMM=evalBase.evaluate(dataTest,locLearnCylindricGMM,evalMethod,maxDistances,'avg');
-resultCylindricGaussian=evalBase.evaluate(dataTest,locLearnCylindricGaussian,evalMethod,maxDistances,'avg');
+resultCylindricGMM=evalBase.evaluate(dataTest,locLearnCylindricGMM,evalMethod,maxDistances);
+resultCylindricGaussian=evalBase.evaluate(dataTest,locLearnCylindricGaussian,evalMethod,maxDistances);
 
 %% Clear temporaries
 
@@ -51,4 +49,4 @@ clear('dataTrain','dataTest','locCylindricEviGen','evalBase','sourceFolder','dat
 %% Save results to file
 
 save('tmpLocationData.mat','locLearnCylindricGMM','locLearnCylindricGaussian',...
-    'resultCylindricGMM','resultCylindricGMMProd','resultCylindricGaussian','evalMethod')
+    'resultCylindricGMM','resultCylindricGaussian','evalMethod')

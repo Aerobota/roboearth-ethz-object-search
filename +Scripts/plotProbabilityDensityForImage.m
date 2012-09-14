@@ -6,7 +6,7 @@ assert(isa(locLearnCylindricGMM,'LearnFunc.ContinuousGMMLearner'),'Run script co
 
 doPlots=false;
 
-imageNameCol{1}='img_00084.jpg';
+imageNameCol{1}='img_00054.jpg';
 targetClassCol{1}='book';
 
 imageNameCol{2}='img_00296.jpg';
@@ -17,6 +17,9 @@ targetClassCol{3}='faucet';
 
 imageNameCol{4}='img_00878.jpg';
 targetClassCol{4}='vase';
+
+imageNameCol{5}='img_00689.jpg';
+targetClassCol{5}='book';
 
 outputFileCommon='tmpImages/candPoints%%s%%d%s.png';
 outputFileProb=sprintf(outputFileCommon,'Prob');
@@ -63,7 +66,7 @@ for c=1:length(imageNameCol)
     %% Calculate probability density
 
     probDensity=zeros(data.getImagesize(imageNumber).nrows,data.getImagesize(imageNumber).ncols);
-    [prob,loc]=Evaluation.LocationEvaluator.probabilityVector(data,imageNumber,locLearnCylindricGMM,{targetClass},'mean');
+    [prob,loc]=Evaluation.LocationEvaluator.probabilityVector(data,imageNumber,locLearnCylindricGMM,{targetClass});
     probDensity(:)=prob.(targetClass);
     probDensity=(probDensity-min(probDensity(:)))/(max(probDensity(:)-min(probDensity(:))));
 

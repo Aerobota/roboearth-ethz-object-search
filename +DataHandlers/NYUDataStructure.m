@@ -1,6 +1,7 @@
 classdef NYUDataStructure<DataHandlers.DataStructure
-    %NYUDATASTRUCTURE Summary of this class goes here
-    %   Detailed explanation goes here
+    %NYUDATASTRUCTURE Implementation of DATAHANDLERS.DATASTRUCTURE
+    %   This class implements the abstract class DATAHANDLERS.DATASTRUCTURE
+    %   for data generated with DATAHANDLERS.CONVERTFROMNYUDATASET.
     properties(Constant)
         imageFolder='image'
         catFileName='objectCategories.mat'
@@ -9,13 +10,14 @@ classdef NYUDataStructure<DataHandlers.DataStructure
     end
     
     methods
-        function obj=NYUDataStructure(path,testOrTrain,preallocationSize)
-            if nargin<3
-                preallocationSize=0;
-            end
-            obj=obj@DataHandlers.DataStructure(path,testOrTrain,preallocationSize);
+        function obj=NYUDataStructure(path,testOrTrain)
+            %OBJ=NYUDATASTRUCTURE(PATH,TESTORTRAIN)
+            %   See also DATAHANDLERS.DATASTRUCTURE.DATASTRUCTURE
+            
+            obj=obj@DataHandlers.DataStructure(path,testOrTrain);
         end
         function load(obj)
+            %LOAD(OBJ) Loads the dataset from disk
             filePath=fullfile(obj.path,[obj.storageName '.mat']);
             assert(exist(filePath,'file')>0,'DataStructure:fileNotFound',...
                 'The file %s doesn''t exist.',filePath)
@@ -23,6 +25,7 @@ classdef NYUDataStructure<DataHandlers.DataStructure
             obj.data=loaded.data;
         end
         function save(obj)
+            %SAVE(OBJ) Saves the dataset to disk
             filePath=fullfile(obj.path,[obj.storageName '.mat']);
             if ~exist(obj.path,'dir')
                 [~,~,~]=mkdir(obj.path);

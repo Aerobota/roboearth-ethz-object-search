@@ -1,12 +1,20 @@
 classdef ObjectStructure
-    %OBJECTSTRUCTURE Summary of this class goes here
-    %   Detailed explanation goes here
+    %OBJECTSTRUCTURE Contains all information about a single object
+    %   Saves the class name of the object in NAME and the bounding polygon
+    %   in POLYGON.
     properties(SetAccess='protected')
         name
         polygon
     end
     methods
         function obj=ObjectStructure(name,polygonX,polygonY)
+            %OBJ=OBJECTSTRUCTURE(NAME,POLYGONX,POLYGONY)
+            %   Generates an object structure.
+            %   NAME is the class of the object.
+            %   POLIGONX are the vertical pixel coordinates of the bounding
+            %   polygon.
+            %   POLIGONY are the horizontal pixel coordinates of the bounding
+            %   polygon.
             if nargin==0
                 obj.name='DummyObject';
             else

@@ -15,12 +15,9 @@ classdef DataStructure<handle
     %   If all abstract methods and properties are correctly implemented in
     %   a derived class and ADDIMAGE has been used to generate the DATA
     %   property, most methods in EVALUATION and LEARNFUNC should work
-    %   with the derived data structure. Keep in mind that methods
-    %   requiring 3D information only work if OBJECT3DSTRUCTURE is provided
-    %   to ADDIMAGE.
+    %   with the derived data structure.
     %
-    %   For example implementations see DATAHANDLERS.NYUDATASTRUCTURE or
-    %   DATAHANDLERS.SUNDATASTRUCTURE.
+    %   For example implementation see DATAHANDLERS.NYUDATASTRUCTURE.
     
     %% Properties
     properties(Access='protected')
@@ -64,7 +61,7 @@ classdef DataStructure<handle
     
     %% Data Loading
     methods
-        function obj=DataStructure(path,testOrTrain,preallocationSize)
+        function obj=DataStructure(path,testOrTrain)
             %OBJ=DATASTRUCTURE(PATH,TESTORTRAIN)
             %   Construct an empty dataset container. The data will be
             %   loaded from or saved in the folder specified by PATH.
@@ -75,7 +72,7 @@ classdef DataStructure<handle
             assert(any(strcmpi(testOrTrain,{'test','train'})),'DataStructure:wrongInput',...
                 'The testOrTrain argument must be ''test'' or ''train''.')
             
-            tmpCell=cell(1,preallocationSize);
+            tmpCell=cell(1,0);
             % Generate preallocated data structure
             obj.data=struct('filename',tmpCell,'depthname',tmpCell,...
                 'folder',tmpCell,'imagesize',tmpCell,'calib',tmpCell,'objectPath',tmpCell);
@@ -98,13 +95,10 @@ classdef DataStructure<handle
             %   IMAGESIZE is a struct with the fields 'nrows' and 'ncols'
             %   or a vector of length two. They contain the height and
             %   width of the image in pixels.
-            %   OBJECT is an array of OBJECTSTRUCTURE containing the
-            %   objects occurring in the scene. Note that for methods
-            %   requiring 3D information OBJECT needs to be an array of
-            %   OBJECT3DSTRUCTURE.
+            %   OBJECT is an array of OBJECT3DSTRUCTURE containing the
+            %   objects occurring in the scene.
             %
-            %   See also DATAHANDLERS.OBJECTSTRUCTURE,
-            %   DATAHANDLERS.OBJECT3DSTRUCTURE.
+            %   See also DATAHANDLERS.OBJECT3DSTRUCTURE.
             assert(ischar(filename),'DataStructure:wrongInput',...
                 'The filename argument must be a character array.')
             assert(ischar(depthname),'DataStructure:wrongInput',...
@@ -114,7 +108,7 @@ classdef DataStructure<handle
             assert((isfield(imagesize,'nrows') && isfield(imagesize,'ncols')) ||...
                 (isvector(imagesize) && length(imagesize)>1 && isnumeric(imagesize)),...
                 'DataStructure:wrongInput','The imagesize argument must be a vector of length two or a struct with fields {nros,ncols}.')
-            assert(isa(object,'DataHandlers.ObjectStructure'),'DataStructure:wrongInput',...
+            assert(isa(object,'DataHandlers.Object3DStructure'),'DataStructure:wrongInput',...
                 'The object argument must be of ObjectStructure class.')
             assert((isnumeric(calib) && all(size(calib)==[3 3])) || isempty(calib),'DataStructure:wrongInput',...
                 'The calib argument must be a 3x3 or empty matrix.')
@@ -282,9 +276,9 @@ classdef DataStructure<handle
         %% Set Functions
         function setObject(obj,newObject,i)
             %SETOBJECT(OBJ,NEWOBJECT,I)
-            %   Replace the current OBJECTSTRUCTURE array of image I with
+            %   Replace the current OBJECT3DSTRUCTURE array of image I with
             %   NEWOBJECT.
-            assert(isa(newObject,'DataHandlers.ObjectStructure'),'DataStructure:wrongInput',...
+            assert(isa(newObject,'DataHandlers.Object3DStructure'),'DataStructure:wrongInput',...
                 'The newObject argument must be of ObjectStructure class.')
             % Generate the filename
             tmpPath=fullfile(obj.getPathToObjects(),obj.data(i).objectPath);

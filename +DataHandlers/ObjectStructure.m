@@ -19,7 +19,7 @@ classdef ObjectStructure
                 assert(all(size(polygonX)==size(polygonY)),'ObjectStructure:wrongInput',...
                     'The polygonX and polygonY arguments must be of same size.')
 
-                obj.name=name;
+                obj.name=genvarname(name);
 
                 if size(polygonX,1)==1
                     obj.polygon.x=polygonX';

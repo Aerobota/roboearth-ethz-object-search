@@ -1,6 +1,7 @@
 classdef Evaluator
-    %EVALUATOR Summary of this class goes here
-    %   Detailed explanation goes here
+    %EVALUATOR Base class for evaluators
+    %   This is the common base class for all classes evaluating a learned
+    %   model.
     
     properties(Constant)
         nThresh=100

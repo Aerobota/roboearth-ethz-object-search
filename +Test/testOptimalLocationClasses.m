@@ -1,7 +1,7 @@
 stdDist=1;
 maxCandidates=10;
 
-gmmDistancesFirstN=Evaluation.FirstNEvaluationData;
+gmmDistancesFirstN=Evaluation.FirstNEvaluationData(maxCandidates,'line');
 
 for i=1:17
     gmmDistancesFirstN.addData(resultCylindricGMM.FirstN{stdDist},['class ' num2str(i)],...
@@ -10,4 +10,4 @@ end
 
 gmmDistancesFirstN.setTitle('search task')
 
-gmmDistancesFirstN.draw(maxCandidates)
+gmmDistancesFirstN.draw()

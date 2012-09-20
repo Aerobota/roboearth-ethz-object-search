@@ -39,9 +39,9 @@ precRecallLoc.addData(result.FROC{standardMaxDistance},'informed',lineColors(1,:
 precRecallLoc.setTitle('precision recall curve')
 precRecallLoc.draw()
 
-firstNLoc=Evaluation.FirstNEvaluationData;
+firstNLoc=Evaluation.FirstNEvaluationData(maxCandidates,'line');
 for i=1:length(result.FirstN)
     firstNLoc.addData(result.FirstN{i},['max distance = ' num2str(maxDistances(i)) ' m'],lineColors(i,:),lineStyle{1})
 end
 firstNLoc.setTitle('search task')
-firstNLoc.draw(maxCandidates)
+firstNLoc.draw()

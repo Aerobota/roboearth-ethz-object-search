@@ -17,7 +17,7 @@ firstNPlotStyle={':*',':s',':+',':o',':x'};
 %% Plot parent selection comparison
 
 gmmDistancesPrecRecall=Evaluation.PrecRecallEvaluationData;
-gmmDistancesFirstN=Evaluation.FirstNEvaluationData;
+gmmDistancesFirstN=Evaluation.FirstNEvaluationData(maxCandidates,firstNPlotType);
 
 gmmDistancesPrecRecall.addData(resultCylindricGMM.FROC{standardMaxDistance},'all',...
     colours{mod(0,length(colours))+1},styles{mod(0,length(styles))+1});
@@ -33,4 +33,4 @@ gmmDistancesPrecRecall.setTitle('precision-recall curve')
 gmmDistancesFirstN.setTitle('search task')
 
 gmmDistancesPrecRecall.draw()
-gmmDistancesFirstN.draw(maxCandidates,firstNPlotType)
+gmmDistancesFirstN.draw()

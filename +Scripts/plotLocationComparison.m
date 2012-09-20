@@ -21,7 +21,7 @@ assert(exist('resultCylindricGMM','var')==1 && exist('resultCylindricGaussian','
 
 gmmDistancesFROC=Evaluation.ROCEvaluationData;
 gmmDistancesPrecRecall=Evaluation.PrecRecallEvaluationData;
-gmmDistancesFirstN=Evaluation.FirstNEvaluationData;
+gmmDistancesFirstN=Evaluation.FirstNEvaluationData(maxCandidates,firstNPlotType);
 
 for i=1:length(resultCylindricGMM.FROC)
     gmmDistancesFROC.addData(resultCylindricGMM.FROC{i},['max distance = ' num2str(resultCylindricGMM.maxDistances(i)) ' m'],...
@@ -38,13 +38,13 @@ gmmDistancesFirstN.setTitle('search task')
 
 % gmmDistancesFROC.draw()
 gmmDistancesPrecRecall.draw()
-gmmDistancesFirstN.draw(maxCandidates,firstNPlotType)
+gmmDistancesFirstN.draw()
 
 %% Plot model comparison
 
 modelCompFROC=Evaluation.ROCEvaluationData;
 modelCompPrecRecall=Evaluation.PrecRecallEvaluationData;
-modelCompFirstN=Evaluation.FirstNEvaluationData;
+modelCompFirstN=Evaluation.FirstNEvaluationData(maxCandidates,firstNPlotType);
 
 i=resultCylindricGaussian.maxDistances==resultCylindricGMM.maxDistances(standardMaxDistance);
 
@@ -73,13 +73,13 @@ modelCompFirstN.setTitle('search task')
 
 % modelCompFROC.draw()
 % modelCompPrecRecall.draw()
-modelCompFirstN.draw(maxCandidates,firstNPlotType)
+modelCompFirstN.draw()
 
 %% Compare good and bad classes
 
 % goodComp=Evaluation.FirstNEvaluationData;
 % badComp=Evaluation.FirstNEvaluationData;
-indiComp=Evaluation.FirstNEvaluationData;
+indiComp=Evaluation.FirstNEvaluationData(maxCandidates,firstNPlotType);
 
 % goodComp.addData(resultCylindricGMM.FirstN{standardMaxDistance},'all classes',...
 %     colours{mod(0,length(colours))+1},styles{mod(0,length(styles))+1});
@@ -114,7 +114,7 @@ indiComp.setTitle('search task for individual classes')
 
 %goodComp.draw(maxCandidates,firstNPlotType)
 %badComp.draw(maxCandidates,firstNPlotType)
-indiComp.draw(maxCandidates,firstNPlotType);
+indiComp.draw();
 
 %% Clear temporaries
 

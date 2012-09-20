@@ -3,14 +3,14 @@ classdef PrecRecallEvaluationData<Evaluation.EvaluationData
     %   Detailed explanation goes here
     
     methods(Access='protected')
-        function index=addDataImpl(obj,newData,classSubset)
+        function newCurve=addDataImpl(~,newData,classSubset)
             if nargin<3
                 classSubset=true(1,size(newData.tp,2));
             end
-            index=length(obj.curves)+1;
-            obj.curves(index).tp=newData.tp(:,classSubset);
-            obj.curves(index).fp=newData.fp(:,classSubset);
-            obj.curves(index).pos=newData.pos(:,classSubset);
+%             index=length(obj.curves)+1;
+            newCurve.tp=newData.tp(:,classSubset);
+            newCurve.fp=newData.fp(:,classSubset);
+            newCurve.pos=newData.pos(:,classSubset);
         end
         
         function drawImpl(obj)

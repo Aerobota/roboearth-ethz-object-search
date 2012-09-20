@@ -15,7 +15,7 @@ firstNPlotStyle={':*',':s',':+',':o',':x'};
 %% Plot distance comparison
 
 gmmDistancesPrecRecall=Evaluation.PrecRecallEvaluationData;
-gmmDistancesFirstN=Evaluation.FirstNEvaluationData;
+gmmDistancesFirstN=Evaluation.FirstNEvaluationData(maxCandidates,firstNPlotType);
 
 results={resultCylindricGMMProd,resultCylindricGMM};
 legendTexts={'orig','avg'};
@@ -32,7 +32,7 @@ gmmDistancesFirstN.setTitle('search task')
 
 % gmmDistancesFROC.draw()
 gmmDistancesPrecRecall.draw()
-gmmDistancesFirstN.draw(maxCandidates,firstNPlotType)
+gmmDistancesFirstN.draw()
 
 %% Clear temporaries
 

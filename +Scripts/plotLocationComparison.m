@@ -4,13 +4,13 @@ standardMaxDistance=2;
 maxCandidates=10;
 
 colours={'k','b',[0 0.6 0],[0.8 0 0],[0.6 0 0.6]};
-styles={'-','--'};
+styles={'-'};
 
 goodClasses=[3 12];
 badClasses=[8 10];
 
 firstNPlotType='line';
-firstNPlotStyle={':*',':s',':+',':o',':x'};
+firstNPlotStyle={':o'};
 
 %% Initialise
 

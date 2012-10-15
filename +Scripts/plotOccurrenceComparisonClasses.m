@@ -6,7 +6,7 @@ nOfExtremeClasses=5;
 desiredPlots=[2 1 2];
 
 colours={'k','b',[0 0.6 0],[0.8 0 0]}; %{baseline,informed,good,bad}
-styles={'-','-.','--','--'};
+styles={'-'};
 
 
 %% Initialise
@@ -25,11 +25,11 @@ for p=1:size(desiredPlots,1)
 
     if t==1
         compClass{p}=Evaluation.ROCEvaluationData;
-        compClass{p}.addData(resultThresh{m,o}.conditioned,'all',colours{2},styles{2})
+        compClass{p}.addData(resultThresh{m,o}.conditioned,'all',colours{2},styles{1})
         compClass{p}.setTitle('receiver operating characteristic')
     elseif t==2
         compClass{p}=Evaluation.PrecRecallEvaluationData;
-        compClass{p}.addData(resultThresh{m,o}.conditioned,'all',colours{2},styles{2})
+        compClass{p}.addData(resultThresh{m,o}.conditioned,'all',colours{2},styles{1})
         compClass{p}.setTitle('precision-recall curve')
     end
     
@@ -41,8 +41,8 @@ for p=1:size(desiredPlots,1)
         bestText=['best ' num2str(length(bestClasses))];
         worstText=['worst ' num2str(length(bestClasses))];
         
-        compClass{p}.addData(resultThresh{m,o}.conditioned,bestText,colours{3},styles{3},bestClasses)
-        compClass{p}.addData(resultThresh{m,o}.conditioned,worstText,colours{4},styles{4},worstClasses)
+        compClass{p}.addData(resultThresh{m,o}.conditioned,bestText,colours{3},styles{1},bestClasses)
+        compClass{p}.addData(resultThresh{m,o}.conditioned,worstText,colours{4},styles{1},worstClasses)
     end
 
     compClass{p}.draw()

@@ -13,7 +13,7 @@ classdef EvaluationData<handle
     %   See also EVALUATION.FIRSTNEVALUATIONDATA.
     
     properties(Constant)
-        lineWidth=1;
+        lineWidth=2;
     end
     
     properties(SetAccess='protected')

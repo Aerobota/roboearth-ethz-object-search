@@ -21,6 +21,9 @@ targetClassCol{4}='vase';
 imageNameCol{5}='img_00689.jpg';
 targetClassCol{5}='book';
 
+imageNameCol{6}='img_00355.jpg';
+targetClassCol{6}='book';
+
 outputFileCommon='tmpImages/candPoints%%s%%d%s.png';
 outputFileProb=sprintf(outputFileCommon,'Prob');
 outputFileRGB=sprintf(outputFileCommon,'RGB');

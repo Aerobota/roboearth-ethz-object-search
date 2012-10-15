@@ -20,7 +20,8 @@ classdef ROCEvaluationData<Evaluation.EvaluationData
             
             hold(obj.myAxes,'on')
             for c=1:length(obj.curves)
-                plot(obj.myAxes,fpRate(:,c),tpRate(:,c),'Color',obj.curves(c).colour,'LineStyle',obj.curves(c).style)
+                plot(obj.myAxes,fpRate(:,c),tpRate(:,c),'Color',obj.curves(c).colour,...
+                    'LineStyle',obj.curves(c).style,'LineWidth',obj.lineWidth)
             end
             hold(obj.myAxes,'off')
 

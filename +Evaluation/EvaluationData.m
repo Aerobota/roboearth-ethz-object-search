@@ -12,6 +12,10 @@ classdef EvaluationData<handle
     %
     %   See also EVALUATION.FIRSTNEVALUATIONDATA.
     
+    properties(Constant)
+        lineWidth=1;
+    end
+    
     properties(SetAccess='protected')
         myHandle=[]
         myAxes=[]

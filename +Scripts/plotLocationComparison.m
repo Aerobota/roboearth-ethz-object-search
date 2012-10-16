@@ -3,7 +3,7 @@
 standardMaxDistance=2;
 maxCandidates=10;
 
-colours={[0 0.6 0],[1 0.6 0],[0.6 0 0.6],[1 0.4 0.7]}; %,[0.63 0.32 0.18]
+colours={[0 0.6 0],[1 0.6 0],[0.6 0 0.6],[1 0.4 0.7],'k','b'}; %,[0.63 0.32 0.18]
 styles={'-'};
 
 goodClasses=[3 12];
@@ -42,38 +42,38 @@ gmmDistancesPrecRecall.draw()
 
 %% Plot model comparison
 
-modelCompFROC=Evaluation.ROCEvaluationData;
+% modelCompFROC=Evaluation.ROCEvaluationData;
 modelCompPrecRecall=Evaluation.PrecRecallEvaluationData;
 modelCompFirstN=Evaluation.FirstNEvaluationData(maxCandidates,firstNPlotType);
 
 i=resultCylindricGaussian.maxDistances==resultCylindricGMM.maxDistances(standardMaxDistance);
 
-modelCompFROC.addData(resultCylindricGMM.FROC{standardMaxDistance},'mixture',...
-    colours{mod(0,length(colours))+1},styles{mod(0,length(styles))+1});
-modelCompFROC.addData(resultCylindricGaussian.FROC{i},'single',...
-    colours{mod(1,length(colours))+1},styles{mod(1,length(styles))+1});
+% modelCompFROC.addData(resultCylindricGMM.FROC{standardMaxDistance},'mixture',...
+%     colours{mod(0,length(colours))+1},styles{mod(0,length(styles))+1});
+% modelCompFROC.addData(resultCylindricGaussian.FROC{i},'single',...
+%     colours{mod(1,length(colours))+1},styles{mod(1,length(styles))+1});
 
 modelCompPrecRecall.addData(resultCylindricGMM.FROC{standardMaxDistance},'mixture',...
-    colours{mod(0,length(colours))+1},styles{mod(0,length(styles))+1});
+    colours{mod(4,length(colours))+1},styles{mod(0,length(styles))+1});
 modelCompPrecRecall.addData(resultCylindricGaussian.FROC{i},'single',...
-    colours{mod(1,length(colours))+1},styles{mod(1,length(styles))+1});
+    colours{mod(5,length(colours))+1},styles{mod(1,length(styles))+1});
 
 modelCompFirstN.addData(resultCylindricGMM.FirstN{standardMaxDistance},'mixture',...
-    colours{mod(0,length(colours))+1},firstNPlotStyle{mod(0,length(firstNPlotStyle))+1});
+    colours{mod(4,length(colours))+1},firstNPlotStyle{mod(0,length(firstNPlotStyle))+1});
 modelCompFirstN.addData(resultCylindricGaussian.FirstN{i},'single',...
-    colours{mod(1,length(colours))+1},firstNPlotStyle{mod(1,length(firstNPlotStyle))+1});
+    colours{mod(5,length(colours))+1},firstNPlotStyle{mod(1,length(firstNPlotStyle))+1});
 
 % modelCompFROC.setTitle({'free-response receiver operating characteristic',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
 % modelCompPrecRecall.setTitle({'precision recall curve',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
 % modelCompFirstN.setTitle({'search task',['max distance = ' num2str(resultCylindricGMM.maxDistances(standardMaxDistance)) ' m']})
 
-modelCompFROC.setTitle('free-response receiver operating characteristic')
+% modelCompFROC.setTitle('free-response receiver operating characteristic')
 modelCompPrecRecall.setTitle('precision recall curve')
 modelCompFirstN.setTitle('search task')
 
 % modelCompFROC.draw()
-% modelCompPrecRecall.draw()
-% modelCompFirstN.draw()
+modelCompPrecRecall.draw()
+%modelCompFirstN.draw()
 
 %% Compare good and bad classes
 

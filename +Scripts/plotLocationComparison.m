@@ -3,7 +3,7 @@
 standardMaxDistance=2;
 maxCandidates=10;
 
-colours={'k','b',[0 0.6 0],[0.8 0 0],[0.6 0 0.6]};
+colours={[0 0.6 0],[1 0.6 0],[0.6 0 0.6],[1 0.4 0.7]}; %,[0.63 0.32 0.18]
 styles={'-'};
 
 goodClasses=[3 12];
@@ -32,13 +32,13 @@ for i=1:length(resultCylindricGMM.FROC)
         colours{mod(i-1,length(colours))+1},firstNPlotStyle{mod(i-1,length(firstNPlotStyle))+1});
 end
 
-gmmDistancesFROC.setTitle('free-response receiver operating characteristic')
+%gmmDistancesFROC.setTitle('free-response receiver operating characteristic')
 gmmDistancesPrecRecall.setTitle('precision-recall curve')
-gmmDistancesFirstN.setTitle('search task')
+%gmmDistancesFirstN.setTitle('search task')
 
 % gmmDistancesFROC.draw()
 gmmDistancesPrecRecall.draw()
-gmmDistancesFirstN.draw()
+% gmmDistancesFirstN.draw()
 
 %% Plot model comparison
 
@@ -73,7 +73,7 @@ modelCompFirstN.setTitle('search task')
 
 % modelCompFROC.draw()
 % modelCompPrecRecall.draw()
-modelCompFirstN.draw()
+% modelCompFirstN.draw()
 
 %% Compare good and bad classes
 
@@ -114,7 +114,7 @@ indiComp.setTitle('search task for individual classes')
 
 %goodComp.draw(maxCandidates,firstNPlotType)
 %badComp.draw(maxCandidates,firstNPlotType)
-indiComp.draw();
+% indiComp.draw();
 
 %% Clear temporaries
 

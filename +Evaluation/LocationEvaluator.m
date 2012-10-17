@@ -1,6 +1,13 @@
 classdef LocationEvaluator<Evaluation.Evaluator
-    %LOCATIONEVALUATOR Summary of this class goes here
-    %   Detailed explanation goes here
+    %LOCATIONEVALUATOR Master Class for Evaluating Location Models
+    %   This class implements the EVALUATE method from the abstract
+    %   EVALUATOR class and supplies the two static methods
+    %   PROBABILITYVECTOR and GETCANDIDATEPOINTS.
+    %
+    %See also EVALUATION.EVALUATOR,
+    %   EVALUATION.LOCATIONEVALUATOR.PROBABILITYVECTOR,
+    %   EVALUATION.LOCATIONEVALUATOR.GETCANDIDATEPOINTS
+    
     
     methods
         function result=evaluate(obj,testData,locationLearner,evaluationMethods,maxDistances)
@@ -68,25 +75,6 @@ classdef LocationEvaluator<Evaluation.Evaluator
             locVec=evidence.absEvi;
         end
         
-        function [goodClasses,goodObjects]=getGoodClassesAndObjects(data,index)
-            classesSmall=data.getSmallClassNames();
-            tmpObjects=data.getObject(index);
-            
-            goodObjects=struct;
-            goodClasses=1:length(classesSmall);
-            goodClassChooser=true(size(goodClasses));
-            for c=goodClasses
-                tmpChooser=ismember({tmpObjects.name},classesSmall{c});
-                if any(tmpChooser)
-                    goodObjects.(classesSmall{c})=tmpObjects(tmpChooser);
-                else
-                    goodClassChooser(c)=false;
-                end
-            end
-            
-            goodClasses=goodClasses(goodClassChooser);
-        end
-        
         function [inRange,candidateProb,candidatePoints]=getCandidatePoints(probVec,locVec,truePos,maxDistance)
             [probVec,permIndex]=sort(probVec,'descend');
             locVec=locVec(:,permIndex);
@@ -108,6 +96,27 @@ classdef LocationEvaluator<Evaluation.Evaluator
                     candidatePoints(ones(1,size(truePos,1)),:,:)).^2,3)<maxDistance^2;
             end
         end
+    end
+    
+    methods(Static,Access='protected')        
+        function [goodClasses,goodObjects]=getGoodClassesAndObjects(data,index)
+            classesSmall=data.getSmallClassNames();
+            tmpObjects=data.getObject(index);
+            
+            goodObjects=struct;
+            goodClasses=1:length(classesSmall);
+            goodClassChooser=true(size(goodClasses));
+            for c=goodClasses
+                tmpChooser=ismember({tmpObjects.name},classesSmall{c});
+                if any(tmpChooser)
+                    goodObjects.(classesSmall{c})=tmpObjects(tmpChooser);
+                else
+                    goodClassChooser(c)=false;
+                end
+            end
+            
+            goodClasses=goodClasses(goodClassChooser);
+        end        
         
         function [probVec,locVec]=removeCoveredPoints(probVec,locVec,point,maxDistance)
             pointsOutside=sum((point(:,ones(1,size(locVec,2)))-locVec).^2,1)>maxDistance^2;

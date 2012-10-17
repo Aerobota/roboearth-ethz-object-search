@@ -19,8 +19,8 @@ for p=1:size(desiredPlots,1)
     m=desiredPlots(p,1);
     o=desiredPlots(p,2);
     compModel{p}=Evaluation.PrecRecallEvaluationData;
-    compModel{p}.addData(resultThresh{m,o,1}.conditioned,'informed',colours{2},styles{1})
-    compModel{p}.addData(resultThreshNaive{o}.conditioned,'naive',colours{4},styles{1})
+    compModel{p}.addData(resultThresh{m,o,1}.conditioned,'proposed',colours{2},styles{1})
+    compModel{p}.addData(resultThreshNaive{o}.conditioned,'Roy et al.',colours{4},styles{1})
 %     compModel{p}.addData(resultThresh{m,o,2}.conditioned,'naive reduced',colours{3},styles{1})
     compModel{p}.addData(resultThresh{m,o}.baseline,'baseline',colours{1},styles{1})
     compModel{p}.setTitle('precision-recall curve')
@@ -32,9 +32,9 @@ for p=size(desiredPlots,1)+1:size(desiredPlots,1)*2
     m=desiredPlots(p-size(desiredPlots,1),1);
     o=desiredPlots(p-size(desiredPlots,1),2);
     compModel{p}=Evaluation.PrecRecallEvaluationData;
-    compModel{p}.addData(resultThresh{m,o,1}.conditioned,'informed',colours{2},styles{1})
+    compModel{p}.addData(resultThresh{m,o,1}.conditioned,'proposed',colours{2},styles{1})
 %     compModel{p}.addData(resultThreshNaive{o}.conditioned,'naive',colours{4},styles{1})
-    compModel{p}.addData(resultThresh{m,o,2}.conditioned,'naive reduced',colours{3},styles{1})
+    compModel{p}.addData(resultThresh{m,o,2}.conditioned,'Roy reduced',colours{3},styles{1})
 %     compModel{p}.addData(resultThresh{m,o}.baseline,'baseline',colours{1},styles{1})
     compModel{p}.setTitle('precision-recall curve')
 

@@ -11,11 +11,24 @@ classdef LocationEvaluator<Evaluation.Evaluator
     
     methods
         function result=evaluate(obj,testData,locationLearner,evaluationMethods,maxDistances)
+            %RESULT=EVALUATE(OBJ,TESTDATA,LOCATIONLEARNER,EVALUATIONMETHODS,MAXDISTANCES)
+            %   This method evaluates LOCATIONLEARNER on the TESTDATA using
+            %   the EVALUATIONMETHODS and MAXDISTANCES. The returned RESULT
+            %   is structure that contains data to be consumed by the
+            %   appropriate EVALUATION.EVALUATIONDATA.
+            %
+            %See also EVALUATION.EVALUATIONDATA
+            
+            % Get the small classes
             classesSmall=testData.getSmallClassNames();
+            % All results will be collected in this collector
             resultCollector=cell(length(testData),length(classesSmall),length(evaluationMethods),length(maxDistances));
             parfor i=1:length(testData)
                 disp(['collecting data for image ' num2str(i)])
+                % For the current image get all small classes in this image
+                % and all the objects belonging to these classes
                 [goodClasses,goodObjects]=obj.getGoodClassesAndObjects(testData,i);
+                % If there are goodClasses in the image
                 if ~isempty(goodClasses)
                     [probVec,locVec]=obj.probabilityVector(testData,i,locationLearner,classesSmall(goodClasses));
                     tmpResult=cell(1,length(classesSmall),length(evaluationMethods),length(maxDistances));

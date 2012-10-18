@@ -24,6 +24,9 @@ targetClassCol{5}='book';
 imageNameCol{6}='img_00355.jpg';
 targetClassCol{6}='book';
 
+imageNameCol{7}='img_00039.jpg';
+targetClassCol{7}='book';
+
 outputFileCommon='tmpImages/candPoints%%s%%d%s.png';
 outputFileProb=sprintf(outputFileCommon,'Prob');
 outputFileRGB=sprintf(outputFileCommon,'RGB');
@@ -112,6 +115,9 @@ for c=1:length(imageNameCol)
     end
     imwrite(F.cdata(1:end-1,1:end-1,:),sprintf(outputFileRGB,[upper(targetClass(1)) targetClass(2:end)],imageNumbering(c)))
     imwrite(probDensity,sprintf(outputFileProb,[upper(targetClass(1)) targetClass(2:end)],imageNumbering(c)))
+    
+    tmpDepth=data.getDepthImage(imageNumber);
+    imwrite((tmpDepth-min(tmpDepth(:)))/(max(tmpDepth(:))-min(tmpDepth(:))),fullfile('tmpImages',['depth_' imageName]))
 
     %% Display image
     

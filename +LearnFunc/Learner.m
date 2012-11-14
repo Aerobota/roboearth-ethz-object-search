@@ -1,6 +1,10 @@
 classdef Learner<handle
-    %LEARNER Summary of this class goes here
-    %   Detailed explanation goes here
+    %LEARNER Base class for all learners
+    %   Defines a few commonalities between the learner classes.
+    %
+    %OBJ=LEARNER(EVIDENCEGENERATOR)
+    %   The standard constructor for all learner classes. An evidence
+    %   generator is always necessary and is assigned during construction.
     
     properties(SetAccess='protected')
         model
@@ -21,6 +25,9 @@ classdef Learner<handle
         end
         
         function names=getLearnedClasses(obj)
+            %NAMES=GETLEARNEDCLASSES(OBJ)
+            %   Returns the names of all classes for which something was
+            %   learned.
             names=fieldnames(obj.model);
         end
     end

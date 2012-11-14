@@ -1,10 +1,28 @@
 classdef ExpectedUtilityOccurrenceLearner<LearnFunc.OccurrenceLearner
+    %EXPECTEDUTILITYOCCURRENCELEARNER Uses expected utility to select parents
+    %   This class is used to find the optimal set of observed parents to
+    %   predict the occurrence of an object using expected utility.
+    %
+    %OBJ=EXPECTEDUTILITYOCCURRENCELEARNER(EVIDENCEGENERATOR,VALUEMATRIX)
+    %   EVIDENCEGENERATOR is used in the constructor of LearnFunc.Learner.
+    %   VALUEMATRIX is a 2x2 matrix that denotes the scores of the outcomes
+    %   of the boolean decision. The scores are arranged as following:
+    %   VALUEMATRIX=[trueNegativ falseNegativ;falsePositiv truePositiv]
+    %
+    %OBJ=EXPECTEDUTILITYOCCURRENCELEARNER(...,MAXPARENTS)
+    %   Limits the number of possible parents to MAXPARENTS. Without this
+    %   option the default value of 10 is used.
+    %
+    %See also LEARNFUNC.LEARNER
+    
     properties(SetAccess='protected')
         valueMatrix % valueMatrix=[trueNegativ falseNegativ;falsePositiv truePositiv]
         maxParents
     end
     
-    properties(Constant) 
+    properties(Constant)
+        %Defines how many repetitions of 2-fold cross validation are
+        %performed.
         nrSplits=10
         defaultMaxParents=10
     end
@@ -38,26 +56,43 @@ classdef ExpectedUtilityOccurrenceLearner<LearnFunc.OccurrenceLearner
             
             % for every small class greedy search for best parents
             for cs=smallIndex
+                % Set the expected utility without parents as starting
+                % point
                 EULast=EUBase(cs);
                 currentIndices=cs;
                 goodIndices=cs;
                 while(length(currentIndices)-1<obj.maxParents)
+                    % Compute the expected utility for all classes given
+                    % the currently observed classes plus the sought class
+                    % (currentIndices)
                     EUNew=obj.computeExpectedUtilitySplitDataset(data,currentIndices,setIndices);
+                    % Compute the gain in EU
                     EUDiff=EUNew-EULast;
+                    % Remove all classes that are already observed
                     EUDiff(currentIndices)=0;
+                    % Remove all classes that are not observable due to
+                    % their size
                     EUDiff(smallIndex)=0;
+                    % Remove all gains below a threshold
                     EUDiff(EUDiff<0.001)=0;
+                    % Find the highest gain
                     [maxVal,maxI]=max(EUDiff);
+                    % If it is positive
                     if maxVal>0
+                        % Add to the observed variables
                         currentIndices(end+1)=maxI;
+                        % Set the new EU as the current
                         EULast=EUNew(maxI);
                         goodIndices=currentIndices;
+                        % Generate some output
                         disp([classes{cs} ' given ' classes{maxI} ' improvement: ' num2str(maxVal) ' total: ' num2str(EULast)]);
                     else
+                        % If no gain can be found break
                         break;
                     end
                 end
                 if ~isempty(goodIndices)
+                    % Save the model
                     obj.model.(classes{cs}).parents=classes(goodIndices(2:end));
                     
                     obj.model.(classes{cs}).expectedUtility=EULast;

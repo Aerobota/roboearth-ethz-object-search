@@ -60,7 +60,6 @@ classdef ExpectedUtilityOccurrenceLearner<LearnFunc.OccurrenceLearner
                 % point
                 EULast=EUBase(cs);
                 currentIndices=cs;
-                goodIndices=cs;
                 while(length(currentIndices)-1<obj.maxParents)
                     % Compute the expected utility for all classes given
                     % the currently observed classes plus the sought class
@@ -83,7 +82,6 @@ classdef ExpectedUtilityOccurrenceLearner<LearnFunc.OccurrenceLearner
                         currentIndices(end+1)=maxI;
                         % Set the new EU as the current
                         EULast=EUNew(maxI);
-                        goodIndices=currentIndices;
                         % Generate some output
                         disp([classes{cs} ' given ' classes{maxI} ' improvement: ' num2str(maxVal) ' total: ' num2str(EULast)]);
                     else
@@ -91,32 +89,36 @@ classdef ExpectedUtilityOccurrenceLearner<LearnFunc.OccurrenceLearner
                         break;
                     end
                 end
-                if ~isempty(goodIndices)
-                    % Save the model
-                    obj.model.(classes{cs}).parents=classes(goodIndices(2:end));
-                    
-                    obj.model.(classes{cs}).expectedUtility=EULast;
+                
+                % Save the model
+                obj.model.(classes{cs}).parents=classes(currentIndices(2:end));
 
-                    [obj.model.(classes{cs}).margP,obj.model.(classes{cs}).condProb]=...
-                        obj.evidenceGenerator.calculateModelStatistics(data,goodIndices,1:length(data));
-                end
+                obj.model.(classes{cs}).expectedUtility=EULast;
+
+                [obj.model.(classes{cs}).margP,obj.model.(classes{cs}).condProb]=...
+                    obj.evidenceGenerator.calculateModelStatistics(data,currentIndices,1:length(data));
             end
         end
     end
     methods(Access='protected')
         function EUNew=computeExpectedUtilitySplitDataset(obj,data,currentIndices,setIndices)
             EUNew=[];
+            % For every split do 2-fold cross validation
             for i=1:size(setIndices,1)
                 EUNew(end+1,:)=obj.evidenceGenerator.calculateExpectedUtility(...
                     data,currentIndices,setIndices{i,1},setIndices{i,2},obj.valueMatrix);
                 EUNew(end+1,:)=obj.evidenceGenerator.calculateExpectedUtility(...
                     data,currentIndices,setIndices{i,2},setIndices{i,1},obj.valueMatrix);
             end
+            % Take the median of the computed costs as the final value
             EUNew=median(EUNew,1);
         end
     end
     methods(Static)        
         function out=cleanBooleanCP(boolCP,boolMargP)
+            %OUT=CLEANBOOLEANCP(BOOLCP,BOOLMARGP)
+            %   Removes all events that have no observations and inputs the
+            %   marginal probability as a substitute.
             out=boolCP;
             zeroIndexes=sum(out(:,:),1)==0;
             out(:,zeroIndexes)=boolMargP(:,ones(1,sum(zeroIndexes)));

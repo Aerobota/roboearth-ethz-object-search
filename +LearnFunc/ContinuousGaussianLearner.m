@@ -14,7 +14,7 @@ classdef ContinuousGaussianLearner<LearnFunc.LocationLearner
         function learn(obj,data)
             % samples is a cell array with relative locations for all
             % combinations of classes.
-            samples=obj.evidenceGenerator.getEvidence(data,'relative');
+            samples=obj.evidenceGenerator.getEvidence(data);
             classes=data.getClassNames();
             for i=1:length(classes)
                 for j=1:length(classes)

@@ -92,7 +92,6 @@ classdef LocationEvaluator<Evaluation.Evaluator
             % Get the scenes evidence via the evidenceGenerator
             evidence=locationLearner.evidenceGenerator.getEvidenceForImage(data,index);
             
-%             tmpProbVec=cell(1,length(targetClasses));
             probVec=struct;
             % For each class and observed object compute the pairwise
             % probability
@@ -117,12 +116,6 @@ classdef LocationEvaluator<Evaluation.Evaluator
                     probVec.(targetClasses{c})=1/size(evidence.absEvi,2)*ones(1,size(evidence.absEvi,2));
                 end
             end
-            
-%             for c=1:length(targetClasses)
-%                 if ~isempty(tmpProbVec{c})
-%                     probVec.(targetClasses{c})=tmpProbVec{c};
-%                 end
-%             end
 
             % Extract the point cloud locations from the evidence
             locVec=evidence.absEvi;

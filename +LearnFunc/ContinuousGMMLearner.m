@@ -22,7 +22,7 @@ classdef ContinuousGMMLearner<LearnFunc.LocationLearner
         
         function learn(obj,data)
             % Get the relative location samples
-            samples=obj.evidenceGenerator.getEvidence(data,'relative');
+            samples=obj.evidenceGenerator.getEvidence(data);
             classes=data.getClassNames();
             % For efficient use with parfor the data needs to be in a
             % vector format for slicing

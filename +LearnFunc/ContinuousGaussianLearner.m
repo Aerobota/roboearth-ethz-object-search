@@ -1,4 +1,7 @@
-classdef ContinuousGaussianLearner<LearnFunc.LocationLearner    
+classdef ContinuousGaussianLearner<LearnFunc.LocationLearner
+    %CONTINUOUSGAUSSIANLEARNER Models relative location as a gaussian
+    %   This method a used to learn a gaussian model of the distribution of
+    %   relative locations between object pairs.
     methods
         function obj=ContinuousGaussianLearner(evidenceGenerator)
             obj=obj@LearnFunc.LocationLearner(evidenceGenerator);
@@ -9,15 +12,17 @@ classdef ContinuousGaussianLearner<LearnFunc.LocationLearner
         end
         
         function learn(obj,data)
-            samples=obj.evidenceGenerator.getEvidence(data,'relative');
+            % samples is a cell array with relative locations for all
+            % combinations of classes.
+            samples=obj.evidenceGenerator.getEvidence(data);
             classes=data.getClassNames();
             for i=1:length(classes)
                 for j=1:length(classes)
+                    % Check if enough samples are available
                     if size(samples{i,j},1)>=obj.minSamples;
-                        tmpMean=mean(samples{i,j});
-                        tmpCov=cov(samples{i,j});
-                        obj.model.(classes{i}).(classes{j}).mean=tmpMean;
-                        obj.model.(classes{i}).(classes{j}).cov=tmpCov;
+                        % Save the mean, covariance and sample count
+                        obj.model.(classes{i}).(classes{j}).mean=mean(samples{i,j});
+                        obj.model.(classes{i}).(classes{j}).cov=cov(samples{i,j});
                         obj.model.(classes{i}).(classes{j}).nrSamples=size(samples{i,j},1);
                     end
                 end

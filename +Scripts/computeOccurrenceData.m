@@ -22,7 +22,7 @@ for o=length(occurrenceStates):-1:1
     occEvidenceGenerator{o,1}=LearnFunc.ConditionalOccurrenceEvidenceGenerator(occurrenceStates{o});
 end
 
-for o=length(occEvidenceGenerator):-1:1
+for o=size(occEvidenceGenerator,1):-1:1
     for p=size(occEvidenceGenerator,2):-1:1
         for m=length(valueMatrix):-1:1
             occLearner{m,o,p}=LearnFunc.ExpectedUtilityOccurrenceLearner(occEvidenceGenerator{o,p},valueMatrix{m});

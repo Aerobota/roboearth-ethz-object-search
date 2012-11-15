@@ -1,23 +1,52 @@
 classdef LocationEvidenceGenerator<LearnFunc.EvidenceGenerator
-    %LOCATIONEVIDENCEGENERATOR Summary of this class goes here
-    %   Detailed explanation goes here
+    %LOCATIONEVIDENCEGENERATOR Produces location Evidence
+    %   This class is an abstract class that produces evidence of relative
+    %   and absolute locations of objects.
     
     methods
-        function evidence=getEvidence(obj,data,varargin)
-            if length(varargin)==1
-                if strcmpi(varargin{1},'relative')
-                    evidence=obj.orderRelativeEvidenceSamples(data);
-                    return
-                elseif strcmpi(varargin{1},'absolute')
-                    evidence=obj.orderAbsoluteEvidenceSamples(data);
-                    return
+        function evidence=getEvidence(obj,data)
+            %EVIDENCE=GETEVIDENCE(OBJ,DATA)
+            %   Produces relative location evidence.
+            %
+            %DATA is a DataHandlers.DataStructure class instance that
+            %   contains the location data.
+            %
+            %EVIDENCE is a cxc cell matrix where EVIDENCE{i,j} contains the
+            %   samples from class i to class j. The format of the samples
+            %   depends on the implementation of GETRELATIVEEVIDENCE in the
+            %   dervied class.
+            
+            classes=data.getClassNames();
+            evidence=cell(length(classes),length(classes));
+            for i=1:length(data)
+                pos=obj.getPositionEvidence(data,i);
+                relEvidence=obj.getRelativeEvidence(pos,pos);
+                
+                ind=data.className2Index({data.getObject(i).name});
+                for o=1:length(ind)
+                    for t=o+1:length(ind)
+                        evidence{ind(o),ind(t)}(end+1,:)=relEvidence(o,t,:);
+                        evidence{ind(t),ind(o)}(end+1,:)=relEvidence(t,o,:);
+                    end
                 end
             end
-            error('LocationEvidenceGenerator:getEvidence:wrongInput',...
-                'The varargin argument has to be ''relative'' or ''absolute''.')
         end
         
         function evidence=getEvidenceForImage(obj,data,index)
+            %EVIDENCE=GETEVIDENCEFORIMAGE(OBJ,DATA,INDEX)
+            %   Produces relative location evidence for all pixels in a
+            %   single scene.
+            %
+            %DATA is a DataHandlers.DataStructure class instance that
+            %   contains the location data.
+            %
+            %INDEX is the index of the desired scene.
+            %
+            %EVIDENCE is a struct with three fields:
+            %   'names': the class names of the observed objects
+            %   'absEvi': the 3D-location of every pixel
+            %   'relEvi': the relative location from every observed object
+            %       to every pixel
             allNames={data.getObject(index).name};
             baseIndices=ismember(allNames,data.getLargeClassNames());
             evidence.names=allNames(baseIndices);
@@ -32,51 +61,21 @@ classdef LocationEvidenceGenerator<LearnFunc.EvidenceGenerator
     end
     
     methods(Abstract,Static,Access='protected')
+        %EVIDENCE=GETRELATIVEEVIDENCE(SOURCEPOS,TARGETPOS)
+        %   Computes the relative location evidence from SOURCEPOS to
+        %   TARGETPOS.
+        %
+        %SOURCEPOS is a 3xn matrix where every column is a 3D-location.
+        %
+        %TARGETPOS is a 3xm matrix where every column is a 3D-location.
+        %
+        %EVIDENCE is a nxmxd matrix where d is the dimensionality of the
+        %   evidence. It contains the relative location from every
+        %   SOURCEPOS to every TARGETPOS. The dimensionality and exact
+        %   computation of the output is defined by the deriving class.
         evidence=getRelativeEvidence(sourcePos,targetPos)
-        evidence=getAbsoluteEvidence(pos)
         pos=getPositionEvidence(images,index)
         pos=getPositionForImage(images,index)
     end
-    methods(Abstract,Static)
-        distance=evidence2Distance(evidence)
-    end
-    
-    methods(Access='protected')
-        function samples=orderRelativeEvidenceSamples(obj,images)
-            classes=images.getClassNames();
-            samples=cell(length(classes),length(classes));
-            for i=1:length(images)
-                pos=obj.getPositionEvidence(images,i);
-                evidence=obj.getRelativeEvidence(pos,pos);
-                
-                ind=images.className2Index({images.getObject(i).name});
-                for o=1:length(ind)
-                    for t=o+1:length(ind)
-                        samples{ind(o),ind(t)}(end+1,:)=evidence(o,t,:);
-                        samples{ind(t),ind(o)}(end+1,:)=evidence(t,o,:);
-                    end
-                end
-            end
-        end
-        function samples=orderAbsoluteEvidenceSamples(obj,images)
-            classes=images.getClassNames();
-            samples=cell(length(classes),length(classes));
-            for i=1:length(images)
-                pos=obj.getPositionEvidence(images,i);
-                evidence=obj.getAbsoluteEvidence(pos);
-                
-                ind=images.className2Index({images.getObject(i).name});
-                for o=1:length(ind)
-                    for t=o+1:length(ind)
-                        samples{ind(o),ind(t)}(end+1,1,:)=evidence(o,o,:);
-                        samples{ind(o),ind(t)}(end,2,:)=evidence(o,t,:);
-                        samples{ind(t),ind(o)}(end+1,1,:)=evidence(t,t,:);
-                        samples{ind(t),ind(o)}(end,2,:)=evidence(t,o,:);
-                    end
-                end
-            end
-        end
-    end
-    
 end
 

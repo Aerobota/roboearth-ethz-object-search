@@ -26,8 +26,56 @@ classdef OccurrenceEvidenceGenerator<LearnFunc.EvidenceGenerator
     end
     
     methods(Abstract)
+        %RESULT=CALCULATESTATISTICS(OBJ,TESTDATA,OCCLEARNER,OCCEVAL)
+        %   This method allows to calculate the error statistics of
+        %   deciding if an object is present or not.
+        %
+        %TESTDATA is a DataHandlers.DataStructure class instance that
+        %   contains the occurrence data.
+        %
+        %OCCLEARNER is a LearnFunc.OccurrenceLearner that contains the
+        %   learned model.
+        %
+        %OCCEVAL is a Evaluation.OccurrenceEvaluator that specifies the
+        %   evaluation method.
         result=calculateStatistics(obj,testData,occLearner,occEval)
+        
+        %EU=CALCULATEEXPECTEDUTILITY(OBJ,DATA,TARGETCLASSES,DECISIONSUBSET,TESTSUBSET,VALUEMATRIX)
+        %   This method is used to compute the expected utility for a
+        %   certain VALUEMATRIX and DATA.
+        %
+        %DATA is a DataHandlers.DataStructure class instance that
+        %   contains the occurrence data.
+        %
+        %TARGETCLASSES is an numeric or logical index vector that
+        %   selects the child class plus the observed classes.
+        %
+        %DECISIONSUBSET is an numeric or logical index vector that selects from
+        %   which scenes the optimal action is to be computed.
+        %
+        %TESTSUBSET is an numeric or logical index vector that selects from
+        %   which scenes the expected utility is to be computed.
+        %
+        %VALUEMATRIX is a 2x2 matrix as specified in
+        %   LearnFunc.ExpectedUtilityOccurrenceLearner.
+        %
+        %EU is a vector that contains the expected utilities of all
+        %   classes.
+        %
+        %See also LEARNFUNC.EXPECTEDUTILITYOCCURRENCELEARNER
         eu=calculateExpectedUtility(obj,data,targetClasses,decisionSubset,testSubset,valueMatrix)
+        
+        %[MARGP,CONDP]=CALCULATEMODELSTATISTICS(OBJ,DATA,TARGETCLASSES,SUBSET)
+        %   Returns the necessary statistics for the final model.
+        %
+        %DATA is a DataHandlers.DataStructure class instance that
+        %   contains the occurrence data.
+        %
+        %TARGETCLASSES is an numeric or logical index vector that
+        %   selects for which classes the probability is to be computed.
+        %
+        %SUBSET is an numeric or logical index vector that selects from
+        %   which scenes the probability is to be computed.
         [margP,condP]=calculateModelStatistics(obj,data,targetClasses,subset)
     end
     

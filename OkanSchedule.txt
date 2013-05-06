@@ -1,0 +1,10 @@
+Schedule between 01.05.2013 - 31.07.2013
+
+2 Hours - Reading article "Indirect Object Search Using Relationships Between Object Classes"
+2 Hours - Reading article "The RoboEarth language: Representing and Exchanging Knowledge about
+          Actions, Objects, and Environments"
+4 Hours - Refreshing Python skills
+1 Hour  - Installing PyDev for Eclipse IDE
+	  Cloning git repository https://github.com/IDSCETHZurich/roboearth-ethz-object-search.git
+
+

@@ -6,5 +6,11 @@ Schedule between 01.05.2013 - 31.07.2013
 4 Hours - Refreshing Python skills
 1 Hour  - Installing PyDev for Eclipse IDE
 	  Cloning git repository https://github.com/IDSCETHZurich/roboearth-ethz-object-search.git
+	  Reading PyDev tutorial
+2 Hours - Reading article "Semantic Object Maps for Robotic Housework - Representation,
+	  Acquisition and Use"
+2 Hours - Installing NumPy, SciPy [requires LAPACK, ATLAS]
+2 Hours - Reading NumPy tutorial
+
 
 

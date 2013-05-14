@@ -9,8 +9,7 @@ Schedule between 01.05.2013 - 31.07.2013
 	  Reading PyDev tutorial
 2 Hours - Reading article "Semantic Object Maps for Robotic Housework - Representation,
 	  Acquisition and Use"
-2 Hours - Installing NumPy, SciPy [requires LAPACK, ATLAS]
-2 Hours - Reading NumPy tutorial
+4 Hours - Reading NumPy, SciPy [requires LAPACK, ATLAS] tutorials
 
 
 

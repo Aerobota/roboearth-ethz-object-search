@@ -17,19 +17,32 @@ from DataHandler import *
 #inside which the location predictor gets a positive score
 maxDistances = (0.25,0.5,1,1.5)
 
-#TODO: set evaluation methods
-methods = (Methods.FROCLocationEvaluator(), Methods.FirstNLocationEvaluator())
+#set evaluation methods
+evalMethod = list()
+evalMethod[1] = Methods.FROCLocationEvaluator()
+evalMethod[2] = Methods.FirstNLocationEvaluator()
 
 ## INITIALIZING
 
 #set paths
 #Path to the folder of the converted dataset
-sourceFolder = "home/okankoc/Hilfsassistent/Dataset"
-datasetPath = sourceFolder + "/Images"
+sourceFolder = "../Dataset/"
+datasetPath = sourceFolder + "Images/"
 
 #initialize classes
 dataTrain = DataStructure.NYUDataStructure(datasetPath, "train")
 dataTest = DataStructure.NYUDataStructure(datasetPath, "test")
 locCylinder = EvidenceGenerator.CylindricalEvidenceGenerator()
-locGMM = Learner.ContinuousGMMLearner()
+locGMM = Learner.ContinuousGMMLearner(locCylinder)
 evalBase = Evaluator.LocationEvaluator()
+
+## LOAD DATA
+
+print "Loading data..."
+dataTrain.loadDataMAT()
+dataTest.loadDataMAT()
+
+## LEARN PROBABILITIES
+
+print "Learning probabilities for Gaussian Mixture Model (GMM)"
+locGMM.learn(dataTrain)

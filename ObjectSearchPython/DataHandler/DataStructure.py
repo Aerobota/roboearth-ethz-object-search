@@ -5,6 +5,8 @@ Created on May 14, 2013
 @contact: Stefan Koenig
 '''
 
+import scipy.io as sio
+
 class DataStructure(object):
     '''
     Abstract class that stores a dataset
@@ -28,9 +30,9 @@ class DataStructure(object):
     For example implementation see DATAHANDLERS.NYUDATASTRUCTURE.
     '''
     
-    objectFolder='object'
-    objectTag='obj_'
-    depthFolder='depth'
+    objectFolder = 'object'
+    objectTag = 'obj_'
+    depthFolder = 'depth'
 
 
     def __init__(self,path,testOrTrain):
@@ -48,18 +50,49 @@ class DataStructure(object):
             raise Exception("The testOrTrain argument must be ''test'' or ''train''.'")
         
         # generate preallocated data structure
-        data = Data()
-        data.filename = ""                        
-        data.depthname = ""
-        data.folder = ""
-        data.imagesize = []
-        data.calib = []
-        data.objectPath = ""
+        self.data = Data()
         
         self.path = path
         self.setChooser = testOrTrain
-        self.storageName = self.storageName()
+        self.storageName = self.getStorageName()
         
+        # initialize classes
+        self.classes = []
+        self.classesLarge = []
+        self.classesSmall = []
+        
+    def getClassNames(self):
+        ''' 
+        Returns the class names as an numpy array of unicode strings
+        '''
+        if len(self.classes) is 0:
+            self.loadClassesMAT();
+        
+        return self.classes
+    
+    def loadClassesMAT(self):
+        '''
+        Load the classes from MAT file given by catFileName field.
+        '''
+        filename = self.path + self.catFileName
+        try:
+            mat = sio.loadmat(filename, squeeze_me = True)
+            self.classes = mat['names']
+            self.classesLarge = mat['largeNames']
+            self.classesSmall = mat['smallNames']
+        except IOError:
+            print 'File does not exist:', filename
+    
+    def getObjectMAT(self, image):
+        '''
+        Loads the objects mat file associated with the particular image
+        '''
+        filename = self.path + image.objectPath    
+        try:
+            mat = sio.loadmat(filename, squeeze_me = True)
+            
+        except IOError:
+            print 'File does not exist:', filename
 
 class NYUDataStructure(DataStructure):
     '''
@@ -68,13 +101,42 @@ class NYUDataStructure(DataStructure):
     for data generated with DATAHANDLERS.CONVERTFROMNYUDATASET.
     '''
 
-    imageFolder='image'
-    catFileName='objectCategories.mat'
-    testSet='groundTruthTest'
-    trainSet='groundTruthTrain'
+    imageFolder = 'image'
+    catFileName = 'objectCategories.mat'
+    testSet = 'groundTruthTest'
+    trainSet = 'groundTruthTrain'
+    
+    def getStorageName(self):
+        
+        if self.setChooser is 'train':
+            return self.trainSet
+        else:
+            return self.testSet
+        
+    def loadDataMAT(self):
+        '''
+        Load the stored MAT file as a numpy array of Data objects
+        '''
+        filename = self.path + self.storageName + '.mat'
+        try:
+            mat = sio.loadmat(filename, squeeze_me = True)
+            data = mat['data']
+        except IOError:
+            print 'File does not exist:', filename
+            
+        self.data = data
+            
         
 class Data(object):
     '''
-    Used to represent a structure (MATLAB compatibility)
+    Used to represent the data structure 
+    loaded from MATLAB 
     '''
-    pass
+    
+    def __init__(self):
+        self.filename = ""                        
+        self.depthname = ""
+        self.folder = ""
+        self.imagesize = []
+        self.calib = []
+        self.objectPath = ""

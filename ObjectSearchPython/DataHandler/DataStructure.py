@@ -30,7 +30,7 @@ class DataStructure(object):
     For example implementation see DATAHANDLERS.NYUDATASTRUCTURE.
     '''
     
-    objectFolder = 'object'
+    objectFolder = 'objectPython'
     objectTag = 'obj_'
     depthFolder = 'depth'
 
@@ -72,7 +72,8 @@ class DataStructure(object):
     
     def loadClassesMAT(self):
         '''
-        Load the classes from MAT file given by catFileName field.
+        Load the classes from MAT file given by catFileName field
+        as a numpy array of strings.
         '''
         filename = self.path + self.catFileName
         try:
@@ -82,17 +83,39 @@ class DataStructure(object):
             self.classesSmall = mat['smallNames']
         except IOError:
             print 'File does not exist:', filename
+            
     
     def getObjectMAT(self, image):
         '''
         Loads the objects mat file associated with the particular image
+        Has to modify the objectPath since the structure objects are now
+        stored in /objectPython and not in /object.
+        
+        Returns an array of structs, each containing information about an
+        object in the image.
         '''
-        filename = self.path + image.objectPath    
+        modifiedObjectPath = image.objectPath.replace('object', self.objectFolder)
+        filename = self.path + modifiedObjectPath
         try:
             mat = sio.loadmat(filename, squeeze_me = True)
-            
         except IOError:
             print 'File does not exist:', filename
+            
+        # get array of structs    
+        return mat['s']
+    
+    def className2Index(self, names):
+        '''
+        The returned INDEX is guaranteed to be unique for the class
+        NAME during the lifetime of the data structure. The function
+        throws an error if NAME contains a string that doesn't map
+        to a saved class name.
+        
+        NAME is generally a list of strings.
+        '''
+        
+        #TODO: is this necessary?
+        pass  
 
 class NYUDataStructure(DataStructure):
     '''

@@ -63,12 +63,32 @@ class DataStructure(object):
         
     def getClassNames(self):
         ''' 
-        Returns the class names as an numpy array of unicode strings
+        Returns the class names as a numpy array of unicode strings.
         '''
         if len(self.classes) is 0:
             self.loadClassesMAT();
         
         return self.classes
+    
+    def getSmallClassNames(self):
+        '''
+        Returns the small class names as a numpy array of 
+        unicode strings.
+        '''
+        if len(self.classes) is 0:
+            self.loadClassesMAT();
+        
+        return self.classesSmall
+    
+    def getLargeClassNames(self):
+        '''
+        Returns the large class names as a numpy array of 
+        unicode strings.
+        '''
+        if len(self.classes) is 0:
+            self.loadClassesMAT();
+        
+        return self.classesLarge
     
     def loadClassesMAT(self):
         '''
@@ -104,18 +124,25 @@ class DataStructure(object):
         # get array of structs    
         return mat['s']
     
-    def className2Index(self, names):
+    def getNamesOfObjects(self, objs):
         '''
-        The returned INDEX is guaranteed to be unique for the class
-        NAME during the lifetime of the data structure. The function
-        throws an error if NAME contains a string that doesn't map
-        to a saved class name.
-        
-        NAME is generally a list of strings.
+        Returns the names of each object in the image
+        as a list of strings
+        '''
+        s = []
+        for obj in objs:
+            s.append(obj.name)
+        return s
+    
+    def get3DPositionForImage(self, image):
+        '''
+        POS = GET3DPOSITIONFORIMAGE(IMAGE)
+        POS contains the 3D positions of every pixel of IMAGE.
+        POS is a 3xn matrix where n is the total number of
+        pixels in the image.
         '''
         
-        #TODO: is this necessary?
-        pass  
+        
 
 class NYUDataStructure(DataStructure):
     '''

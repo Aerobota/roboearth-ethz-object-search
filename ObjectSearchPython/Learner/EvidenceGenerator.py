@@ -22,18 +22,6 @@ class EvidenceGenerator(object):
         Doesn't do anything
         '''
         pass
-    
-    def getNamesOfObjects(self, objs):
-        '''
-        Returns the names of each object in the image
-        as a list of strings
-        
-        TODO: maybe doesn't belong here.
-        '''
-        s = []
-        for obj in objs:
-            s.append(obj.name)
-        return s
         
 class LocationEvidenceGenerator(EvidenceGenerator):
     '''
@@ -71,7 +59,7 @@ class LocationEvidenceGenerator(EvidenceGenerator):
             objs = dataStr.getObjectMAT(image)
             pos = self.getPositionEvidence(objs)
             relEvidence = self.getRelativeEvidence(pos,pos)
-            names = self.getNamesOfObjects(objs)
+            names = dataStr.getNamesOfObjects(objs)
             
             #TODO: check to see if working            
             for i in range(len(names)):
@@ -79,7 +67,46 @@ class LocationEvidenceGenerator(EvidenceGenerator):
                     evidence[(names[i], names[j])].append(relEvidence[i,j,:].tolist())
                     #evidence[(names[j], names[i])].append(relEvidence[i,j,:].tolist())
         
-        return evidence   
+        return evidence 
+    
+    def getEvidenceForImage(self, dataStr, image):
+        '''
+        Produces relative location evidence for all pixels in a
+        single scene.
+        Observed objects: Large classes
+        
+        DATASTR is the test dataset.
+        
+        IMAGE is the desired scene.
+        
+        EVIDENCE is a dictionary with three keys:
+        'names': the class names of the observed objects
+        'absEvidence': the 3D-location of every pixel
+        'relEvidence': the relative location from every observed object
+        to every pixel
+        '''  
+        
+        objs = dataStr.getObjectMAT(image)
+        names = dataStr.getNamesOfObjects(objs)
+        classesLarge = dataStr.getLargeClassNames()
+        
+        evidence = dict()
+        evidence['names'] = list()
+        
+        pos = self.getPositionEvidence(objs)
+        # positions of large objects
+        objPos = np.array([[],[],[]])
+            
+        # TODO: this should work. Check shape     
+        for c in classesLarge:
+            if names.count(c):
+                evidence['names'].append(c)
+                objPos = np.hstack((objPos, pos[:,names == c]))
+        
+        evidence['absEvidence'] = self.getPositionForImage(dataStr, image)
+        evidence['relEvidence'] = self.getRelativeEvidence(objPos, evidence['absEvidence'])
+        
+        return evidence
             
 class CylindricalEvidenceGenerator(LocationEvidenceGenerator):
     '''
@@ -92,20 +119,31 @@ class CylindricalEvidenceGenerator(LocationEvidenceGenerator):
     def getPositionEvidence(self, objs):
         '''
         Return the positions of each object in the image
-        as a matrix of column stacked 3d-positions
+        as a matrix of column stacked 3d-positions.
         '''
-        mat = np.array([[],[],[]])
-        for obj in objs:
-            mat = np.column_stack(mat, obj.pos)
+        
+        #TODO: is obj.pos the correct shape?
+        mat = np.zeros((3,len(objs)))
+        for i,obj in enumerate(objs):
+            mat[:,i] = obj.pos
         
         return mat    
+    
+    def getPositionForImage(self, dataStr, image):
+        '''
+        Returns the 3d-positions (3D location of every pixel)
+        of the point cloud corresponding to the image.
+        
+        Just a wrapper for DataStructure.get3DPositionsForImage(image).
+        '''    
+        return dataStr.get3DPositionForImage(image)
     
     
     def getRelativeEvidence(self, sourcePos, targetPos):
         '''
         Returns cylindrical evidence as a 3D-array of 
         1. 2D-array of distances in xz-coordinates (radius)
-        2. 2D-array of vertical distances (y)        
+        2. 2D-array of vertical distances (y).     
         '''
         
         # initialize dist array
@@ -113,6 +151,7 @@ class CylindricalEvidenceGenerator(LocationEvidenceGenerator):
         dist = np.zeros((num_obj, num_obj, 3))
         evidence = np.zeros((num_obj, num_obj, 2))
 
+        #TODO: is np.newaxis necessary ?
         for d in reversed(range(3)):
             vec = targetPos[:,d]
             mat = sourcePos[d,:] - vec[:,np.newaxis]

@@ -46,3 +46,8 @@ dataTest.loadDataMAT()
 
 print "Learning probabilities for Gaussian Mixture Model (GMM)"
 locGMM.learn(dataTrain)
+
+## EVALUATE TEST IMAGES
+
+print "Evaluating test images..."
+resultCylindricGMM = evalBase.evaluate(dataTest,locGMM,evalMethod,maxDistances);

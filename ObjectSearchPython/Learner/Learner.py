@@ -6,7 +6,7 @@ Created on May 14, 2013
 '''
 
 import numpy as np
-import scipy
+from sklearn import mixture
 
 class Learner(object):
     '''
@@ -21,8 +21,12 @@ class Learner(object):
         OBJ=LEARNER(EVIDENCEGENERATOR)
         The standard constructor for all learner classes. An evidence
         generator is always necessary and is assigned during construction.
+        
+        @attention: Unlike the MATLAB code, also initializing the model
+        structure here, as a dictionary of dictionaries (parameters).        
         '''
         self.evidenceGenerator = evidenceGenerator
+        self.model = dict()
         
 class LocationLearner(Learner):
     '''
@@ -57,17 +61,21 @@ class ContinuousGMMLearner(LocationLearner):
         for key,val in samples.iteritems():
             # compute the gmm
             if len(val) is not 0:
-                self.doGMM(val)
+                params = self.doGMM(val)
                 # save it
+                print "Learned parameters for the class pairs:", key
+                self.model[key] = params
                 
     def doGMM(self, samples):
         '''
         Learns the GMM probabilities for the particular class pair i,j
         with samples containing distance information as a list of 2-d vectors
         
-        Learning is done with an iterative EM algorithm.
+        Learning is done with EM algorithm.
         Number of components is determined with the BIC-score.
         Restricting the number of components to MAXCOMPONENTS.
+        
+        Returns the learned parameters as a dictionary.
         '''
         
         # Split the dataset into 3 parts, 
@@ -80,8 +88,8 @@ class ContinuousGMMLearner(LocationLearner):
         
         # for array indexing convert samples list into numpy array
         npsamp = np.array(samples)
-        # test and train are lists containing corresponding data
-        # for crossvalidation
+        # test and train are lists containing corresponding 
+        # numpy array data for crossvalidation
         test = list()
         train = list()
         
@@ -91,7 +99,7 @@ class ContinuousGMMLearner(LocationLearner):
             test[i] = npsamp[ind_i]
             # get the difference of indices
             set_ind_i_diff = set_randomInd.difference(set(ind_i.tolist()))
-            ind_i_diff = np.array(list(set_ind_i_diff))
+            ind_i_diff = list(set_ind_i_diff)
             train[i] = npsamp[ind_i_diff]
         
         score = np.zeros(self.maxComponents)
@@ -101,6 +109,15 @@ class ContinuousGMMLearner(LocationLearner):
             for s in range(self.splitSize):
                 score[k] = score[k] + self.evaluateModelComplexity(train[s], test[s], k+1)
     
+        # find the lowest cost
+        kOPT = score.argmin()
+        # train model with optimal component size
+        clf = mixture.GMM(n_components = kOPT, covariance_type = 'full')
+        clf.fit(npsamp)
+        
+        # return the learned model
+        return clf.get_params(deep = True)
+    
     def evaluateModelComplexity(self, trainSet, testSet, k):
         '''
         Evaluate the Bayesian Information Criterion (BIC) score 
@@ -108,8 +125,16 @@ class ContinuousGMMLearner(LocationLearner):
         
         BIC = NlogN + m * log(n)
         
-        NlogN: negative-log-likelihood of the data
+        NlogN: negative-log-likelihood of the test data in testSet
         m: estimated number of parameters
         n: number of data points    
+        
+        Using Scikit-learn to implement GMM.
         '''
         
+        clf = mixture.GMM(n_components = k, covariance_type = 'full')
+        # train with EM
+        clf.fit(trainSet)
+        bic = clf.bic(testSet)
+        
+        return bic

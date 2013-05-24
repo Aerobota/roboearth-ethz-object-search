@@ -65,7 +65,7 @@ class LocationEvaluator(Evaluator):
         classesSmall = testData.getSmallClassNames()
         
         # get numpy array of structs, each struct corresponding to one object
-        objs = testData.getObjectMAT(image)
+        objs = testData.loadObjectMAT(image)
         names = testData.getNamesOfObjects(objs)
         
         #TODO: seems to be working!
@@ -90,7 +90,7 @@ class LocationEvaluator(Evaluator):
         
         IMAGE is the desired scene.
         
-        LOCATIONLEARNER is an implementation of a LearnFunc.LocationLearner.
+        LOCATIONLEARNER is an implementation of a Learner.LocationLearner.
         
         SMALLOBJECTS is a dictionary with keys consisting of the names
         of the small classes for which output is to be generated.
@@ -103,4 +103,22 @@ class LocationEvaluator(Evaluator):
         a point of the cloud.
         '''
         evidence = locationLearner.evidenceGenerator.getEvidenceForImage(data, image)
+        
+        probVec = dict()
+        # For each (small object) class and observed object 
+        # compute the pairwise probability
+        for c in smallObjects.iterkeys(): # for each small object
+            for idx_o in range(evidence['relEvidence'].shape[0]): # for each (observed) large object
+                try:
+                    #TODO: does this work? Evidence should be N x 2 matrix
+                    o = evidence['names'][idx_o]
+                    mat = np.squeeze(evidence['relEvidence'][idx_o,:,:])
+                    probVec[(c,o)] = locationLearner.getProbabilityFromEvidence(mat,o,c)
+                except:
+                    pass
+                    #TODO: index out of range or nonexistent field!
+        
+        # the absolute locations were returned with the evidence dictionary
+        locVec = evidence['absEvidence']        
+        return probVec, locVec
         

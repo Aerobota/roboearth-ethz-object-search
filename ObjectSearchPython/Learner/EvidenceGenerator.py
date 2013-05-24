@@ -19,7 +19,7 @@ class EvidenceGenerator(object):
 
     def __init__(self):
         '''
-        Doesn't do anything
+        Doesn't do anything.
         '''
         pass
         
@@ -56,7 +56,7 @@ class LocationEvidenceGenerator(EvidenceGenerator):
         
         # go through each room scanning for evidence
         for image in dataStr.data:
-            objs = dataStr.getObjectMAT(image)
+            objs = dataStr.loadObjectMAT(image)
             pos = self.getPositionEvidence(objs)
             relEvidence = self.getRelativeEvidence(pos,pos)
             names = dataStr.getNamesOfObjects(objs)
@@ -86,7 +86,7 @@ class LocationEvidenceGenerator(EvidenceGenerator):
         to every pixel
         '''  
         
-        objs = dataStr.getObjectMAT(image)
+        objs = dataStr.loadObjectMAT(image)
         names = dataStr.getNamesOfObjects(objs)
         classesLarge = dataStr.getLargeClassNames()
         
@@ -147,9 +147,10 @@ class CylindricalEvidenceGenerator(LocationEvidenceGenerator):
         '''
         
         # initialize dist array
-        num_obj = np.shape(sourcePos)[1]
-        dist = np.zeros((num_obj, num_obj, 3))
-        evidence = np.zeros((num_obj, num_obj, 2))
+        num_source_obj = np.shape(sourcePos)[1]
+        num_target_obj = np.shape(targetPos)[1]
+        dist = np.zeros((num_source_obj, num_target_obj, 3))
+        evidence = np.zeros((num_source_obj, num_target_obj, 2))
 
         #TODO: is np.newaxis necessary ?
         for d in reversed(range(3)):
@@ -162,3 +163,6 @@ class CylindricalEvidenceGenerator(LocationEvidenceGenerator):
         evidence[:,:,1] = np.sqrt(dist[:,:,1]**2 + dist[:,:,2]**2)
         
         return evidence
+        
+        
+        

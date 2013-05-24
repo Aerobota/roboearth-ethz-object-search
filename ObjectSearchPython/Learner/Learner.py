@@ -21,9 +21,9 @@ class Learner(object):
         OBJ=LEARNER(EVIDENCEGENERATOR)
         The standard constructor for all learner classes. An evidence
         generator is always necessary and is assigned during construction.
-        
+         
         @attention: Unlike the MATLAB code, also initializing the model
-        structure here, as a dictionary of dictionaries (parameters).        
+        structure here, as a dictionary of learned models (SciKit class).        
         '''
         self.evidenceGenerator = evidenceGenerator
         self.model = dict()
@@ -52,6 +52,7 @@ class ContinuousGMMLearner(LocationLearner):
     def learn(self, dataStr):
         '''
         Learns the GMM probabilities.
+        TODO: save it (pickle?) somewhere?
         '''
         
         #Get the relative location samples (dictionary)
@@ -61,10 +62,10 @@ class ContinuousGMMLearner(LocationLearner):
         for key,val in samples.iteritems():
             # compute the gmm
             if len(val) is not 0:
-                params = self.doGMM(val)
+                clf = self.doGMM(val)
                 # save it
                 print "Learned parameters for the class pairs:", key
-                self.model[key] = params
+                self.model[key] = clf
                 
     def doGMM(self, samples):
         '''
@@ -75,7 +76,8 @@ class ContinuousGMMLearner(LocationLearner):
         Number of components is determined with the BIC-score.
         Restricting the number of components to MAXCOMPONENTS.
         
-        Returns the learned parameters as a dictionary.
+        Returns the learned model as a class.
+        TODO: maybe just return the parameters instead?
         '''
         
         # Split the dataset into 3 parts, 
@@ -116,7 +118,15 @@ class ContinuousGMMLearner(LocationLearner):
         clf.fit(npsamp)
         
         # return the learned model
-        return clf.get_params(deep = True)
+        return clf
+    
+    def getProbabilityFromEvidence(self, evidence, fromClass, toClass):
+        '''
+        Returns the learned probabilities (PDF) between the two classes.
+        TODO: check to see if it works!
+        '''
+        
+        return np.exp(self.model[(fromClass, toClass)].score(evidence))
     
     def evaluateModelComplexity(self, trainSet, testSet, k):
         '''

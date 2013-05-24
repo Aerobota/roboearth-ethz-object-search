@@ -6,6 +6,7 @@ Created on May 14, 2013
 '''
 
 import scipy.io as sio
+import numpy as np
 
 class DataStructure(object):
     '''
@@ -30,9 +31,9 @@ class DataStructure(object):
     For example implementation see DATAHANDLERS.NYUDATASTRUCTURE.
     '''
     
-    objectFolder = 'objectPython'
+    objectFolder = 'objectPython/'
     objectTag = 'obj_'
-    depthFolder = 'depth'
+    depthFolder = 'depth/'
 
 
     def __init__(self,path,testOrTrain):
@@ -105,7 +106,7 @@ class DataStructure(object):
             print 'File does not exist:', filename
             
     
-    def getObjectMAT(self, image):
+    def loadObjectMAT(self, image):
         '''
         Loads the objects mat file associated with the particular image
         Has to modify the objectPath since the structure objects are now
@@ -114,7 +115,7 @@ class DataStructure(object):
         Returns an array of structs, each containing information about an
         object in the image.
         '''
-        modifiedObjectPath = image.objectPath.replace('object', self.objectFolder)
+        modifiedObjectPath = image.objectPath.replace('object/', self.objectFolder)
         filename = self.path + modifiedObjectPath
         try:
             mat = sio.loadmat(filename, squeeze_me = True)
@@ -123,6 +124,21 @@ class DataStructure(object):
             
         # get array of structs    
         return mat['s']
+    
+    def loadDepthMAT(self, image):
+        '''
+        Loads the depth mat file associated with the particular image
+        as a 2D numpy array (matrix)
+        '''
+        filename = self.path + self.depthFolder + image.depthname
+        try:
+            mat = sio.loadmat(filename, squeeze_me = True)
+        except IOError:
+            print 'File does not exist:', filename
+            
+        # return the 2D numpy array
+        return mat['depth']
+        
     
     def getNamesOfObjects(self, objs):
         '''
@@ -142,8 +158,35 @@ class DataStructure(object):
         pixels in the image.
         '''
         
+        # Load the depth data
+        depthImage = self.loadDepthMAT(image)
         
-
+        # Get the pixel indices
+        depthSizeX = depthImage.shape[0]
+        depthSizeY = depthImage.shape[1]
+        nX = np.arange(1,depthSizeX)
+        nY = np.arange(1,depthSizeY)
+        X,Y = np.meshgrid(nX, nY)
+        # total number of elements
+        numTot = np.size(X)        
+        
+        # Generate 2D homogeneous coordinates
+        # TODO: check to see if it produces right answer!
+        pos = np.vstack((nX.ravel(), nY.ravel(), np.ones((1,numTot))))
+        
+        # Get the calibration matrix
+        calibM = image.calib
+        
+        # Apply calibration matrix to get normalized 2D coordinates
+        pos = np.linalg.lstsq(calibM, pos)
+        
+        # TODO: check to see if it produces right answer!
+        # Scale every dimension by the depth to get 3D
+        for d in range(3):
+            pos[d,:] = pos[d,:] * depthImage.transpose().ravel()
+        
+        return pos
+        
 class NYUDataStructure(DataStructure):
     '''
     Implementation of DATAHANDLERS.DATASTRUCTURE

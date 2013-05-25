@@ -29,7 +29,7 @@ if __name__ == '__main__':
     X, Y = np.meshgrid(x, y)
     XX = np.c_[X.ravel(), Y.ravel()]
     
-    Z = np.exp(clf.eval(XX)[0])
+    Z = np.log(-clf.eval(XX)[0])
     Z = Z.reshape(X.shape)
     
     CS = pl.contour(X, Y, Z)

@@ -94,14 +94,18 @@ class LocationEvidenceGenerator(EvidenceGenerator):
         evidence['names'] = list()
         
         pos = self.getPositionEvidence(objs)
-        # positions of large objects
-        objPos = np.array([[],[],[]])
-            
-        # TODO: this should work. Check shape     
-        for c in classesLarge:
-            if names.count(c):
+        
+        idx = list()
+        # TODO: does the indexing work ? think of a better way perhaps!
+        for i, c in enumerate(names):
+            if c in classesLarge:
+                idx.append(i)
                 evidence['names'].append(c)
-                objPos = np.hstack((objPos, pos[:,names == c]))
+                
+        # positions of large objects
+        objPos = np.zeros((3,len(idx)))          
+        for i, val in idx:
+            objPos[:,i] = pos[:,val]
         
         evidence['absEvidence'] = self.getPositionForImage(dataStr, image)
         evidence['relEvidence'] = self.getRelativeEvidence(objPos, evidence['absEvidence'])

@@ -34,7 +34,7 @@ dataTrain = DataStructure.NYUDataStructure(datasetPath, "train")
 dataTest = DataStructure.NYUDataStructure(datasetPath, "test")
 locCylinder = EvidenceGenerator.CylindricalEvidenceGenerator()
 locGMM = Learner.ContinuousGMMLearner(locCylinder)
-evalBase = Evaluator.LocationEvaluator()
+evalBase = Evaluator.LocationEvaluator(maxDistances,evalMethod)
 
 ## LOAD DATA
 
@@ -50,4 +50,4 @@ locGMM.learn(dataTrain)
 ## EVALUATE TEST IMAGES
 
 print "Evaluating test images..."
-resultCylindricGMM = evalBase.evaluate(dataTest,locGMM,evalMethod,maxDistances);
+resultCylindricGMM = evalBase.evaluate(dataTest,locGMM);

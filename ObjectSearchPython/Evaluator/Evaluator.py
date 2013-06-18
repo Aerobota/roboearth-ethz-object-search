@@ -54,7 +54,7 @@ class LocationEvaluator(Evaluator):
             smallObjects = self.getOccurringClassesAndObjects(testData,image)
             # if there are small objects in the image
             if len(smallObjects) != 0:
-                # Get the probability distribution over the scenes
+                # Get the probability distribution over the scenes'
                 # point cloud and the location of each point in the cloud.
                 probVec, locVec = self.probabilityVector(testData, image, locationLearner, smallObjects)
                 for c in probVec.iterkeys(): # for each small object
@@ -121,13 +121,15 @@ class LocationEvaluator(Evaluator):
         '''
         evidence = locationLearner.evidenceGenerator.getEvidenceForImage(data, image)
         
-        probVec = dict(dict())
+        probVec = dict()
         # For each (small object) class and observed object 
         # compute the pairwise probability
         for c in smallObjects.iterkeys(): # for each small object
             try:
+                probVec[c] = dict()
                 for idx_o in range(evidence['relEvidence'].shape[0]): # for each (observed) large object
                     o = evidence['names'][idx_o]
+                    # each row in mat should correspond to a single data point
                     mat = np.squeeze(evidence['relEvidence'][idx_o,:,:])
                     probVec[c][o] = locationLearner.getProbabilityFromEvidence(mat,o,c)
                 # Compute the mean of the pairwise probabilities

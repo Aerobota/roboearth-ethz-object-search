@@ -31,15 +31,17 @@ class Learner(object):
 class LocationLearner(Learner):
     '''
     Base class for location learning
-    Extends the basic Learner.Learner interface. Especially adds two
-    methods: getProbabilityFromEvidence, removeParents.
+    Extends the basic Learner.Learner interface. 
+    Adds a method: removeParents.
+    
+    TODO: Is this class necessary in Python code?
     '''
     
 
 class ContinuousGMMLearner(LocationLearner):
     '''
     Models relative location as a mixture of Gaussian
-    This method a used to learn a mixture of Gaussians model of the
+    This method is used to learn a mixture of Gaussians model of the
     distribution of relative locations between object pairs.
     
     Samples are NOT slices as opposed to MATLAB code.

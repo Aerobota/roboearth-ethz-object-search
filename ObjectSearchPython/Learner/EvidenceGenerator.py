@@ -11,10 +11,6 @@ class EvidenceGenerator(object):
     '''
     Abstract base class
     This base class exists only for structure. 
-    
-    @attention: I have added getNamesOfObjects method as a utility function. 
-    This was not required in matlab since you can ask for fields of an array
-    of structs directly there.
     '''
 
     def __init__(self):
@@ -115,7 +111,7 @@ class LocationEvidenceGenerator(EvidenceGenerator):
 class CylindricalEvidenceGenerator(LocationEvidenceGenerator):
     '''
     Produces relative locations in cylindrical coordinates
-    This class implements LearnFunc.LocationEvidenceGenerator. The
+    This class implements Learner.LocationEvidenceGenerator. The
     returned evidence is 2-dimensional where the first dimension is the
     horizontal distance and the second the height.
     '''
@@ -146,8 +142,8 @@ class CylindricalEvidenceGenerator(LocationEvidenceGenerator):
     def getRelativeEvidence(self, sourcePos, targetPos):
         '''
         Returns cylindrical evidence as a 3D-array of 
-        1. 2D-array of distances in xz-coordinates (radius)
-        2. 2D-array of vertical distances (y).     
+        1. Object-to-object distance matrix in xz-coordinates (radius)
+        2. Object-to-object matrix of vertical distances (y).     
         '''
         
         # initialize dist array

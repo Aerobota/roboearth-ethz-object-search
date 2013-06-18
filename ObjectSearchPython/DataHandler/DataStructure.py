@@ -11,7 +11,7 @@ import numpy as np
 class DataStructure(object):
     '''
     Abstract class that stores a dataset
-    This class is a container for arbitrary datasets than can be
+    This class is a container for arbitrary datasets that can be
     converted to its format.
     
     The LOAD and SAVE methods have to be implemented to be able to load
@@ -25,10 +25,10 @@ class DataStructure(object):
     
     If all abstract methods and properties are correctly implemented in
     a derived class and ADDIMAGE has been used to generate the DATA
-    property, most methods in EVALUATION and LEARNFUNC should work
+    property, most methods in EVALUATOR and LEARNER should work
     with the derived data structure.
     
-    For example implementation see DATAHANDLERS.NYUDATASTRUCTURE.
+    For example implementation see DATAHANDLER.NYUDATASTRUCTURE.
     '''
     
     objectFolder = 'objectPython/'
@@ -48,7 +48,7 @@ class DataStructure(object):
         
         # make sure testOrTrain is 'test' or 'train'
         if testOrTrain is not 'test' or testOrTrain is not 'train':
-            raise Exception("The testOrTrain argument must be ''test'' or ''train''.'")
+            raise Exception("The testOrTrain argument must be ''test'' or ''train''.")
         
         # generate preallocated data structure
         self.data = Data()
@@ -67,7 +67,7 @@ class DataStructure(object):
         Returns the class names as a numpy array of unicode strings.
         '''
         if len(self.classes) is 0:
-            self.loadClassesMAT();
+            self.loadClassesMAT()
         
         return self.classes
     
@@ -77,7 +77,7 @@ class DataStructure(object):
         unicode strings.
         '''
         if len(self.classes) is 0:
-            self.loadClassesMAT();
+            self.loadClassesMAT()
         
         return self.classesSmall
     
@@ -87,7 +87,7 @@ class DataStructure(object):
         unicode strings.
         '''
         if len(self.classes) is 0:
-            self.loadClassesMAT();
+            self.loadClassesMAT()
         
         return self.classesLarge
     
@@ -189,9 +189,11 @@ class DataStructure(object):
         
 class NYUDataStructure(DataStructure):
     '''
-    Implementation of DATAHANDLERS.DATASTRUCTURE
-    This class implements the abstract class DATAHANDLERS.DATASTRUCTURE
-    for data generated with DATAHANDLERS.CONVERTFROMNYUDATASET.
+    Implementation of DATAHANDLER.DATASTRUCTURE
+    This class implements the abstract class DATAHANDLER.DATASTRUCTURE
+    for data generated with DATAHANDLER.CONVERTFROMNYUDATASET. (This
+    is not implemented in Python since it needs to be called only once
+    in MATLAB)
     '''
 
     imageFolder = 'image'
@@ -208,7 +210,7 @@ class NYUDataStructure(DataStructure):
         
     def loadDataMAT(self):
         '''
-        Load the stored MAT file as a numpy array of Data objects
+        Load the stored MAT file as a numpy array of Data objects.
         '''
         filename = self.path + self.storageName + '.mat'
         try:

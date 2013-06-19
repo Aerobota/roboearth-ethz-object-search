@@ -55,6 +55,7 @@ class ContinuousGMMLearner(LocationLearner):
         '''
         Learns the GMM probabilities.
         TODO: save it (pickle?) somewhere?
+        Load the model if it exists otherwise run the learning.
         '''
         
         #Get the relative location samples (dictionary)

@@ -123,9 +123,9 @@ class LocationEvaluator(Evaluator):
         LOCVEC is a 3xn numpy array where each column is the 3D-position of
         a point of the cloud.
         
-        TODO: Does it work? Is it useful to keep pairwise probabilities?
-        Or just the mean?
+        TODO: Does it work? 
         '''
+        
         evidence = locationLearner.evidenceGenerator.getEvidenceForImage(data, image)
         
         probVec = dict()

@@ -45,6 +45,9 @@ class LocationEvaluator(Evaluator):
         here so no need to keep track of extra stuff.
         '''
         
+        # get the small classes
+        classesSmall = testData.getSmallClassNames()
+        
         # all results will be stored in this dictionary
         results = dict()
         
@@ -71,8 +74,15 @@ class LocationEvaluator(Evaluator):
                             # for each evaluation method compute the score
                             results[image][c][maxDistance][method] = method.scoreClass(candidatePoints)
                             
-            
-        # TODO: Reformat the results dictionary and pickle
+        # format the results
+        out = Result(classesSmall,self.maxDistances)
+        for method in self.evalMethod:
+            out.methodResults[method.designation] = list()
+            for maxDistance in self.maxDistances:
+                out.methodResults[method.designation].append(method.combineResults(results, classesSmall))
+          
+        return out  
+        
             
     def getOccurringClassesAndObjects(self, testData, image):
         '''
@@ -240,3 +250,14 @@ class CandidatePoint(object):
         self.inrange = np.array([False], dtype = bool)                  
         self.prob = prob
         self.pos = locVec
+        
+class Result(object):
+    '''
+    Used to represent the formatted results structure
+    in MATLAB.
+    '''
+    
+    def __init__(self,smallClasses,maxDistances):
+        self.methodResults = dict()
+        self.maxDistances = maxDistances
+        self.classes = smallClasses

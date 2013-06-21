@@ -32,16 +32,14 @@ class FROCLocationEvaluator(LocationEvaluationMethod):
     
     def scoreClass(self, candidatePoints):
         '''
-        CandidatePoints is a list of CandidatePoint structure.
+        CandidatePoints is a list of CandidatePoint structure.        
+        Saves the results and returns as a results structure.
         
-        Saves the results to the results structure.
-        
-        TODO: test to see if it works!
         '''
         
         result = ResultFROC()
         
-        # only the first detections are true detections
+        # only the first detections are true detections (true pos.)
         pts = candidatePoints.copy()
         # TODO: find a better way to implement!
         for i,pt in enumerate(pts):
@@ -64,6 +62,11 @@ class FROCLocationEvaluator(LocationEvaluationMethod):
         result.pos = len(candidatePoints[0])
         
         return result
+    
+    def combineResults(self, collectedResults, classesSmall):
+        '''
+        Combines the results collected by scoreClass method.
+        '''
 
 
 class FirstNLocationEvaluator(LocationEvaluationMethod):
@@ -90,6 +93,18 @@ class FirstNLocationEvaluator(LocationEvaluationMethod):
                 break               
                 
         return result
+    
+    def combineResults(self, collectedResults, classesSmall):
+        '''
+        For every class, finds all unique data points and makes a
+        count of the occurrence of each data point
+        
+        TODO: is it correct? Unlike MATLAB, no way to concatenate 
+        variable number of arguments [MATLAB uses cells to do this].
+        '''
+        
+        for c in classesSmall:
+            
 
 
 class ResultFROC(object):

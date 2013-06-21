@@ -51,35 +51,36 @@ class LocationEvaluator(Evaluator):
         # all results will be stored in this dictionary
         results = dict()
         
-        for image in testData.data:
-            results[image] = dict()
-            print "Collecting data for image", image.filename
-            # For the current image get all small classes in this image
-            # and all the objects belonging to these classes
-            smallObjects = self.getOccurringClassesAndObjects(testData,image)
-            # if there are small objects in the image
-            if len(smallObjects) != 0:
-                # Get the probability distribution over the scenes'
-                # point cloud and the location of each point in the cloud.
-                probVec, locVec = self.probabilityVector(testData, image, locationLearner, smallObjects)
-                for c in smallObjects.iterkeys(): # for each small object
-                    results[image][c] = dict()
-                    for maxDistance in self.maxDistances:
-                        results[image][c][maxDistance] = dict()
-                        # matrix of column stacked 3d positions
-                        truePos = locationLearner.evidenceGenerator.getPositionEvidence(smallObjects[c])
-                        # generate candidate points and evaluate them
-                        candidatePoints = self.getCandidatePoints(probVec[c], locVec, truePos, maxDistance)
-                        for method in self.evalMethod:
-                            # for each evaluation method compute the score
-                            results[image][c][maxDistance][method] = method.scoreClass(candidatePoints)
+        for method in self.evalMethod:
+        # for each evaluation method compute the score
+            results[method] = dict()
+            for maxDistance in self.maxDistances:
+                results[method][maxDistance] = dict()
+                for image in testData.data:
+                    results[method][maxDistance][image] = dict()
+                    print "Collecting data for image", image.filename
+                    # For the current image get all small classes in this image
+                    # and all the objects belonging to these classes
+                    smallObjects = self.getOccurringClassesAndObjects(testData,image)
+                    # if there are small objects in the image
+                    if len(smallObjects) != 0:
+                        # Get the probability distribution over the scenes'
+                        # point cloud and the location of each point in the cloud.
+                        probVec, locVec = self.probabilityVector(testData, image, locationLearner, smallObjects)
+                        for c in smallObjects.iterkeys(): # for each small object
+                            # matrix of column stacked 3d positions
+                            truePos = locationLearner.evidenceGenerator.getPositionEvidence(smallObjects[c])
+                            # generate candidate points and evaluate them
+                            candidatePoints = self.getCandidatePoints(probVec[c], locVec, truePos, maxDistance)
+                            results[method][maxDistance][image][c] = method.scoreClass(candidatePoints)
                             
         # format the results
         out = Result(classesSmall,self.maxDistances)
         for method in self.evalMethod:
             out.methodResults[method.designation] = list()
             for maxDistance in self.maxDistances:
-                out.methodResults[method.designation].append(method.combineResults(results, classesSmall))
+                inp = method.combineResults(results[method][maxDistance], classesSmall)
+                out.methodResults[method.designation].append(inp)
           
         return out  
         

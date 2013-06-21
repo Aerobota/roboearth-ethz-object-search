@@ -103,6 +103,8 @@ class FirstNLocationEvaluator(LocationEvaluationMethod):
         variable number of arguments [MATLAB uses cells to do this].
         '''
         
+        # modify collectedResults inot an numpy array
+        
         for c in classesSmall:
             
 

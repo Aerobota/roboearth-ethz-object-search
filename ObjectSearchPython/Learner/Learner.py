@@ -5,6 +5,7 @@ Created on May 14, 2013
 @contact: Stefan Koenig
 '''
 
+import pickle
 import numpy as np
 from sklearn import mixture
 
@@ -45,31 +46,41 @@ class ContinuousGMMLearner(LocationLearner):
     distribution of relative locations between object pairs.
     
     Samples are NOT slices as opposed to MATLAB code.
-    TODO: consider updating models incrementally.
+    TODO: consider updating models incrementally, as new data arrives.
     '''
     
     maxComponents = 5
     splitSize = 3
+    savefile = 'GMMmodels'
     
     def learn(self, dataStr):
         '''
         Learns the GMM probabilities.
-        TODO: save it (pickle?) somewhere?
-        Load the model if it exists otherwise run the learning.
+        Loads the model if it exists otherwise runs the learning process.
         '''
         
-        #Get the relative location samples (dictionary)
-        samples = self.evidenceGenerator.getEvidence(dataStr)
-        classes = dataStr.getClassNames()
+        try:
+            f = open(self.savefile, 'r')
+            self.model = pickle.load(f)
+        except IOError:
+            #Get the relative location samples (dictionary)
+            samples = self.evidenceGenerator.getEvidence(dataStr)
+            classes = dataStr.getClassNames()
+            
+            for key,val in samples.iteritems():
+                # compute the gmm
+                if len(val) is not 0:
+                    clf = self.doGMM(val)
+                    # save it
+                    print "Learned parameters for the class pairs:", key
+                    self.model[key] = clf
+            
+            # pickle the dictionary of GMM models
+            f = open(self.savefile, 'w')
+            pickle.dump(self.model, f)
+        finally:
+            f.close()
         
-        for key,val in samples.iteritems():
-            # compute the gmm
-            if len(val) is not 0:
-                clf = self.doGMM(val)
-                # save it
-                print "Learned parameters for the class pairs:", key
-                self.model[key] = clf
-                
     def doGMM(self, samples):
         '''
         Learns the GMM probabilities for the particular class pair i,j
@@ -81,6 +92,8 @@ class ContinuousGMMLearner(LocationLearner):
         
         Returns the learned model as a class.
         TODO: maybe just return the parameters instead?
+        
+        TODO: use Dirichlet process instead of BIC score.
         '''
         
         # Split the dataset into 3 parts, 

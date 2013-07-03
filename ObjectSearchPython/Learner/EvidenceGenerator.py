@@ -48,7 +48,7 @@ class LocationEvidenceGenerator(EvidenceGenerator):
         # initialize evidence entries to hold lists
         for class_i in classes:
             for class_j in classes:
-                evidence[(class_i, class_j)] = list()
+                evidence[(str(class_i), str(class_j))] = list()
         
         # go through each room scanning for evidence
         for image in dataStr.data:
@@ -57,11 +57,10 @@ class LocationEvidenceGenerator(EvidenceGenerator):
             relEvidence = self.getRelativeEvidence(pos,pos)
             names = dataStr.getNamesOfObjects(objs)
             
-            #TODO: check to see if working            
+            #storing also the distance of small-small and large-large object occurrences       
             for i in range(len(names)):
                 for j in range(i+1,len(names)):
                     evidence[(names[i], names[j])].append(relEvidence[i,j,:].tolist())
-                    #evidence[(names[j], names[i])].append(relEvidence[i,j,:].tolist())
         
         return evidence 
     
@@ -122,10 +121,9 @@ class CylindricalEvidenceGenerator(LocationEvidenceGenerator):
         as a matrix of column stacked 3d-positions.
         '''
         
-        #TODO: is obj.pos the correct shape?
         mat = np.zeros((3,len(objs)))
         for i,obj in enumerate(objs):
-            mat[:,i] = obj.pos
+            mat[:,i] = obj['pos']
         
         return mat    
     
@@ -152,13 +150,13 @@ class CylindricalEvidenceGenerator(LocationEvidenceGenerator):
         dist = np.zeros((num_source_obj, num_target_obj, 3))
         evidence = np.zeros((num_source_obj, num_target_obj, 2))
 
-        #TODO: is np.newaxis necessary ?
-        for d in reversed(range(3)):
-            vec = targetPos[:,d]
+        # Broadcasting vec here
+        for d in range(3):
+            vec = targetPos[d,:]
             mat = sourcePos[d,:] - vec[:,np.newaxis]
             dist[:,:,d] = mat
         
-        # apparently the first row is the row of vertical distances (z)
+        # apparently the first row is the row of vertical distances (y)
         evidence[:,:,0] = dist[:,:,0]
         evidence[:,:,1] = np.sqrt(dist[:,:,1]**2 + dist[:,:,2]**2)
         

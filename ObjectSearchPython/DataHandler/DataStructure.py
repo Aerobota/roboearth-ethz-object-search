@@ -47,7 +47,7 @@ class DataStructure(object):
         '''
         
         # make sure testOrTrain is 'test' or 'train'
-        if testOrTrain is not 'test' or testOrTrain is not 'train':
+        if testOrTrain is not 'test' and testOrTrain is not 'train':
             raise Exception("The testOrTrain argument must be ''test'' or ''train''.")
         
         # generate preallocated data structure
@@ -98,7 +98,7 @@ class DataStructure(object):
         '''
         filename = self.path + self.catFileName
         try:
-            mat = sio.loadmat(filename, squeeze_me = True)
+            mat = sio.loadmat(filename, squeeze_me = True, appendmat = True)
             self.classes = mat['names']
             self.classesLarge = mat['largeNames']
             self.classesSmall = mat['smallNames']
@@ -115,12 +115,13 @@ class DataStructure(object):
         Returns an array of structs, each containing information about an
         object in the image.
         '''
-        modifiedObjectPath = image.objectPath.replace('object/', self.objectFolder)
+        modifiedObjectPath = str(image['objectPath']).replace('object/', self.objectFolder)
         filename = self.path + modifiedObjectPath
         try:
             mat = sio.loadmat(filename, squeeze_me = True)
         except IOError:
             print 'File does not exist:', filename
+            raise
             
         # get array of structs    
         return mat['s']
@@ -130,7 +131,7 @@ class DataStructure(object):
         Loads the depth mat file associated with the particular image
         as a 2D numpy array (matrix)
         '''
-        filename = self.path + self.depthFolder + image.depthname
+        filename = self.path + self.depthFolder + image['depthname']
         try:
             mat = sio.loadmat(filename, squeeze_me = True)
         except IOError:
@@ -147,7 +148,7 @@ class DataStructure(object):
         '''
         s = []
         for obj in objs:
-            s.append(obj.name)
+            s.append(str(obj['name']))
         return s
     
     def get3DPositionForImage(self, image):
@@ -197,7 +198,7 @@ class NYUDataStructure(DataStructure):
     '''
 
     imageFolder = 'image'
-    catFileName = 'objectCategories.mat'
+    catFileName = 'objectCategories'
     testSet = 'groundTruthTest'
     trainSet = 'groundTruthTrain'
     
@@ -212,14 +213,15 @@ class NYUDataStructure(DataStructure):
         '''
         Load the stored MAT file as a numpy array of Data objects.
         '''
-        filename = self.path + self.storageName + '.mat'
+        filename = self.path + self.storageName
         try:
-            mat = sio.loadmat(filename, squeeze_me = True)
-            data = mat['data']
+            mat = sio.loadmat(filename, appendmat = True, squeeze_me = True)
+            matData = mat['data']
         except IOError:
             print 'File does not exist:', filename
+            raise 
             
-        self.data = data
+        self.data = matData
             
         
 class Data(object):

@@ -61,8 +61,11 @@ class ContinuousGMMLearner(LocationLearner):
         
         try:
             f = open(self.savefile, 'r')
+            print 'GMM Models have already been learned.'
             self.model = pickle.load(f)
         except IOError:
+            print 'Learning GMM Models ...'
+            
             #Get the relative location samples (dictionary)
             samples = self.evidenceGenerator.getEvidence(dataStr)
             classes = dataStr.getClassNames()
@@ -78,7 +81,6 @@ class ContinuousGMMLearner(LocationLearner):
             # pickle the dictionary of GMM models
             f = open(self.savefile, 'w')
             pickle.dump(self.model, f)
-        finally:
             f.close()
         
     def doGMM(self, samples):
@@ -99,7 +101,6 @@ class ContinuousGMMLearner(LocationLearner):
         # Split the dataset into 3 parts, 
         # use 2 parts for training and 1 for testing        
         randomInd = np.random.permutation(range(len(samples)))
-        set_randomInd = set(randomInd.tolist())
         split = np.ceil(len(randomInd)/self.splitSize)
         
         # Generate possible combinations for CROSSVALIDATION
@@ -116,6 +117,7 @@ class ContinuousGMMLearner(LocationLearner):
             ind_i = randomInd[(i * split):((i+1) * split)]
             test[i] = npsamp[ind_i]
             # get the difference of indices
+            # TODO: SET DOESNT WORK!!
             set_ind_i_diff = set_randomInd.difference(set(ind_i.tolist()))
             ind_i_diff = list(set_ind_i_diff)
             train[i] = npsamp[ind_i_diff]

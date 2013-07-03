@@ -6,9 +6,9 @@ Created on May 14, 2013
 '''
 
 #importing the necessary modules for learning
-from Evaluator import *
-from Learner import *
-from DataHandler import *
+from Evaluator import Evaluator, Methods
+from Learner import EvidenceGenerator, Learner
+from DataHandler import DataStructure
 
 
 ## SET PARAMETERS
@@ -18,16 +18,14 @@ from DataHandler import *
 maxDistances = (0.25,0.5,1,1.5)
 
 #set evaluation methods
-evalMethod = list()
-evalMethod[1] = Methods.FROCLocationEvaluator()
-evalMethod[2] = Methods.FirstNLocationEvaluator()
+evalMethod = (Methods.FROCLocationEvaluator(), Methods.FirstNLocationEvaluator())
 
 ## INITIALIZING
 
 #set paths
 #Path to the folder of the converted dataset
-sourceFolder = "../Dataset/"
-datasetPath = sourceFolder + "Images/"
+sourceFolder = "/home/okan/roboearth-ethz-object-search/"
+datasetPath = sourceFolder + "Dataset/Images/"
 
 #initialize classes
 dataTrain = DataStructure.NYUDataStructure(datasetPath, "train")
@@ -43,11 +41,9 @@ dataTrain.loadDataMAT()
 dataTest.loadDataMAT()
 
 ## LEARN PROBABILITIES
-
-print "Learning probabilities for Gaussian Mixture Model (GMM)"
 locGMM.learn(dataTrain)
 
 ## EVALUATE TEST IMAGES
 
 print "Evaluating test images..."
-resultCylindricGMM = evalBase.evaluate(dataTest,locGMM);
+resultCylindricGMM = evalBase.evaluate(dataTest,locGMM)

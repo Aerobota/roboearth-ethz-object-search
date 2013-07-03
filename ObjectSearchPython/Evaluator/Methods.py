@@ -14,7 +14,7 @@ class LocationEvaluationMethod(object):
     #The number of desired data points
     nThresh = 100
 
-    def __init__(self,params):
+    def __init__(self):
         '''
         Constructor. Doesn't do anything.
         '''
@@ -106,7 +106,7 @@ class FirstNLocationEvaluator(LocationEvaluationMethod):
         # modify collectedResults inot an numpy array
         
         for c in classesSmall:
-            
+            pass
 
 
 class ResultFROC(object):

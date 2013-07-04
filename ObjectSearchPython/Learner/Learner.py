@@ -63,6 +63,17 @@ class ContinuousGMMLearner(LocationLearner):
             f = open(self.savefile, 'r')
             print 'GMM Models have already been learned.'
             self.model = pickle.load(f)
+            print 'Brief summary of the GMM Models:'
+            for key,clf in self.model.iteritems():
+                print 'Learned parameters for the class pair:', key
+                print 'Number of components:', clf.n_components
+                print 'Weights:'
+                print clf.weights_
+                print 'Means:'
+                print clf.means_
+                print 'Covariances:'
+                print clf.covars_
+            
         except IOError:
             print 'Learning GMM Models ...'
             
@@ -72,10 +83,10 @@ class ContinuousGMMLearner(LocationLearner):
             
             for key,val in samples.iteritems():
                 # compute the gmm
-                if len(val) is not 0:
+                if len(val) >= self.minSamples:
                     clf = self.doGMM(val)
                     # save it
-                    print "Learned parameters for the class pairs:", key
+                    print "Learned parameters for the class pair:", key
                     self.model[key] = clf
             
             # pickle the dictionary of GMM models
@@ -93,34 +104,32 @@ class ContinuousGMMLearner(LocationLearner):
         Restricting the number of components to MAXCOMPONENTS.
         
         Returns the learned model as a class.
-        TODO: maybe just return the parameters instead?
+        
+        INPUT: Samples is an Nx2 numpy array containing evidence
+        between a particular object pair.
+        
+        OUTPUT: CLF is a learned GMM model using the ML scikit-learn toolkit.
         
         TODO: use Dirichlet process instead of BIC score.
         '''
         
         # Split the dataset into 3 parts, 
         # use 2 parts for training and 1 for testing        
-        randomInd = np.random.permutation(range(len(samples)))
-        split = np.ceil(len(randomInd)/self.splitSize)
-        
+        randomInd = np.random.permutation(range(samples.shape[0]))
+        split = np.floor(len(samples)/self.splitSize)
+                
         # Generate possible combinations for CROSSVALIDATION
         
-        # for array indexing convert samples list into numpy array
-        npsamp = np.array(samples)
         # test and train are lists containing corresponding 
         # numpy array data for crossvalidation
         test = list()
         train = list()
-        
-        # TODO: check to see if working
         for i in range(self.splitSize):
             ind_i = randomInd[(i * split):((i+1) * split)]
-            test[i] = npsamp[ind_i]
+            test.append(samples[ind_i,:])
             # get the difference of indices
-            # TODO: SET DOESNT WORK!!
-            set_ind_i_diff = set_randomInd.difference(set(ind_i.tolist()))
-            ind_i_diff = list(set_ind_i_diff)
-            train[i] = npsamp[ind_i_diff]
+            ind_i_diff = np.hstack((randomInd[0:(i * split)],randomInd[((i+1) * split):]))             
+            train.append(samples[ind_i_diff,:])
         
         score = np.zeros(self.maxComponents)
         # For every possible number of components calculate the score
@@ -130,10 +139,10 @@ class ContinuousGMMLearner(LocationLearner):
                 score[k] = score[k] + self.evaluateModelComplexity(train[s], test[s], k+1)
     
         # find the lowest cost
-        kOPT = score.argmin()
+        kOPT = score.argmin() + 1
         # train model with optimal component size
         clf = mixture.GMM(n_components = kOPT, covariance_type = 'full')
-        clf.fit(npsamp)
+        clf.fit(samples)
         
         # return the learned model
         return clf

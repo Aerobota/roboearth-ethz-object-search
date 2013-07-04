@@ -45,5 +45,5 @@ locGMM.learn(dataTrain)
 
 ## EVALUATE TEST IMAGES
 
-print "Evaluating test images..."
-resultCylindricGMM = evalBase.evaluate(dataTest,locGMM)
+#print "Evaluating test images..."
+#resultCylindricGMM = evalBase.evaluate(dataTest,locGMM)

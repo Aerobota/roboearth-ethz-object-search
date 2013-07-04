@@ -45,22 +45,28 @@ class LocationEvidenceGenerator(EvidenceGenerator):
         # declare evidence as dictionary 
         # where keys are the object pairs
         evidence = {}
-        # initialize evidence entries to hold lists
-        for class_i in classes:
-            for class_j in classes:
-                evidence[(str(class_i), str(class_j))] = list()
+        # initialize evidence entries to hold numpy arrays
+        for i in range(len(classes)):
+            for j in range(i,len(classes)):
+                #TODO: not recommended for numpy!
+                evidence[(str(classes[i]), str(classes[j]))] = np.zeros((0,2)) 
         
         # go through each room scanning for evidence
         for image in dataStr.data:
             objs = dataStr.loadObjectMAT(image)
-            pos = self.getPositionEvidence(objs)
+            pos = self.getPositionEvidence(objs) 
             relEvidence = self.getRelativeEvidence(pos,pos)
             names = dataStr.getNamesOfObjects(objs)
             
             #storing also the distance of small-small and large-large object occurrences       
             for i in range(len(names)):
                 for j in range(i+1,len(names)):
-                    evidence[(names[i], names[j])].append(relEvidence[i,j,:].tolist())
+                    try:
+                        evidence[(names[i], names[j])] = \
+                        np.vstack((evidence[(names[i], names[j])],relEvidence[i,j,:]))
+                    except KeyError:
+                        evidence[(names[j], names[i])] = \
+                        np.vstack((evidence[(names[j], names[i])],relEvidence[i,j,:]))
         
         return evidence 
     

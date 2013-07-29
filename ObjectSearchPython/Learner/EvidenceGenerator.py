@@ -159,12 +159,11 @@ class CylindricalEvidenceGenerator(LocationEvidenceGenerator):
         # Broadcasting vec here
         for d in range(3):
             vec = targetPos[d,:]
-            mat = sourcePos[d,:] - vec[:,np.newaxis]
+            mat = vec[:,np.newaxis] - sourcePos[d,:]
             dist[:,:,d] = mat
         
-        # apparently the first row is the row of vertical distances (y)
-        evidence[:,:,0] = dist[:,:,0]
-        evidence[:,:,1] = np.sqrt(dist[:,:,1]**2 + dist[:,:,2]**2)
+        evidence[:,:,0] = np.sqrt(dist[:,:,1]**2 + dist[:,:,2]**2)
+        evidence[:,:,1] = dist[:,:,0]
         
         return evidence
         

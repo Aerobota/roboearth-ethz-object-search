@@ -31,7 +31,7 @@ classdef ContinuousGMMLearner<LearnFunc.LocationLearner
             for i=1:length(slicedSamples)
                 slicedSamples{i}=samples(i,:);
             end
-            parfor i=1:length(classes)
+            for i=1:length(classes)
                 for j=1:length(classes)
                     % Check that enough samples are available
                     if size(slicedSamples{i}{j},1)>=obj.minSamples;

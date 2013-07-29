@@ -1,0 +1,5 @@
+GMM Models have already been learned.
+Brief summary of the GMM Models:
+Learned parameters for the class pair: ('table', 'bag')
+Number of components: 1
+Number of samples:

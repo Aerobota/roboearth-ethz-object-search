@@ -47,7 +47,7 @@ class LocationEvidenceGenerator(EvidenceGenerator):
         evidence = {}
         # initialize evidence entries to hold numpy arrays
         for i in range(len(classes)):
-            for j in range(i,len(classes)):
+            for j in range(len(classes)):
                 #TODO: not recommended for numpy!
                 evidence[(str(classes[i]), str(classes[j]))] = np.zeros((0,2)) 
         
@@ -60,13 +60,13 @@ class LocationEvidenceGenerator(EvidenceGenerator):
             
             #storing also the distance of small-small and large-large object occurrences       
             for i in range(len(names)):
-                for j in range(i+1,len(names)):
+                for j in range(len(names)):
                     try:
                         evidence[(names[i], names[j])] = \
                         np.vstack((evidence[(names[i], names[j])],relEvidence[i,j,:]))
                     except KeyError:
-                        evidence[(names[j], names[i])] = \
-                        np.vstack((evidence[(names[j], names[i])],relEvidence[i,j,:]))
+                        print 'This should not happen!'
+                        raise
         
         return evidence 
     

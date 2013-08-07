@@ -6,6 +6,7 @@ Created on May 14, 2013
 '''
 
 import numpy as np
+import pickle
 
 class Evaluator(object):
     '''
@@ -14,6 +15,7 @@ class Evaluator(object):
     model.
     '''
     nThresh = 100
+    savefile = 'resultsGMM'
 
     def __init__(self,maxDistList,evaluationMethod):
         '''    
@@ -25,6 +27,41 @@ class Evaluator(object):
         #inside which the location predictor gets a positive score
         self.maxDistances = maxDistList
         self.evalMethod = evaluationMethod
+             
+    def evaluateAndDisplayResults(self,testData,locationLearner):
+        '''
+        First runs the evaluation process. Then it
+        displays the results for the whole test dataset, 
+        in a suitable format given by METHOD.COMBINERESULTS.
+        '''
+        
+        try:
+            f = open(self.savefile, 'r')
+            print 'Results have already been evaluated for the test dataset.'
+            results = pickle.load(f)
+            
+        except IOError:
+            print 'Evaluating test dataset...'
+            results = self.evaluate(testData,locationLearner)
+            # pickle the results
+            f = open(self.savefile, 'w')
+            pickle.dump(results, f)
+            f.close()
+        
+        print 'Displaying evaluation results'
+        
+        # get the small classes
+        classesSmall = testData.getSmallClassNames()
+        
+        # format the results
+        res = Result(classesSmall,self.maxDistances)
+        for method in self.evalMethod:
+            res.methodResults[method.designation] = list()
+            for maxDistance in self.maxDistances:
+                inp = method.combineResults(results[method][maxDistance], classesSmall)
+                res.methodResults[method.designation].append(inp)
+          
+        #TODO: what to do with res?
         
 
 class LocationEvaluator(Evaluator):
@@ -34,55 +71,79 @@ class LocationEvaluator(Evaluator):
     the two static methods PROBABILITYVECTOR and GETCANDIDATEPOINTS.
     '''
     
+    def evaluateOneImage(self,testData,imageNum,locationLearner,maxDistance,method):
+        '''
+        This method evaluates LOCATIONLEARNER on ONE IMAGE using
+        one particular EVALUATIONMETHOD and MAXDISTANCE to save
+        time. It does not return any results.
+        '''
+        
+        # all results will be stored in this dictionary
+        results = dict()
+        image = testData.data[imageNum]
+        print "Evaluating for image", image['filename']
+        # For the current image get all small classes in this image
+        # and all the objects belonging to these classes
+        smallObjects = self.getOccurringClassesAndObjects(testData,image)
+        # if there are small objects in the image
+        if len(smallObjects) != 0:
+            # Get the probability distributions over the scenes'
+            # point cloud and the location of each point in the cloud.
+            probVec, locVec = self.probabilityVector(testData, image, locationLearner, smallObjects)
+            for c in smallObjects.iterkeys(): # for each small object
+                print "Generating candidate points for object", c
+                # matrix of column stacked 3d positions
+                truePos = locationLearner.evidenceGenerator.getPositionEvidence(smallObjects[c])
+                # generate candidate points and evaluate them
+                candidatePoints = self.getCandidatePoints(probVec[c], locVec, truePos, maxDistance)
+                results[c] = method.scoreClass(candidatePoints)
+        
+        print 'Displaying search task results'
+        for c in results.iterkeys():
+            print 'Number of attempts to find object', c
+            print 'inside radius', maxDistance, ':', results[c]
+    
     def evaluate(self,testData,locationLearner):
         '''
         This method evaluates LOCATIONLEARNER on the TESTDATA using
         the EVALUATIONMETHODS and MAXDISTANCES. The returned RESULT
-        is structure that contains data to be consumed by the
-        appropriate EVALUATION.EVALUATIONDATA.
+        is dictionary that contains data to be pickled or displayed
+        using EVALUATOR.EVALUATEIMAGE.
         
         @attention: Unlike MATLAB, we're not running a parallel loop
         here so no need to keep track of extra stuff.
         '''
-        
-        # get the small classes
-        classesSmall = testData.getSmallClassNames()
         
         # all results will be stored in this dictionary
         results = dict()
         
         for method in self.evalMethod:
         # for each evaluation method compute the score
+            print "Evaluating with method", method.designation
             results[method] = dict()
             for maxDistance in self.maxDistances:
+                print 'Using maximum distance metric of', maxDistance
                 results[method][maxDistance] = dict()
                 for image in testData.data:
                     results[method][maxDistance][image] = dict()
-                    print "Collecting data for image", image.filename
+                    print "Collecting data for image", image['filename']
                     # For the current image get all small classes in this image
                     # and all the objects belonging to these classes
                     smallObjects = self.getOccurringClassesAndObjects(testData,image)
                     # if there are small objects in the image
                     if len(smallObjects) != 0:
-                        # Get the probability distribution over the scenes'
+                        # Get the probability distributions over the scenes'
                         # point cloud and the location of each point in the cloud.
                         probVec, locVec = self.probabilityVector(testData, image, locationLearner, smallObjects)
                         for c in smallObjects.iterkeys(): # for each small object
+                            print "Generating candidate points for object", c
                             # matrix of column stacked 3d positions
                             truePos = locationLearner.evidenceGenerator.getPositionEvidence(smallObjects[c])
                             # generate candidate points and evaluate them
                             candidatePoints = self.getCandidatePoints(probVec[c], locVec, truePos, maxDistance)
                             results[method][maxDistance][image][c] = method.scoreClass(candidatePoints)
                             
-        # format the results
-        out = Result(classesSmall,self.maxDistances)
-        for method in self.evalMethod:
-            out.methodResults[method.designation] = list()
-            for maxDistance in self.maxDistances:
-                inp = method.combineResults(results[method][maxDistance], classesSmall)
-                out.methodResults[method.designation].append(inp)
-          
-        return out  
+        return results
         
             
     def getOccurringClassesAndObjects(self, testData, image):
@@ -100,14 +161,13 @@ class LocationEvaluator(Evaluator):
         objs = testData.loadObjectMAT(image)
         names = testData.getNamesOfObjects(objs)
         
-        #TODO: seems to be working!
         smallObjects = dict()
         # use for indexing
         namesArray = np.array(names)
         
         for c in classesSmall:
             if names.count(c):
-                smallObjects[c] = objs[namesArray == c]
+                smallObjects[str(c)] = objs[namesArray == c]
         
         return smallObjects
     
@@ -124,8 +184,9 @@ class LocationEvaluator(Evaluator):
         
         LOCATIONLEARNER is an implementation of a Learner.LocationLearner.
         
-        SMALLOBJECTS is a dictionary with keys consisting of the names
-        of the small classes for which output is to be generated.
+        SMALLOBJECTS is a dictionary with unique keys consisting of the names
+        of the small classes for which output is to be generated. 
+        Objects are also numbered so that they are unique.
         
         PROBVEC is a dictionary of dictionaries 
         with keys same as SMALLOBJECTS and OBSERVED OBJECTS
@@ -134,7 +195,6 @@ class LocationEvaluator(Evaluator):
         LOCVEC is a 3xn numpy array where each column is the 3D-position of
         a point of the cloud.
         
-        TODO: Does it work? 
         '''
         
         evidence = locationLearner.evidenceGenerator.getEvidenceForImage(data, image)
@@ -143,17 +203,24 @@ class LocationEvaluator(Evaluator):
         # For each (small object) class and observed object 
         # compute the pairwise probability
         for c in smallObjects.iterkeys(): # for each small object
+            probVec[c] = dict()
+            # for each (observed) large object
+            for idx_o in range(evidence['relEvidence'].shape[0]): 
+                o = evidence['names'][idx_o]
+                if o == 'unknown': continue
+                # make sure object has unique identifier
+                ind = 1; o_ind = o
+                while o_ind in probVec[c]:
+                    o_ind = o + str(ind)
+                    ind = ind + 1
+                # each row in mat should correspond to a single data point
+                mat = np.squeeze(evidence['relEvidence'][idx_o,:,:])
+                probVec[c][o_ind] = locationLearner.getProbabilityFromEvidence(mat,o,c)
             try:
-                probVec[c] = dict()
-                for idx_o in range(evidence['relEvidence'].shape[0]): # for each (observed) large object
-                    o = evidence['names'][idx_o]
-                    # each row in mat should correspond to a single data point
-                    mat = np.squeeze(evidence['relEvidence'][idx_o,:,:])
-                    probVec[c][o] = locationLearner.getProbabilityFromEvidence(mat,o,c)
                 # Compute the mean of the pairwise probabilities
                 probVec[c]['mean'] = np.sum(probVec[c].values(),0)/len(probVec[c].values())
-            except KeyError:
-                print 'Nonexistent class!'
+            except ZeroDivisionError:
+                #observed large objects are apparently not in dataset
                 # make a uniform distribution
                 size = evidence['absEvidence'].shape[1]
                 probVec[c]['mean'] = 1/size * np.ones((1,size))
@@ -202,6 +269,7 @@ class LocationEvaluator(Evaluator):
         # sort the point cloud by decreasing probability
         probs = probVec['mean']
         ind = probs.argsort()
+        probs = probs[:,ind]
         locVec = locVec[:,ind]
         
         # list of candidate points
@@ -219,7 +287,7 @@ class LocationEvaluator(Evaluator):
             # Check which candidate points are in range of ground truth
             # objects            
             for cand in candidatePoints:
-                dist = (cand.pos * np.ones((3,n))) - truePos
+                dist = (cand.pos[:,np.newaxis] * np.ones((3,n))) - truePos
                 cand.inrange = (sum(dist * dist) < (maxDistance * maxDistance))
         
         return candidatePoints

@@ -102,7 +102,7 @@ classdef LocationEvaluator<Evaluation.Evaluator
                         probVec.(targetClasses{c})(o,:)=locationLearner.getProbabilityFromEvidence(squeeze(evidence.relEvi(o,:,:)),evidence.names{o},targetClasses{c});
                     catch tmpError
                         if any(strcmpi(tmpError.identifier,{'MATLAB:nonExistentField','MATLAB:nonStrucReference'}))
-                            goodObjects(o)=false;
+                            goodObjects(o)=false;	
                         else
                             tmpError.rethrow();
                         end

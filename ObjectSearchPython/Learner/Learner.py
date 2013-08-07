@@ -16,10 +16,6 @@ class Learner(object):
     Defines a few commonalities between the learner classes.
     '''
     
-    # the minimum number of samples needed to compute BIC and
-    # choose optimal number of components
-    # otherwise set n_components = 1 
-    minSamples = 20
 
     def __init__(self,evidenceGenerator):
         '''
@@ -46,6 +42,7 @@ class ContinuousGMMLearner(Learner):
     
     maxComponents = 5
     splitSize = 3
+    minSample = np.ceil(maxComponents * splitSize / (splitSize - 1))
     savefile = 'GMMmodels'
     
     def learn(self, dataStr):
@@ -57,19 +54,23 @@ class ContinuousGMMLearner(Learner):
         try:
             f = open(self.savefile, 'r')
             print 'GMM Models have already been learned.'
+            print 'You can find a brief summary in the gmm text file'
+            stdout = sys.stdout  #keep a handle on the real standard output
             sys.stdout = open('gmm.txt', 'w')
             self.model = pickle.load(f)
             print 'Brief summary of the GMM Models:'
             for key,mixture in self.model.iteritems():
                 print 'Learned parameters for the class pair:', key
-                print 'Number of components:', mixture.clf.n_components
+                print 'Number of components:', mixture.CLF.n_components
                 print 'Number of samples:', mixture.numSamples 
                 print 'Weights:'
-                print mixture.clf.weights_
+                print mixture.CLF.weights_
                 print 'Means:'
-                print mixture.clf.means_
+                print mixture.CLF.means_
                 print 'Covariances:'
-                print mixture.clf.covars_
+                print mixture.CLF.covars_
+            #restore std output
+            sys.stdout = stdout
             
         except IOError:
             print 'Learning GMM Models ...'
@@ -81,9 +82,9 @@ class ContinuousGMMLearner(Learner):
             for key,val in samples.iteritems():
                 # compute the gmm 
                 # if key does not include unknowns 
-                if not 'unknown' in key:
+                if not 'unknown' in key and len(val) is not 0:
                     clf = self.doGMM(val)
-                    mixture = Mixture(clf, val)
+                    mixture = Mixture(clf, len(val))
                     # save it
                     print "Learned parameters for the class pair:", key
                     self.model[key] = mixture
@@ -112,7 +113,7 @@ class ContinuousGMMLearner(Learner):
         TODO: use Dirichlet process instead of BIC score.
         '''
         
-        if len(samples) >= self.minSamples:
+        if len(samples) > self.minSample:
             # Split the dataset into 3 parts, 
             # use 2 parts for training and 1 for testing        
             randomInd = np.random.permutation(range(samples.shape[0]))
@@ -140,13 +141,17 @@ class ContinuousGMMLearner(Learner):
         
             # find the lowest cost
             kOPT = score.argmin() + 1
+            # train model with optimal component size
+            clf = mixture.GMM(n_components = kOPT, covariance_type = 'full')
+            clf.fit(samples)
         else:
-            # TODO: make a smoother transition
-            kOPT = 1
-            
-        # train model with optimal component size
-        clf = mixture.GMM(n_components = kOPT, covariance_type = 'full')
-        clf.fit(samples)
+            kOPT = np.min([len(samples), self.maxComponents]) 
+            # initialize model without doing EM
+            clf = mixture.GMM(n_components = kOPT, n_iter = 0, init_params = 'wm')
+            # skipping (diagonal) covariance initialization
+            shape =  (kOPT, 2)
+            clf._set_covars(self.infs(shape))
+            clf.fit(samples)
         
         # return the learned model
         return clf
@@ -157,7 +162,7 @@ class ContinuousGMMLearner(Learner):
         TODO: check to see if it works!
         '''
         
-        return np.exp(self.model[(fromClass, toClass)].score(evidence))
+        return np.exp(self.model[(fromClass, toClass)].CLF.score(evidence))
     
     def evaluateModelComplexity(self, trainSet, testSet, k):
         '''
@@ -179,6 +184,16 @@ class ContinuousGMMLearner(Learner):
         bic = clf.bic(testSet)
         
         return bic
+    
+    def infs(self, shape, dtype=float):
+        '''
+        Utility method that returns an array of inf values.
+        TODO: Put this in a utility package.
+        '''
+        
+        mat = np.empty(shape, dtype)
+        mat.fill(np.inf)
+        return mat
     
 class Mixture(object):
     '''

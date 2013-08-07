@@ -89,15 +89,14 @@ class LocationEvidenceGenerator(EvidenceGenerator):
         
         objs = dataStr.loadObjectMAT(image)
         names = dataStr.getNamesOfObjects(objs)
+        pos = self.getPositionEvidence(objs)
         classesLarge = dataStr.getLargeClassNames()
         
         evidence = dict()
         evidence['names'] = list()
-        
-        pos = self.getPositionEvidence(objs)
-        
         idx = list()
-        # TODO: does the indexing work ? think of a better way perhaps!
+        
+        # TODO: think of a better way!
         for i, c in enumerate(names):
             if c in classesLarge:
                 idx.append(i)
@@ -105,7 +104,7 @@ class LocationEvidenceGenerator(EvidenceGenerator):
                 
         # positions of large objects
         objPos = np.zeros((3,len(idx)))          
-        for i, val in idx:
+        for i, val in enumerate(idx):
             objPos[:,i] = pos[:,val]
         
         evidence['absEvidence'] = self.getPositionForImage(dataStr, image)
@@ -160,7 +159,7 @@ class CylindricalEvidenceGenerator(LocationEvidenceGenerator):
         for d in range(3):
             vec = targetPos[d,:]
             mat = vec[:,np.newaxis] - sourcePos[d,:]
-            dist[:,:,d] = mat
+            dist[:,:,d] = mat.transpose()
         
         evidence[:,:,0] = np.sqrt(dist[:,:,1]**2 + dist[:,:,2]**2)
         evidence[:,:,1] = dist[:,:,0]

@@ -131,7 +131,7 @@ class DataStructure(object):
         Loads the depth mat file associated with the particular image
         as a 2D numpy array (matrix)
         '''
-        filename = self.path + self.depthFolder + image['depthname']
+        filename = self.path + self.depthFolder + str(image['depthname'])
         try:
             mat = sio.loadmat(filename, squeeze_me = True)
         except IOError:
@@ -165,23 +165,23 @@ class DataStructure(object):
         # Get the pixel indices
         depthSizeX = depthImage.shape[0]
         depthSizeY = depthImage.shape[1]
-        nX = np.arange(1,depthSizeX)
-        nY = np.arange(1,depthSizeY)
+        nX = np.arange(1,depthSizeX+1)
+        nY = np.arange(1,depthSizeY+1)
         X,Y = np.meshgrid(nX, nY)
         # total number of elements
         numTot = np.size(X)        
         
         # Generate 2D homogeneous coordinates
-        # TODO: check to see if it produces right answer!
-        pos = np.vstack((nX.ravel(), nY.ravel(), np.ones((1,numTot))))
+        pos = np.vstack((X.ravel(), Y.ravel(), np.ones((numTot,))))
+        # bug with lapack 
+        pos.newbyteorder('=')
         
         # Get the calibration matrix
-        calibM = image.calib
+        calibM = image['calib'].newbyteorder('=')
         
         # Apply calibration matrix to get normalized 2D coordinates
-        pos = np.linalg.lstsq(calibM, pos)
+        pos = np.linalg.lstsq(calibM, pos)[0]
         
-        # TODO: check to see if it produces right answer!
         # Scale every dimension by the depth to get 3D
         for d in range(3):
             pos[d,:] = pos[d,:] * depthImage.transpose().ravel()

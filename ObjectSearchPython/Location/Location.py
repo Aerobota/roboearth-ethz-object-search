@@ -43,7 +43,9 @@ dataTest.loadDataMAT()
 ## LEARN PROBABILITIES
 locGMM.learn(dataTrain)
 
-## EVALUATE TEST IMAGES
+## EVALUATE ON ALL TEST IMAGES
+imageNum = 20
+#evalBase.displayResultsForImage(dataTest,imageNum,locGMM)
 
-#print "Evaluating test images..."
-#resultCylindricGMM = evalBase.evaluate(dataTest,locGMM)
+## EVALUATE ON ONE IMAGE
+evalBase.evaluateOneImage(dataTest,imageNum,locGMM,maxDistances[2],evalMethod[1])

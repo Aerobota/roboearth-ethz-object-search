@@ -40,26 +40,24 @@ class FROCLocationEvaluator(LocationEvaluationMethod):
         result = ResultFROC()
         
         # only the first detections are true detections (true pos.)
-        pts = candidatePoints.copy()
+        pts = list(candidatePoints)
         # TODO: find a better way to implement!
         for i,pt in enumerate(pts):
             # find the column indices that are true
-            # those column indices will be false in future rows
+            # those column indices will be false in future columns
             for j in range(i+1,len(pts)):
                 pts[j].inrange[pt.inrange] = False
             
         # save the number of true positives
+        # save the probability of the candidate points
         result.tp = []
+        result.pointProb = []
         for pt in pts:
             result.tp.append(sum(pt.inrange))
-        
-        # save the probability of the candidate points
-        result.pointProb = []
-        for candPt in candidatePoints:
-            result.pointProb.append(candPt.prob)
+            result.pointProb.append(pt.prob)
         
         # save the number of ground-truth sought objects
-        result.pos = len(candidatePoints[0])
+        result.pos = len(candidatePoints[0].inrange)
         
         return result
     
@@ -67,6 +65,7 @@ class FROCLocationEvaluator(LocationEvaluationMethod):
         '''
         Combines the results collected by scoreClass method.
         '''
+        pass #TODO:
 
 
 class FirstNLocationEvaluator(LocationEvaluationMethod):
@@ -89,7 +88,7 @@ class FirstNLocationEvaluator(LocationEvaluationMethod):
         result = float('Inf')
         for i,candidatePoint in enumerate(candidatePoints):
             if any(candidatePoint.inrange):
-                result = i
+                result = i + 1
                 break               
                 
         return result
@@ -102,11 +101,8 @@ class FirstNLocationEvaluator(LocationEvaluationMethod):
         TODO: is it correct? Unlike MATLAB, no way to concatenate 
         variable number of arguments [MATLAB uses cells to do this].
         '''
+        pass #TODO:
         
-        # modify collectedResults inot an numpy array
-        
-        for c in classesSmall:
-            pass
 
 
 class ResultFROC(object):

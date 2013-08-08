@@ -12,6 +12,7 @@ class EvidenceGenerator(object):
     Abstract base class
     This base class exists only for structure. 
     '''
+    largeObjectDefinitionsFile = 'largeObjectDefinitions.txt'
 
     def __init__(self):
         '''
@@ -112,7 +113,18 @@ class LocationEvidenceGenerator(EvidenceGenerator):
         
         return evidence
     
-    def getEvidenceForSemMap(self, semMap):
+    def loadLargeObjectDefinitions(self):
+        ''' 
+        Loads large objects.
+        '''
+        f = open(self.largeObjectDefinitionsFile, 'r')
+        largeClasses = f.readlines()
+        
+        #first line is comment
+        return largeClasses[1:]
+            
+        
+    def getEvidenceForSemMap(self,semMap,pcloud):
         '''
         Produces relative location evidence for all pixels in a
         single semantic map.
@@ -120,34 +132,31 @@ class LocationEvidenceGenerator(EvidenceGenerator):
         
         SEMMAP is the semantic map received.
         
-        EVIDENCE is a dictionary with three keys:
+        EVIDENCE is a dictionary with two keys:
         'names': the class names of the observed objects
-        'absEvidence': the 3D-location of every pixel
         'relEvidence': the relative location from every observed object
         to every pixel
         '''  
         
         objs = semMap.objects
-        names = dataStr.getNamesOfObjects(objs)
-        pos = self.getPositionEvidence(objs)
-        classesLarge = dataStr.getLargeClassNames()
+        classesLarge = self.loadLargeObjectDefinitions()
         
         evidence = dict()
         evidence['names'] = list()
         idx = list()
         
-        for i, c in enumerate(names):
-            if c in classesLarge:
+        # get the types of objects in the semantic map
+        for i, c in enumerate(objs):
+            if c.type in classesLarge:
                 idx.append(i)
-                evidence['names'].append(c)
+                evidence['names'].append(c.type)
                 
         # positions of large objects
         objPos = np.zeros((3,len(idx)))          
         for i, val in enumerate(idx):
-            objPos[:,i] = pos[:,val]
+            objPos[:,i] = np.array(objs[val].loc)
         
-        evidence['absEvidence'] = self.getPositionForImage(dataStr, image)
-        evidence['relEvidence'] = self.getRelativeEvidence(objPos, evidence['absEvidence'])
+        evidence['relEvidence'] = self.getRelativeEvidence(objPos, pcloud)
         
         return evidence
             

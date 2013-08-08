@@ -8,17 +8,16 @@ TODO:
 1. Build a dictionary relating object classes to definitions in knowrob.url
 2. Receive a semantic map and parse it.
 3. Infer the location of searched object (candidatePoints)
-4. Send the most likely location back.
+4. Send the most likely location(s) back.
 
 '''
 
-#!/usr/bin/env python
-from . import SemMap
-from . import SemMapObject
+from SemanticMap.SemMap import SemMap, SemMapObject
 from Learner import EvidenceGenerator, Learner
 from Evaluator import Evaluator
+from DataHandler import DataStructure
  
-# Create a semantic map
+## Create a semantic map
 print 'Creating a basic semantic map...'
 semMap = SemMap()
 semMap.header.frame_id = "http://www.example.com/foo.owl#"
@@ -40,11 +39,22 @@ semMap.objects.append(obj1)
 #small objects to query for
 smallObj = ['bottle']
 
+#point cloud locations
+#make do with any image point cloud for now 
+sourceFolder = "/home/okan/roboearth-ethz-object-search/"
+datasetPath = sourceFolder + "Dataset/Images/"
+dataTest = DataStructure.NYUDataStructure(datasetPath, "test")
+dataTest.loadDataMAT()
+image = dataTest.data[0]
+pcloud = dataTest.get3DPositionForImage(image)
+
 # load the pickled GMM Models
 locCylinder = EvidenceGenerator.CylindricalEvidenceGenerator()
 locGMM = Learner.ContinuousGMMLearner(locCylinder)
 locGMM.load()
 
-# Query for candidate points        
+## Query for candidate points        
 maxDist = 1.5
-candPoints = Evaluator.infer(semMap,smallObj,locGMM,maxDist)
+evalBase = Evaluator.LocationEvaluator(maxDist,[])
+candPoints = evalBase.infer(semMap,pcloud,smallObj,locGMM,maxDist)
+print candPoints

@@ -1,0 +1,26 @@
+# Here we have a one-to-one mapping between large objects and their RoboEarth definitions
+bed 
+blinds 
+bookshelf 
+cabinet 
+ceiling 
+chair 
+counter 
+curtain 
+desk 
+door
+dresser 
+floor 
+garbageBin 
+light 
+mirror 
+nightStand 
+plant 
+screen 
+shelves 
+sink
+sofa 
+table 
+television 
+wall 
+window

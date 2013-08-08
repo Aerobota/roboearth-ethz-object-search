@@ -85,6 +85,8 @@ class DataStructure(object):
         '''
         Returns the large class names as a numpy array of 
         unicode strings.
+        
+        TODO: Static methods should be used sparingly!
         '''
         if len(self.classes) is 0:
             self.loadClassesMAT()

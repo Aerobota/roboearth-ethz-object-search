@@ -71,7 +71,7 @@ class LocationEvaluator(Evaluator):
     the two static methods PROBABILITYVECTOR and GETCANDIDATEPOINTS.
     '''
     
-    def infer(self,semMap,smallObjects,locationLearner,maxDistance):
+    def infer(self,semMap,pcloud,smallObjects,locationLearner,maxDistance):
         '''
         This method infers the location of queried objects SMALLOBJECTS
         using SEMMAP. SMALLOBJECTS is a list of small object strings.
@@ -86,12 +86,12 @@ class LocationEvaluator(Evaluator):
         candidatePoints = dict()
         # Get the probability distributions over the scenes'
         # point cloud and the location of each point in the cloud.
-        probVec, locVec = self.probabilitiesForSemMap(semMap, locationLearner, smallObjects)
+        probVec = self.probabilitiesForSemMap(semMap,pcloud,locationLearner,smallObjects)
     
         for c in smallObjects.iterkeys(): # for each small object
             print "Generating candidate points for object", c
             # generate candidate points and evaluate them
-            candidatePoints = self.getCandidatePoints(probVec[c], locVec, maxDistance)
+            candidatePoints = self.getCandidatePoints(probVec[c],pcloud,maxDistance)
             
         return candidatePoints
     
@@ -197,14 +197,16 @@ class LocationEvaluator(Evaluator):
         
         return smallObjects
     
-    def probabilitiesForSemMap(self, semMap, locationLearner, smallObjects):
+    def probabilitiesForSemMap(self,semMap,pcloud,locationLearner,smallObjects):
         '''
-        [PROBVEC,LOCVEC] = PROBABILITIESFORSEMMAP(SEMMAP,LOCLEARNER,SMALLOBJ)
+        PROBVEC = PROBABILITIESFORSEMMAP(SEMMAP,LOCLEARNER,SMALLOBJ)
         Returns the probability of each point in the scenes point
-        cloud and the position of each point.
+        cloud.
         
         SEMMAP is an implementation of a SemMap structure containing
         SemMapObject list.
+        
+        PCLOUD is a 3xn numpy array containing the positions of the point cloud.
         
         LOCATIONLEARNER is an implementation of a Learner.LocationLearner.
         
@@ -214,12 +216,9 @@ class LocationEvaluator(Evaluator):
         with keys same as SMALLOBJECTS and OBSERVED OBJECTS
         where every entry is a vector of probabilities for every point in the cloud.
         
-        LOCVEC is a 3xn numpy array where each column is the 3D-position of
-        a point of the cloud.
-        
         '''
         
-        evidence = locationLearner.evidenceGenerator.getEvidenceForSemMap(semMap)
+        evidence = locationLearner.evidenceGenerator.getEvidenceForSemMap(semMap,pcloud)
         
         probVec = dict()
         # For each (small object) class and observed object 
@@ -244,13 +243,10 @@ class LocationEvaluator(Evaluator):
             except ZeroDivisionError:
                 #observed large objects are apparently not in dataset
                 # make a uniform distribution
-                size = evidence['absEvidence'].shape[1]
+                size = pcloud.shape[1]
                 probVec[c]['mean'] = 1/size * np.ones((1,size))
-            
-        
-        # the absolute locations were returned with the evidence dictionary
-        locVec = evidence['absEvidence']        
-        return probVec, locVec
+                    
+        return probVec
     
     def probabilitiesForImage(self, data, image, locationLearner, smallObjects):
         '''

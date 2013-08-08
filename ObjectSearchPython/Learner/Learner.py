@@ -56,6 +56,7 @@ class ContinuousGMMLearner(Learner):
         except IOError:
             print 'GMM Models have not been learned.'
             print 'Please run Location.py script to learn location models.'
+            raise
     
     def learn(self, dataStr):
         '''

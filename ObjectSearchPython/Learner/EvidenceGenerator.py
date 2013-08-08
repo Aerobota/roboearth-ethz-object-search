@@ -111,6 +111,45 @@ class LocationEvidenceGenerator(EvidenceGenerator):
         evidence['relEvidence'] = self.getRelativeEvidence(objPos, evidence['absEvidence'])
         
         return evidence
+    
+    def getEvidenceForSemMap(self, semMap):
+        '''
+        Produces relative location evidence for all pixels in a
+        single semantic map.
+        Observed objects: Large classes
+        
+        SEMMAP is the semantic map received.
+        
+        EVIDENCE is a dictionary with three keys:
+        'names': the class names of the observed objects
+        'absEvidence': the 3D-location of every pixel
+        'relEvidence': the relative location from every observed object
+        to every pixel
+        '''  
+        
+        objs = semMap.objects
+        names = dataStr.getNamesOfObjects(objs)
+        pos = self.getPositionEvidence(objs)
+        classesLarge = dataStr.getLargeClassNames()
+        
+        evidence = dict()
+        evidence['names'] = list()
+        idx = list()
+        
+        for i, c in enumerate(names):
+            if c in classesLarge:
+                idx.append(i)
+                evidence['names'].append(c)
+                
+        # positions of large objects
+        objPos = np.zeros((3,len(idx)))          
+        for i, val in enumerate(idx):
+            objPos[:,i] = pos[:,val]
+        
+        evidence['absEvidence'] = self.getPositionForImage(dataStr, image)
+        evidence['relEvidence'] = self.getRelativeEvidence(objPos, evidence['absEvidence'])
+        
+        return evidence
             
 class CylindricalEvidenceGenerator(LocationEvidenceGenerator):
     '''

@@ -45,6 +45,18 @@ class ContinuousGMMLearner(Learner):
     minSample = np.ceil(maxComponents * splitSize / (splitSize - 1))
     savefile = 'GMMmodels'
     
+    def load(self):
+        '''
+        Loads the GMM models.
+        '''
+        try:
+            f = open(self.savefile, 'r')
+            print 'GMM Models have already been learned.'
+            self.model = pickle.load(f)
+        except IOError:
+            print 'GMM Models have not been learned.'
+            print 'Please run Location.py script to learn location models.'
+    
     def learn(self, dataStr):
         '''
         Learns the GMM probabilities.

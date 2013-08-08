@@ -71,6 +71,30 @@ class LocationEvaluator(Evaluator):
     the two static methods PROBABILITYVECTOR and GETCANDIDATEPOINTS.
     '''
     
+    def infer(self,semMap,smallObjects,locationLearner,maxDistance):
+        '''
+        This method infers the location of queried objects SMALLOBJECTS
+        using SEMMAP. SMALLOBJECTS is a list of small object strings.
+        
+        Receives the pickled GMM models.
+        
+        Returns a dictionary CANDIDATEPOINTS
+        which has small objects as keys and list of CANDIDATEPOINT structures
+        as values.
+        '''
+        
+        candidatePoints = dict()
+        # Get the probability distributions over the scenes'
+        # point cloud and the location of each point in the cloud.
+        probVec, locVec = self.probabilitiesForSemMap(semMap, locationLearner, smallObjects)
+    
+        for c in smallObjects.iterkeys(): # for each small object
+            print "Generating candidate points for object", c
+            # generate candidate points and evaluate them
+            candidatePoints = self.getCandidatePoints(probVec[c], locVec, maxDistance)
+            
+        return candidatePoints
+    
     def evaluateOneImage(self,testData,imageNum,locationLearner,maxDistance,method):
         '''
         This method evaluates LOCATIONLEARNER on ONE IMAGE using
@@ -89,13 +113,14 @@ class LocationEvaluator(Evaluator):
         if len(smallObjects) != 0:
             # Get the probability distributions over the scenes'
             # point cloud and the location of each point in the cloud.
-            probVec, locVec = self.probabilityVector(testData, image, locationLearner, smallObjects)
+            probVec, locVec = self.probabilitiesForImage(testData, image, locationLearner, smallObjects)
             for c in smallObjects.iterkeys(): # for each small object
                 print "Generating candidate points for object", c
                 # matrix of column stacked 3d positions
                 truePos = locationLearner.evidenceGenerator.getPositionEvidence(smallObjects[c])
                 # generate candidate points and evaluate them
-                candidatePoints = self.getCandidatePoints(probVec[c], locVec, truePos, maxDistance)
+                candidatePoints = self.getCandidatePoints(probVec[c], locVec, maxDistance)
+                candidatePoints = self.evaluateCandidatePoints(truePos, candidatePoints, maxDistance)
                 results[c] = method.scoreClass(candidatePoints)
         
         print 'Displaying search task results'
@@ -134,13 +159,14 @@ class LocationEvaluator(Evaluator):
                     if len(smallObjects) != 0:
                         # Get the probability distributions over the scenes'
                         # point cloud and the location of each point in the cloud.
-                        probVec, locVec = self.probabilityVector(testData, image, locationLearner, smallObjects)
+                        probVec, locVec = self.probabilitiesForImage(testData, image, locationLearner, smallObjects)
                         for c in smallObjects.iterkeys(): # for each small object
                             print "Generating candidate points for object", c
                             # matrix of column stacked 3d positions
                             truePos = locationLearner.evidenceGenerator.getPositionEvidence(smallObjects[c])
                             # generate candidate points and evaluate them
-                            candidatePoints = self.getCandidatePoints(probVec[c], locVec, truePos, maxDistance)
+                            candidatePoints = self.getCandidatePoints(probVec[c], locVec, maxDistance)
+                            candidatePoints = self.evaluateCandidatePoints(truePos, candidatePoints, maxDistance)
                             results[method][maxDistance][image][c] = method.scoreClass(candidatePoints)
                             
         return results
@@ -171,9 +197,64 @@ class LocationEvaluator(Evaluator):
         
         return smallObjects
     
-    def probabilityVector(self, data, image, locationLearner, smallObjects):
+    def probabilitiesForSemMap(self, semMap, locationLearner, smallObjects):
         '''
-        [PROBVEC,LOCVEC] = PROBABILITYVECTOR(DATA,IMAGE,LOCLEARNER,SMALLOBJ)
+        [PROBVEC,LOCVEC] = PROBABILITIESFORSEMMAP(SEMMAP,LOCLEARNER,SMALLOBJ)
+        Returns the probability of each point in the scenes point
+        cloud and the position of each point.
+        
+        SEMMAP is an implementation of a SemMap structure containing
+        SemMapObject list.
+        
+        LOCATIONLEARNER is an implementation of a Learner.LocationLearner.
+        
+        SMALLOBJECTS is a list of small objects queried for.
+        
+        PROBVEC is a dictionary of dictionaries 
+        with keys same as SMALLOBJECTS and OBSERVED OBJECTS
+        where every entry is a vector of probabilities for every point in the cloud.
+        
+        LOCVEC is a 3xn numpy array where each column is the 3D-position of
+        a point of the cloud.
+        
+        '''
+        
+        evidence = locationLearner.evidenceGenerator.getEvidenceForSemMap(semMap)
+        
+        probVec = dict()
+        # For each (small object) class and observed object 
+        # compute the pairwise probability
+        for c in smallObjects.iterkeys(): # for each small object
+            probVec[c] = dict()
+            # for each (observed) large object
+            for idx_o in range(evidence['relEvidence'].shape[0]): 
+                o = evidence['names'][idx_o]
+                if o == 'unknown': continue
+                # make sure object has unique identifier
+                ind = 1; o_ind = o
+                while o_ind in probVec[c]:
+                    o_ind = o + str(ind)
+                    ind = ind + 1
+                # each row in mat should correspond to a single data point
+                mat = np.squeeze(evidence['relEvidence'][idx_o,:,:])
+                probVec[c][o_ind] = locationLearner.getProbabilityFromEvidence(mat,o,c)
+            try:
+                # Compute the mean of the pairwise probabilities
+                probVec[c]['mean'] = np.sum(probVec[c].values(),0)/len(probVec[c].values())
+            except ZeroDivisionError:
+                #observed large objects are apparently not in dataset
+                # make a uniform distribution
+                size = evidence['absEvidence'].shape[1]
+                probVec[c]['mean'] = 1/size * np.ones((1,size))
+            
+        
+        # the absolute locations were returned with the evidence dictionary
+        locVec = evidence['absEvidence']        
+        return probVec, locVec
+    
+    def probabilitiesForImage(self, data, image, locationLearner, smallObjects):
+        '''
+        [PROBVEC,LOCVEC] = PROBABILITIESFORIMAGE(DATA,IMAGE,LOCLEARNER,SMALLOBJ)
         Returns the probability of each point in the scenes point
         cloud and the position of each point.
         
@@ -230,20 +311,16 @@ class LocationEvaluator(Evaluator):
         locVec = evidence['absEvidence']        
         return probVec, locVec
       
-    def getCandidatePoints(self, probVec, locVec, truePos, maxDistance):
+    def getCandidatePoints(self, probVec, locVec, maxDistance):
         '''
         [INRANGE,CANDIDATEPROB,CANDIDATEPOINTS]=GETCANDIDATEPOINTS(PROBVEC,LOCVEC,TRUEPOS,MAXDISTANCE)
-        Generates candidatePoints and computes if they are inside a
-        maximal distance to any groundtruth object of the correct
-        class.
+        Generates candidatePoints.
         
         PROBVEC is a single field(i.e. class) from the struct returned
         by Evaluator.LocationEvaluator.probabilityVector.
         
         LOCVEC is the array of the same name returned as well by 
         Evaluator.LocationEvaluator.probabilityVector.
-        
-        TRUEPOS is the real 3D-location of the ground truth objects.
         
         MAXDISTANCE is the scalar maximum distance in metres that a
         candidate point can have to a ground truth object and be
@@ -253,6 +330,7 @@ class LocationEvaluator(Evaluator):
         
         INRANGE is a boolean n-vector that denotes if candidate
         point m is inside MAXDISTANCE to ground truth object n.
+        This will be evaluated in the EVALUATECANDIDATEPOINTS method.
         
         CANDIDATEPROB denotes the probability of each
         candidate point.
@@ -260,8 +338,7 @@ class LocationEvaluator(Evaluator):
         CANDIDATEPOS is a 3-vector showing position of the candidate point
         
         See also EVALUATOR.LOCATIONEVALUATOR.PROBABILITYVECTOR
-        
-        TODO: check to see if it works!
+
         @attention: Unlike MATLAB code, here running a for loop to 
         calculate range for candidate points
         '''
@@ -282,6 +359,23 @@ class LocationEvaluator(Evaluator):
             # Remove all cloud points in range of the new point
             probs, locVec = self.removeCoveredPoints(probs, locVec, newCand, maxDistance)
         
+        return candidatePoints
+    
+    def evaluateCandidatePoints(self, truePos, candidatePoints, maxDistance):
+        '''
+        Evaluates candidate points.
+        Computes if they are inside a maximal distance to any groundtruth 
+        object of the correct class.
+        
+        TRUEPOS is the real 3D-location of the ground truth objects.
+        
+        MAXDISTANCE is the scalar maximum distance in metres that a
+        candidate point can have to a ground truth object and be
+        counted as inRange.
+        
+        Returns candidate points that have inrange fields evaluated.
+        '''
+        
         if truePos.shape[1] is not 0:
             n = truePos.shape[1]
             # Check which candidate points are in range of ground truth
@@ -289,7 +383,7 @@ class LocationEvaluator(Evaluator):
             for cand in candidatePoints:
                 dist = (cand.pos[:,np.newaxis] * np.ones((3,n))) - truePos
                 cand.inrange = (sum(dist * dist) < (maxDistance * maxDistance))
-        
+                
         return candidatePoints
           
     def removeCoveredPoints(self, probVec, locVec, candPoint, maxDistance):

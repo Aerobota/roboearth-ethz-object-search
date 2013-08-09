@@ -118,7 +118,7 @@ class LocationEvidenceGenerator(EvidenceGenerator):
         Loads large objects.
         '''
         f = open(self.largeObjectDefinitionsFile, 'r')
-        largeClasses = f.readlines()
+        largeClasses = f.read().splitlines()
         
         #first line is comment
         return largeClasses[1:]

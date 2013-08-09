@@ -88,7 +88,7 @@ class LocationEvaluator(Evaluator):
         # point cloud and the location of each point in the cloud.
         probVec = self.probabilitiesForSemMap(semMap,pcloud,locationLearner,smallObjects)
     
-        for c in smallObjects.iterkeys(): # for each small object
+        for c in smallObjects: # for each small object
             print "Generating candidate points for object", c
             # generate candidate points and evaluate them
             candidatePoints = self.getCandidatePoints(probVec[c],pcloud,maxDistance)
@@ -223,7 +223,7 @@ class LocationEvaluator(Evaluator):
         probVec = dict()
         # For each (small object) class and observed object 
         # compute the pairwise probability
-        for c in smallObjects.iterkeys(): # for each small object
+        for c in smallObjects: # for each small object
             probVec[c] = dict()
             # for each (observed) large object
             for idx_o in range(evidence['relEvidence'].shape[0]): 

@@ -57,4 +57,6 @@ locGMM.load()
 maxDist = 1.5
 evalBase = Evaluator.LocationEvaluator(maxDist,[])
 candPoints = evalBase.infer(semMap,pcloud,smallObj,locGMM,maxDist)
-print candPoints
+# print candidate point locations
+for candPoint in candPoints:
+    print 'Location for candidate point:', candPoint.pos

@@ -51,7 +51,7 @@ class ContinuousGMMLearner(Learner):
         '''
         try:
             f = open(self.savefile, 'r')
-            print 'GMM Models have already been learned.'
+            print 'Loading GMM Models...'
             self.model = pickle.load(f)
         except IOError:
             print 'GMM Models have not been learned.'

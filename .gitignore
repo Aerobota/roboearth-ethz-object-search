@@ -6,8 +6,11 @@ tmp*
 #ignore hidden files
 .*
 
+#except git config file
+!.gitignore
+
 #ignore folders
 Dataset/*
 
-#exception files
-!.gitignore
+#ignore compiled Python files
+*.pyc

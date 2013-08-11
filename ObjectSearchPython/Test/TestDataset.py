@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Created on May 14, 2013
 
@@ -15,7 +16,7 @@ from DataHandler import DataStructure
 
 #maximum distances d_max
 #inside which the location predictor gets a positive score
-maxDistances = (0.25,0.5,1,1.5)
+maxDistances = (0.25, 0.5, 1, 1.5)
 
 #set evaluation methods
 evalMethod = (Methods.FROCLocationEvaluator(), Methods.FirstNLocationEvaluator())
@@ -32,7 +33,7 @@ dataTrain = DataStructure.NYUDataStructure(datasetPath, "train")
 dataTest = DataStructure.NYUDataStructure(datasetPath, "test")
 locCylinder = EvidenceGenerator.CylindricalEvidenceGenerator()
 locGMM = Learner.ContinuousGMMLearner(locCylinder)
-evalBase = Evaluator.LocationEvaluator(maxDistances,evalMethod)
+evalBase = Evaluator.LocationEvaluator(maxDistances, evalMethod)
 
 ## LOAD DATA
 
@@ -48,4 +49,4 @@ imageNum = 20
 #evalBase.displayResultsForImage(dataTest,imageNum,locGMM)
 
 ## EVALUATE ON ONE IMAGE
-evalBase.evaluateOneImage(dataTest,imageNum,locGMM,maxDistances[2],evalMethod[1])
+evalBase.evaluateOneImage(dataTest, imageNum, locGMM, maxDistances[2], evalMethod[1])

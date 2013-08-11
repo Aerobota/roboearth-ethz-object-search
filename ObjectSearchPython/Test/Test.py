@@ -1,16 +1,15 @@
+#!/usr/bin/env python
 '''
 Created on May 15, 2013
 
 @author: okankoc
 '''
 
-#!/usr/bin/env python
- 
 import roslib; roslib.load_manifest('json_prolog')
- 
+
 import rospy
 import json_prolog
- 
+
 if __name__ == '__main__':
     try:
         rospy.init_node('test_json_prolog')
@@ -21,4 +20,3 @@ if __name__ == '__main__':
         query.finish()
     except rospy.ROSInterruptException:
             pass
-    

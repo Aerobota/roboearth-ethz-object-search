@@ -8,15 +8,13 @@ This scenario investigates the use of inference in learned models.
 TODO:
 1. Build a dictionary relating object classes to definitions in knowrob.url
 2. Receive a semantic map and parse it.
-3. Infer the location of searched object (candidatePoints)
-4. Send the most likely location(s) back.
+3. Integrate with ROS.
 
 '''
 
-from SemanticMap.SemMap import SemMap, SemMapObject
+from SemanticMap.SemMap import SemMap, SemMapObject, SmallObject
 from Learner import EvidenceGenerator, Learner
 from Evaluator import Evaluator
-from DataHandler import DataStructure
 
 ## Create a semantic map
 print 'Creating a basic semantic map...'
@@ -34,30 +32,43 @@ obj1.depth = 1
 obj1.width = 1
 obj1.height = 1
 
+#create object - bed
+obj2 = SemMapObject()
+obj2.id = 1
+obj2.partOf = 0
+obj2.type = 'bed'
+obj2.loc = [0.5, 0.5, 0.5]
+obj2.depth = 1
+obj2.width = 1
+obj2.height = 1
+
+
 obj1.pose = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+obj2.pose = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
 semMap.objects.append(obj1)
+semMap.objects.append(obj2)
 
 #small objects to query for
-smallObj = ['bottle']
+smallObjs = []
+smallObjs.append(SmallObject('bottle'))
 
-#point cloud locations
-#make do with any image point cloud for now
-sourceFolder = "/home/okan/roboearth-ethz-object-search/"
-datasetPath = sourceFolder + "Dataset/Images/"
-dataTest = DataStructure.NYUDataStructure(datasetPath, "test")
-dataTest.loadDataMAT()
-image = dataTest.data[0]
-pcloud = dataTest.get3DPositionForImage(image)
+## Query for candidate points
+maxDist = 1.0
+# the amount by which the mesh is stretched
+stretch = 0.5
+# fineness of the grid, in terms of meters
+gridResolution = 0.05 
+
+# TODO: make sure the whole dataset is learned
 
 # load the pickled GMM Models
-locCylinder = EvidenceGenerator.CylindricalEvidenceGenerator()
+locCylinder = EvidenceGenerator.CylindricalEvidenceGenerator(stretch,gridResolution)
 locGMM = Learner.ContinuousGMMLearner(locCylinder)
 locGMM.load()
 
-## Query for candidate points
-maxDist = 1.5
 evalBase = Evaluator.LocationEvaluator(maxDist, [])
-candPoints = evalBase.infer(semMap, pcloud, smallObj, locGMM, maxDist)
+candPoints = evalBase.infer(semMap, smallObjs, locGMM, maxDist)
+
 # print candidate point locations
 for candPoint in candPoints:
     print 'Location for candidate point:', candPoint.pos

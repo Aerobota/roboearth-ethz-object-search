@@ -1,4 +1,9 @@
-import numpy as np
+'''
+Created on Aug 07, 2013
+Class for the semantic map containing objects.
+
+@author: okan
+'''
 
 class SemMap(object):
     '''
@@ -43,3 +48,23 @@ class SemMapObject(object):
         self.height = 0
 
         self.pose = [1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0]
+        
+class SmallObject(object):
+    '''
+    Temporary class for a small object queried for.
+    In the case of learning from one sample scenario, 
+    the location field has to be specified also.
+    
+    '''
+    
+    def __init__(self, name, loc = None):
+        '''
+        Initializes fields of the smallObject.
+        '''
+        
+        self.type = name
+        if loc is not None:
+            # set also the location
+            self.loc = loc
+            
+            

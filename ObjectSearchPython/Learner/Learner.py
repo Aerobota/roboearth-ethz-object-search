@@ -106,6 +106,38 @@ class ContinuousGMMLearner(Learner):
             f = open(self.savefile, 'w')
             pickle.dump(self.model, f)
             f.close()
+            
+    def learnFromOneSample(self, semMap, smallObject):
+        '''
+        This is a method which implements the scenario where the locations
+        of an unknown small object and a known large object pair are 
+        received and the task is to store their mean distance along with the
+        previously learned models.
+         
+        '''
+                
+        # get names for the large objects
+        objs = semMap.objects
+        for c in objs:
+            largeName = c.type
+            # for each large object learn one sample-model
+            key = (largeName, smallObject.type)
+            if key not in self.model:
+                # learn from one sample and add it to model dictionary
+                    val = []
+                    dist = smallObject.loc - c.loc
+                    cylDistance = [np.sqrt(dist[1]**2 + dist[2]**2), dist[0]]
+                    val.append(cylDistance)
+                    clf = self.doGMM(val)
+                    mixture = Mixture(clf, 1)
+                    # save it
+                    print "Learned mean from one example for pair:", key
+                    self.model[key] = mixture
+            
+            # pickle the dictionary of GMM models
+            f = open(self.savefile, 'w')
+            pickle.dump(self.model, f)
+            f.close()
         
     def doGMM(self, samples):
         '''
@@ -172,7 +204,6 @@ class ContinuousGMMLearner(Learner):
     def getProbabilityFromEvidence(self, evidence, fromClass, toClass):
         '''
         Returns the learned probabilities (PDF) between the two classes.
-        TODO: check to see if it works!
         '''
         
         return np.exp(self.model[(fromClass, toClass)].CLF.score(evidence))

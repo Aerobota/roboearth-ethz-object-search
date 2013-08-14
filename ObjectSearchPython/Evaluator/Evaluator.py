@@ -22,10 +22,12 @@ class Evaluator(object):
         Constructor. 
         @attention: Unlike MATLAB version, used to set the maximum distances d_max
         and the evaluation methods.
+        
         '''
         #maximum distances d_max
         #inside which the location predictor gets a positive score
         self.maxDistances = maxDistList
+        #evaluation method
         self.evalMethod = evaluationMethod
              
     def evaluateAndDisplayResults(self,testData,locationLearner):
@@ -71,7 +73,7 @@ class LocationEvaluator(Evaluator):
     the two static methods PROBABILITYVECTOR and GETCANDIDATEPOINTS.
     '''
     
-    def infer(self,semMap,pcloud,smallObjects,locationLearner,maxDistance):
+    def infer(self,semMap,smallObjects,locationLearner,maxDistance):
         '''
         This method infers the location of queried objects SMALLOBJECTS
         using SEMMAP. SMALLOBJECTS is a list of small object strings.
@@ -86,12 +88,12 @@ class LocationEvaluator(Evaluator):
         candidatePoints = dict()
         # Get the probability distributions over the scenes'
         # point cloud and the location of each point in the cloud.
-        probVec = self.probabilitiesForSemMap(semMap,pcloud,locationLearner,smallObjects)
+        probVec, locVec = self.probabilitiesForSemMap(semMap,locationLearner,smallObjects)
     
         for c in smallObjects: # for each small object
-            print "Generating candidate points for object", c
+            print "Generating candidate points for object", c.type
             # generate candidate points and evaluate them
-            candidatePoints = self.getCandidatePoints(probVec[c],pcloud,maxDistance)
+            candidatePoints = self.getCandidatePoints(probVec[c.type],locVec,maxDistance)
             
         return candidatePoints
     
@@ -179,6 +181,8 @@ class LocationEvaluator(Evaluator):
         
         Save all objects of the small classes in smallObjects
         as a dictionary of small classes.
+        
+        TODO: merge with SmallObject class perhaps?
         '''
         
         classesSmall = testData.getSmallClassNames()
@@ -197,16 +201,19 @@ class LocationEvaluator(Evaluator):
         
         return smallObjects
     
-    def probabilitiesForSemMap(self,semMap,pcloud,locationLearner,smallObjects):
+    
+    def probabilitiesForSemMap(self,semMap,locationLearner,smallObjects):
         '''
-        PROBVEC = PROBABILITIESFORSEMMAP(SEMMAP,LOCLEARNER,SMALLOBJ)
-        Returns the probability of each point in the scenes point
+        [PROBVEC,LOCVEC] = PROBABILITIESFORSEMMAP(SEMMAP,LOCLEARNER,SMALLOBJ)
+        Returns the probability and position of each point in the scenes point
         cloud.
+        
+        The scene's point cloud is just the box containing the locations
+        of the large objects pushed further by a certain threshold EPSILON.
+        These are fields of the class originally set by the constructor.
         
         SEMMAP is an implementation of a SemMap structure containing
         SemMapObject list.
-        
-        PCLOUD is a 3xn numpy array containing the positions of the point cloud.
         
         LOCATIONLEARNER is an implementation of a Learner.LocationLearner.
         
@@ -216,15 +223,18 @@ class LocationEvaluator(Evaluator):
         with keys same as SMALLOBJECTS and OBSERVED OBJECTS
         where every entry is a vector of probabilities for every point in the cloud.
         
+        LOCVEC is a 3xn numpy array where each column is the 3D-position of
+        a point of the cloud.
+        
         '''
         
-        evidence = locationLearner.evidenceGenerator.getEvidenceForSemMap(semMap,pcloud)
+        evidence = locationLearner.evidenceGenerator.getEvidenceForSemMap(semMap)
         
         probVec = dict()
         # For each (small object) class and observed object 
         # compute the pairwise probability
         for c in smallObjects: # for each small object
-            probVec[c] = dict()
+            probVec[c.type] = dict()
             # for each (observed) large object
             for idx_o in range(evidence['relEvidence'].shape[0]): 
                 o = evidence['names'][idx_o]
@@ -236,17 +246,20 @@ class LocationEvaluator(Evaluator):
                     ind = ind + 1
                 # each row in mat should correspond to a single data point
                 mat = np.squeeze(evidence['relEvidence'][idx_o,:,:])
-                probVec[c][o_ind] = locationLearner.getProbabilityFromEvidence(mat,o,c)
+                probVec[c.type][o_ind] = locationLearner.getProbabilityFromEvidence(mat,o,c.type)
             try:
                 # Compute the mean of the pairwise probabilities
-                probVec[c]['mean'] = np.sum(probVec[c].values(),0)/len(probVec[c].values())
+                probVec[c.type]['mean'] = np.sum(probVec[c.type].values(),0)/len(probVec[c.type].values())
             except ZeroDivisionError:
                 #observed large objects are apparently not in dataset
                 # make a uniform distribution
-                size = pcloud.shape[1]
-                probVec[c]['mean'] = 1/size * np.ones((1,size))
+                size = evidence['absEvidence'].shape[1]
+                probVec[c.type]['mean'] = 1/size * np.ones((1,size))
+                
+        # the absolute locations were returned with the evidence dictionary
+        locVec = evidence['absEvidence']      
                     
-        return probVec
+        return probVec, locVec
     
     def probabilitiesForImage(self, data, image, locationLearner, smallObjects):
         '''

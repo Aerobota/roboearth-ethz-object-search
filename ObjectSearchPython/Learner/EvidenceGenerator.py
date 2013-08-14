@@ -6,6 +6,7 @@ Created on May 14, 2013
 '''
 
 import numpy as np
+from SemanticMap.Box import Box 
 
 class EvidenceGenerator(object):
     '''
@@ -14,11 +15,14 @@ class EvidenceGenerator(object):
     '''
     largeObjectDefinitionsFile = 'largeObjectDefinitions.txt'
 
-    def __init__(self):
+    def __init__(self,epsilon,delta):
         '''
-        Doesn't do anything.
+        @change: Adding also initialization for epsilon and delta fields here.
+        Epsilon and delta are used for the mesh-generation of the semantic map's
+        point cloud.
         '''
-        pass
+        self.epsilon = epsilon
+        self.delta = delta
         
 class LocationEvidenceGenerator(EvidenceGenerator):
     '''
@@ -122,18 +126,40 @@ class LocationEvidenceGenerator(EvidenceGenerator):
         
         #first line is comment
         return largeClasses[1:]
+    
+    def generateMeshForPointCloud(self, objPos, semMap):
+        '''
+        Generates a mesh for the partial point cloud of the semantic map
+        SEMMAP for which evidence was collected through large objects.
+        
+        OBJPOS is the 3d-positions of the large objects in the scene.
+        
+        Generates a box surrounding the large objects where the edges are 
+        at least EPSILON meters away from the objects vertices. The mesh is 
+        equidistant points inside this cube, each point DELTA away from 
+        each other.
+
+        '''
+        
+        mins = objPos.min(axis = 1) - self.epsilon
+        maxs = objPos.max(axis = 1) + self.epsilon
+        
+        box = Box(mins, maxs, self.delta)
+        
+        return box.getMesh()
             
         
-    def getEvidenceForSemMap(self,semMap,pcloud):
+    def getEvidenceForSemMap(self,semMap,mesh):
         '''
-        Produces relative location evidence for all pixels in a
-        single semantic map.
+        Produces relative location evidence for the mesh generated for
+        the semantic map.
         Observed objects: Large classes
         
         SEMMAP is the semantic map received.
         
         EVIDENCE is a dictionary with two keys:
         'names': the class names of the observed objects
+        'absEvidence': the 3D-location of the mesh generated
         'relEvidence': the relative location from every observed object
         to every pixel
         '''  
@@ -156,7 +182,8 @@ class LocationEvidenceGenerator(EvidenceGenerator):
         for i, val in enumerate(idx):
             objPos[:,i] = np.array(objs[val].loc)
         
-        evidence['relEvidence'] = self.getRelativeEvidence(objPos, pcloud)
+        evidence['absEvidence'] = self.generateMeshForPointCloud(objPos, semMap)
+        evidence['relEvidence'] = self.getRelativeEvidence(objPos, evidence['absEvidence'])
         
         return evidence
             

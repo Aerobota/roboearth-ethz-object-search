@@ -19,7 +19,8 @@ class LocationEvaluationMethod(object):
         Constructor. Doesn't do anything.
         '''
         pass
-        
+
+
 class FROCLocationEvaluator(LocationEvaluationMethod):
     '''
     Free-Response Receiver Operating Characteristic
@@ -29,25 +30,25 @@ class FROCLocationEvaluator(LocationEvaluationMethod):
     LOCATIONEVALUATOR.
     '''
     designation = 'FROC'
-    
+
     def scoreClass(self, candidatePoints):
         '''
-        CandidatePoints is a list of CandidatePoint structure.        
+        CandidatePoints is a list of CandidatePoint structure.
         Saves the results and returns as a results structure.
-        
+
         '''
-        
+
         result = ResultFROC()
-        
+
         # only the first detections are true detections (true pos.)
         pts = list(candidatePoints)
         # TODO: find a better way to implement!
-        for i,pt in enumerate(pts):
+        for i, pt in enumerate(pts):
             # find the column indices that are true
             # those column indices will be false in future columns
-            for j in range(i+1,len(pts)):
+            for j in range(i + 1, len(pts)):
                 pts[j].inrange[pt.inrange] = False
-            
+
         # save the number of true positives
         # save the probability of the candidate points
         result.tp = []
@@ -55,12 +56,12 @@ class FROCLocationEvaluator(LocationEvaluationMethod):
         for pt in pts:
             result.tp.append(sum(pt.inrange))
             result.pointProb.append(pt.prob)
-        
+
         # save the number of ground-truth sought objects
         result.pos = len(candidatePoints[0].inrange)
-        
+
         return result
-    
+
     def combineResults(self, collectedResults, classesSmall):
         '''
         Combines the results collected by scoreClass method.
@@ -76,33 +77,32 @@ class FirstNLocationEvaluator(LocationEvaluationMethod):
     conjunction with the LOCATIONEVALUATOR.
     '''
     designation = 'FirstN'
-    
+
     def scoreClass(self, candidatePoints):
         '''
         Candidate points is a list of CandidatePoint structure.
-        
+
         Returns results as an integer.
         '''
-        
-        # Get the index of the first candidate point that is in range        
+
+        # Get the index of the first candidate point that is in range
         result = float('Inf')
-        for i,candidatePoint in enumerate(candidatePoints):
+        for i, candidatePoint in enumerate(candidatePoints):
             if any(candidatePoint.inrange):
                 result = i + 1
-                break               
-                
+                break
+
         return result
-    
+
     def combineResults(self, collectedResults, classesSmall):
         '''
         For every class, finds all unique data points and makes a
         count of the occurrence of each data point
-        
-        TODO: is it correct? Unlike MATLAB, no way to concatenate 
+
+        TODO: is it correct? Unlike MATLAB, no way to concatenate
         variable number of arguments [MATLAB uses cells to do this].
         '''
         pass #TODO:
-        
 
 
 class ResultFROC(object):
@@ -110,11 +110,11 @@ class ResultFROC(object):
     Used to represent the structure that is returned
     by scoreClass in FROCLocationEvaluator class.
     '''
-    
+
     def __init__(self):
-        
+
         self.pos = False # number of ground truth sought objects
         self.neg = True
         self.pointProb = list() # probability of candidate point
-        self.tp = list() #True positives   
+        self.tp = list() #True positives
         self.names = list() # small classes sought for

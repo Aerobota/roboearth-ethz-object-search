@@ -22,9 +22,9 @@ class Box(object):
         Delta: Distance between each point in grid.
         '''
         
-        x = np.arange(mins[0],maxs[0],delta)
-        y = np.arange(mins[1],maxs[1],delta)
-        z = np.arange(mins[2],maxs[2],delta)
+        x = np.arange(mins[0],maxs[0] + delta,delta)
+        y = np.arange(mins[1],maxs[1] + delta,delta)
+        z = np.arange(mins[2],maxs[2] + delta,delta)
         
         self._mesh = self.cartesian([x,y,z])
         

@@ -14,9 +14,9 @@ from Evaluator import Evaluator
 
 ## Create a semantic map
 print 'Creating a basic semantic map...'
-semMap = SemMap()
-semMap.header.frame_id = "http://www.example.com/foo.owl#"
-semMap.header.stamp = 0
+semMap1 = SemMap()
+semMap1.header.frame_id = "http://www.example.com/foo.owl#"
+semMap1.header.stamp = 0
 
 #create object - cabinet
 obj1 = SemMapObject()
@@ -29,11 +29,11 @@ obj1.width = 1
 obj1.height = 1
 
 obj1.pose = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
-semMap.objects.append(obj1)
+semMap1.objects.append(obj1)
 
 #small object to learn model of
 smallObjs = []
-smallObjs.append(SmallObject('serial box'), [0.5, 0.4, 0.3])
+smallObjs.append(SmallObject('serial box', [0.5, 0.4, 0.3]))
 
 maxDist = 1.0
 # the amount by which the mesh is stretched
@@ -44,8 +44,8 @@ gridResolution = 0.05
 # load the pickled GMM Models
 locCylinder = EvidenceGenerator.CylindricalEvidenceGenerator(stretch,gridResolution)
 locGMM = Learner.ContinuousGMMLearner(locCylinder)
-locGMM.load()
-locGMM.learnFromOneSample(semMap, smallObjs)
+locGMM.load('GMMFull')
+locGMM.learnFromOneSample(semMap1, smallObjs, 'GMMFull')
 
 ## Create a second semantic map
 print 'Testing on a second semantic map'
@@ -64,15 +64,18 @@ obj1.width = 1
 obj1.height = 1
 
 obj1.pose = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
-semMap.objects.append(obj1)
+semMap2.objects.append(obj1)
 
 #small object to query for
 smallObjs = []
 smallObjs.append(SmallObject('serial box'))
 
 evalBase = Evaluator.LocationEvaluator(maxDist, [])
-candPoints = evalBase.infer(semMap, smallObjs, locGMM, maxDist)
+candPoints = evalBase.infer(semMap2, smallObjs, locGMM, maxDist)
 
 # print candidate point locations
-for candPoint in candPoints:
-    print 'Location for candidate point:', candPoint.pos
+for smallObj, points in candPoints.iteritems():
+    print 'Querying for object:', smallObj.type
+    for candPoint in points:
+        print 'Location for candidate point:', candPoint.pos
+    print ''

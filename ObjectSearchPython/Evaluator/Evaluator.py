@@ -93,7 +93,7 @@ class LocationEvaluator(Evaluator):
         for c in smallObjects: # for each small object
             print "Generating candidate points for object", c.type
             # generate candidate points and evaluate them
-            candidatePoints = self.getCandidatePoints(probVec[c.type],locVec,maxDistance)
+            candidatePoints[c] = self.getCandidatePoints(probVec[c.type],locVec,maxDistance)
             
         return candidatePoints
     
@@ -241,7 +241,7 @@ class LocationEvaluator(Evaluator):
                 if o == 'unknown': continue
                 # make sure object has unique identifier
                 ind = 1; o_ind = o
-                while o_ind in probVec[c]:
+                while o_ind in probVec[c.type]:
                     o_ind = o + str(ind)
                     ind = ind + 1
                 # each row in mat should correspond to a single data point

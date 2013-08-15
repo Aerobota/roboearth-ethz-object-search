@@ -43,29 +43,29 @@ class ContinuousGMMLearner(Learner):
     maxComponents = 5
     splitSize = 3
     minSample = np.ceil(maxComponents * splitSize / (splitSize - 1))
-    savefile = 'GMMmodels'
     
-    def load(self):
+    def load(self, savefile):
         '''
         Loads the GMM models.
         '''
         try:
-            f = open(self.savefile, 'r')
+            f = open(savefile, 'r')
             print 'Loading GMM Models...'
             self.model = pickle.load(f)
         except IOError:
             print 'GMM Models have not been learned.'
-            print 'Please run Location.py script to learn location models.'
+            print 'Or you provided the wrong savefile name.'
+            print 'Please run LearnModels.py script to learn location models.'
             raise
     
-    def learn(self, dataStr):
+    def learnBatch(self, dataStr, savefile):
         '''
         Learns the GMM probabilities.
         Loads the model if it exists otherwise runs the learning process.
         '''
         
         try:
-            f = open(self.savefile, 'r')
+            f = open(savefile, 'r')
             print 'GMM Models have already been learned.'
             print 'You can find a brief summary in the gmm text file'
             stdout = sys.stdout  #keep a handle on the real standard output
@@ -90,7 +90,6 @@ class ContinuousGMMLearner(Learner):
             
             #Get the relative location samples (dictionary)
             samples = self.evidenceGenerator.getEvidence(dataStr)
-            classes = dataStr.getClassNames()
             
             for key,val in samples.iteritems():
                 # compute the gmm 
@@ -103,29 +102,80 @@ class ContinuousGMMLearner(Learner):
                     self.model[key] = mixture
             
             # pickle the dictionary of GMM models
-            f = open(self.savefile, 'w')
+            f = open(savefile, 'w')
+            pickle.dump(self.model, f)
+            f.close()
+    
+    def learnBatchFull(self, dataStrTrain, dataStrTest, savefile):
+        '''
+        Learns the GMM probabilities from BOTH Datastructures.
+        Loads the model if it exists otherwise runs the learning process.
+        '''
+        
+        try:
+            f = open(savefile, 'r')
+            print 'GMM Models have already been learned.'
+            print 'You can find a brief summary in the gmm text file'
+            stdout = sys.stdout  #keep a handle on the real standard output
+            sys.stdout = open('gmm.txt', 'w')
+            self.model = pickle.load(f)
+            print 'Brief summary of the GMM Models:'
+            for key,mixture in self.model.iteritems():
+                print 'Learned parameters for the class pair:', key
+                print 'Number of components:', mixture.CLF.n_components
+                print 'Number of samples:', mixture.numSamples 
+                print 'Weights:'
+                print mixture.CLF.weights_
+                print 'Means:'
+                print mixture.CLF.means_
+                print 'Covariances:'
+                print mixture.CLF.covars_
+            #restore std output
+            sys.stdout = stdout
+            
+        except IOError:
+            print 'Learning GMM Models ...'
+            
+            #Get the relative location samples (dictionary)
+            samples = self.evidenceGenerator.getFullEvidence(dataStrTrain, dataStrTest)
+            
+            for key,val in samples.iteritems():
+                # compute the gmm 
+                # if key does not include unknowns 
+                if not 'unknown' in key and len(val) is not 0:
+                    clf = self.doGMM(val)
+                    mixture = Mixture(clf, len(val))
+                    # save it
+                    print "Learned parameters for the class pair:", key
+                    self.model[key] = mixture
+            
+            # pickle the dictionary of GMM models
+            f = open(savefile, 'w')
             pickle.dump(self.model, f)
             f.close()
             
-    def learnFromOneSample(self, semMap, smallObject):
+    def learnFromOneSample(self, semMap, smallObjects, savefile):
         '''
         This is a method which implements the scenario where the locations
-        of an unknown small object and a known large object pair are 
-        received and the task is to store their mean distance along with the
-        previously learned models.
-         
+        of pairs of unknown small objects and known/unknown large object 
+        pairs are received and the task is to store their mean distance 
+        along with the previously learned models.
+        
         '''
                 
         # get names for the large objects
-        objs = semMap.objects
-        for c in objs:
-            largeName = c.type
-            # for each large object learn one sample-model
-            key = (largeName, smallObject.type)
-            if key not in self.model:
-                # learn from one sample and add it to model dictionary
+        largeObjects = semMap.objects
+        # flag for pickling
+        flag_pickle = False
+        
+        for largeObj in largeObjects:
+            largeName = largeObj.type
+            for smallObj in smallObjects:
+                key = (largeName, smallObj.type)
+                if key not in self.model:
+                    # learn from one sample and add it to model dictionary
                     val = []
-                    dist = smallObject.loc - c.loc
+                    dist = np.asarray(smallObj.loc) - np.asarray(largeObj.loc)
                     cylDistance = [np.sqrt(dist[1]**2 + dist[2]**2), dist[0]]
                     val.append(cylDistance)
                     clf = self.doGMM(val)
@@ -133,16 +183,19 @@ class ContinuousGMMLearner(Learner):
                     # save it
                     print "Learned mean from one example for pair:", key
                     self.model[key] = mixture
-            
+                    flag_pickle = True
+          
+        if flag_pickle:  
             # pickle the dictionary of GMM models
-            f = open(self.savefile, 'w')
+            f = open(savefile, 'w')
             pickle.dump(self.model, f)
             f.close()
         
     def doGMM(self, samples):
         '''
         Learns the GMM probabilities for the particular class pair i,j
-        with samples containing distance information as a list of 2-d vectors
+        with samples containing distance information as a 
+        list of 2-d vectors
         
         Learning is done with EM algorithm.
         Number of components is determined with the BIC-score.
@@ -190,12 +243,17 @@ class ContinuousGMMLearner(Learner):
             clf = mixture.GMM(n_components = kOPT, covariance_type = 'full')
             clf.fit(samples)
         else:
-            kOPT = np.min([len(samples), self.maxComponents]) 
+            kOPT = 1
             # initialize model without doing EM
-            clf = mixture.GMM(n_components = kOPT, n_iter = 0, init_params = 'wm')
-            # skipping (diagonal) covariance initialization
-            shape =  (kOPT, 2)
-            clf._set_covars(self.infs(shape))
+            clf = mixture.GMM(n_components = kOPT, covariance_type = 'diag')
+            
+            # if sample size is 1 we have to make up 2 more samples
+            # very close to the original data point
+            if len(samples) == 1:
+                eps = 0.001
+                samples = np.vstack((samples, samples[0,:]-eps, samples[0,:]+eps))
+                
+            
             clf.fit(samples)
         
         # return the learned model
@@ -229,20 +287,12 @@ class ContinuousGMMLearner(Learner):
         
         return bic
     
-    def infs(self, shape, dtype=float):
-        '''
-        Utility method that returns an array of inf values.
-        TODO: Put this in a utility package.
-        '''
-        
-        mat = np.empty(shape, dtype)
-        mat.fill(np.inf)
-        return mat
-    
 class Mixture(object):
     '''
     Wrapper for the CLF learned GMM model using the ML scikit-learn toolkit.
     Adds number of samples as a field, which is useful to indicate unsafe inferences.
+    
+    TODO: implement particular pickle method with __getstate__, __setstate__
     '''
 
     numSamples = 0

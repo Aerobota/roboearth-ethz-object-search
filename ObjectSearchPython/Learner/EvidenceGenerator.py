@@ -75,6 +75,54 @@ class LocationEvidenceGenerator(EvidenceGenerator):
         
         return evidence 
     
+    def getFullEvidence(self, dataStr1, dataStr2):
+        '''
+        Produces relative location evidence from both TRAINING
+        and TEST datasets. It's a last minute solution to learning
+        from both datasets.
+        
+        DATASTR is a DATAHANDLER.DATASTRUCTURE class instance
+        containing the location data.
+        
+        RETURNS: EVIDENCE is a dictionary where EVIDENCE[(object_i,object_j)] 
+        contains the samples from class i to class j. 
+        The format of the samples depends on the implementation of 
+        GETRELATIVEEVIDENCE in the derived class.
+        '''
+        
+        # numpy array of unicode strings (class names)
+        classes = dataStr1.getClassNames()
+        
+        # declare evidence as dictionary 
+        # where keys are the object pairs
+        evidence = {}
+        # initialize evidence entries to hold numpy arrays
+        for i in range(len(classes)):
+            for j in range(len(classes)):
+                #TODO: not recommended for numpy!
+                evidence[(str(classes[i]), str(classes[j]))] = np.zeros((0,2)) 
+        
+        # go through each room scanning for evidence
+        dataStrs = [dataStr1, dataStr2]
+        for dataStr in dataStrs:
+            for image in dataStr.data:
+                objs = dataStr.loadObjectMAT(image)
+                pos = self.getPositionEvidence(objs) 
+                relEvidence = self.getRelativeEvidence(pos,pos)
+                names = dataStr.getNamesOfObjects(objs)
+                
+                #storing also the distance of small-small and large-large object occurrences       
+                for i in range(len(names)):
+                    for j in range(len(names)):
+                        try:
+                            evidence[(names[i], names[j])] = \
+                            np.vstack((evidence[(names[i], names[j])],relEvidence[i,j,:]))
+                        except KeyError:
+                            print 'This should not happen!'
+                            raise
+        
+        return evidence 
+    
     def getEvidenceForImage(self, dataStr, image):
         '''
         Produces relative location evidence for all pixels in a
@@ -149,7 +197,7 @@ class LocationEvidenceGenerator(EvidenceGenerator):
         return box.getMesh()
             
         
-    def getEvidenceForSemMap(self,semMap,mesh):
+    def getEvidenceForSemMap(self,semMap):
         '''
         Produces relative location evidence for the mesh generated for
         the semantic map.

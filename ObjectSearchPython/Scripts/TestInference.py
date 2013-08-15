@@ -59,16 +59,17 @@ stretch = 0.5
 # fineness of the grid, in terms of meters
 gridResolution = 0.05 
 
-# TODO: make sure the whole dataset is learned
-
 # load the pickled GMM Models
 locCylinder = EvidenceGenerator.CylindricalEvidenceGenerator(stretch,gridResolution)
 locGMM = Learner.ContinuousGMMLearner(locCylinder)
-locGMM.load()
+locGMM.load('GMMFull')
 
 evalBase = Evaluator.LocationEvaluator(maxDist, [])
 candPoints = evalBase.infer(semMap, smallObjs, locGMM, maxDist)
 
 # print candidate point locations
-for candPoint in candPoints:
-    print 'Location for candidate point:', candPoint.pos
+for smallObj, points in candPoints.iteritems():
+    print 'Querying for object:', smallObj.type
+    for candPoint in points:
+        print 'Location for candidate point:', candPoint.pos
+    print ''

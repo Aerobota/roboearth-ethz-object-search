@@ -42,7 +42,7 @@ dataTrain.loadDataMAT()
 dataTest.loadDataMAT()
 
 ## LEARN PROBABILITIES
-locGMM.learn(dataTrain)
+locGMM.learnBatch(dataTrain, 'GMMTraining')
 
 ## EVALUATE ON ALL TEST IMAGES
 imageNum = 20

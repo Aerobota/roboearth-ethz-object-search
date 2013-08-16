@@ -10,7 +10,8 @@ import roslib; roslib.load_manifest('json_prolog')
 import rospy
 import json_prolog
 
-if __name__ == '__main__':
+
+def main():
     try:
         rospy.init_node('test_json_prolog')
         prolog = json_prolog.Prolog()
@@ -20,3 +21,7 @@ if __name__ == '__main__':
         query.finish()
     except rospy.ROSInterruptException:
             pass
+
+
+if __name__ == '__main__':
+    main()

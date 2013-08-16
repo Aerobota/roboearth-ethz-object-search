@@ -1,0 +1,18 @@
+<package>
+  <description brief="ethz_object_search">
+
+     ethz_object_search
+
+  </description>
+  <author>Dominique Hunziker</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/ethz_object_search</url>
+
+  <depend package="rospy"/>
+
+  <depend package="mod_semantic_map"/>
+
+</package>
+
+
